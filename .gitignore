@@ -1,0 +1,12 @@
+# Web UI
+client/node_modules/
+
+# AI Server
+server/node_modules/
+server/__pycache__/
+server/venv/
+server/faiss_db
+server/.env
+server/routes/__pycache__/
+server/services/__pycache__/
+server/uploads/
