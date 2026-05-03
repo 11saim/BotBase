@@ -206,6 +206,24 @@
     font-family: var(--font-ui);
   }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]):not([data-disabled]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  [role="button"][data-disabled],
+  input[type="button"]:disabled,
+  input[type="submit"]:disabled,
+  input[type="reset"]:disabled {
+    cursor: not-allowed;
+  }
+
   input, textarea {
     font-family: var(--font-ui);
   }

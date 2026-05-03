@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { Sparkles, Zap, Shield, Globe, ArrowRight, MessageSquare, BarChart, Lock } from 'lucide-react';
+import { Sparkles, Zap, Shield, Globe, ArrowRight, MessageSquare, BarChart, Lock, Check } from 'lucide-react';
 import { ChatbotWidget } from '../components/ChatbotWidget';
 
 export function NewLandingPage() {
@@ -229,6 +229,94 @@ export function NewLandingPage() {
                 {i < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-gray-300 to-transparent" />
                 )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="inline-block px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold mb-4">
+              SIMPLE PRICING
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4">Choose a plan that scales with you</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Start free and upgrade when your chatbot traffic grows.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                name: 'Starter',
+                price: '$0',
+                period: '/mo',
+                description: 'Perfect for trying botbase.ai',
+                cta: 'Start Free',
+                popular: false,
+                features: ['1 bot', '500 messages/month', 'Basic analytics', 'Community support'],
+              },
+              {
+                name: 'Pro',
+                price: '$19',
+                period: '/mo',
+                description: 'For growing products and teams',
+                cta: 'Choose Pro',
+                popular: true,
+                features: ['10 bots', '10,000 messages/month', 'Advanced analytics', 'Priority support', 'Custom branding'],
+              },
+              {
+                name: 'Business',
+                price: '$49',
+                period: '/mo',
+                description: 'For high-volume and complex use cases',
+                cta: 'Choose Business',
+                popular: false,
+                features: ['Unlimited bots', '50,000 messages/month', 'API access', 'Team collaboration', 'White-label widget'],
+              },
+            ].map((plan, i) => (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className={`relative rounded-3xl p-8 transition-all ${plan.popular ? 'border-2 border-black shadow-2xl bg-white' : 'border border-gray-200 shadow-lg bg-gray-50/40'}`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black text-white text-xs font-semibold tracking-wide">
+                    MOST POPULAR
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold">{plan.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                </div>
+
+                <div className="flex items-end gap-1 mb-6">
+                  <span className="text-5xl font-bold">{plan.price}</span>
+                  <span className="text-gray-500 mb-1">{plan.period}</span>
+                </div>
+
+                <Link
+                  to="/register"
+                  className={`w-full inline-flex items-center justify-center rounded-xl px-4 py-3 font-semibold transition-colors ${plan.popular ? 'bg-black text-white hover:bg-gray-900' : 'bg-white text-black border border-gray-300 hover:border-black'}`}
+                >
+                  {plan.cta}
+                </Link>
+
+                <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-3 text-sm text-gray-700">
+                      <Check size={16} className="text-green-600 shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             ))}
           </div>
