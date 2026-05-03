@@ -1,13 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { Sparkles, Zap, Shield, Globe, ArrowRight, MessageSquare, BarChart, Lock, Check } from 'lucide-react';
+import { Sparkles, Zap, Shield, Globe, ArrowRight, MessageSquare, BarChart, Check, Menu, X } from 'lucide-react';
 import { ChatbotWidget } from '../components/ChatbotWidget';
 
 export function NewLandingPage() {
   const [scrollY, setScrollY] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const NAV_OFFSET = 88;
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+      window.scrollTo({ top: Math.max(0, sectionTop), behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -38,38 +48,89 @@ export function NewLandingPage() {
             </Link>
 
             {/* Nav Items */}
-            <div className="hidden md:flex items-center gap-1 bg-gray-50 rounded-xl p-1">
+            <div className="max-[840.98px]:hidden min-[841px]:flex items-center gap-1 bg-gray-50 rounded-xl p-1">
               {[
-                { label: 'Features', icon: Zap },
-                { label: 'Pricing', icon: BarChart },
-                { label: 'Security', icon: Lock },
-                { label: 'Customers', icon: Globe },
+                { label: 'Features', icon: Zap, id: 'features' },
+                { label: 'How It Works', icon: MessageSquare, id: 'how-it-works' },
+                { label: 'Pricing', icon: BarChart, id: 'pricing' },
               ].map((item) => (
-                <a
+                <button
                   key={item.label}
-                  href={`#${item.label.toLowerCase()}`}
+                  type="button"
+                  onClick={() => scrollToSection(item.id)}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-black hover:bg-white transition-all"
                 >
                   <item.icon size={14} />
                   {item.label}
-                </a>
+                </button>
               ))}
             </div>
 
             {/* CTA */}
             <div className="flex items-center gap-3">
-              <Link to="/login" className="hidden sm:block text-sm font-medium px-4 py-2 text-gray-600 hover:text-black transition-colors">
+              <Link to="/login" className="max-[840.98px]:hidden text-sm font-medium px-4 py-2 text-gray-600 hover:text-black transition-colors">
                 Sign in
               </Link>
               <Link
                 to="/register"
-                className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-gray-900 transition-all hover:gap-3 group"
+                className="max-[840.98px]:hidden items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium hover:bg-gray-900 transition-all hover:gap-3 group min-[841px]:flex"
               >
                 Start Free
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
+              <button
+                type="button"
+                className="min-[841px]:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={mobileMenuOpen}
+              >
+                {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
             </div>
           </div>
+
+          {mobileMenuOpen && (
+            <div className="min-[841px]:hidden mt-3 rounded-2xl border border-black/10 bg-white/95 backdrop-blur-xl p-3 shadow-xl">
+              <div className="grid gap-1">
+                {[
+                  { label: 'Features', icon: Zap, id: 'features' },
+                  { label: 'How It Works', icon: MessageSquare, id: 'how-it-works' },
+                  { label: 'Pricing', icon: BarChart, id: 'pricing' },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      scrollToSection(item.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-100 transition-all"
+                  >
+                    <item.icon size={14} />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-gray-200 grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  className="text-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/register"
+                  className="text-center px-3 py-2 rounded-lg text-sm font-medium bg-black text-white hover:bg-gray-900 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Start Free
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -157,7 +218,7 @@ export function NewLandingPage() {
           </motion.div>
 
           {/* Floating Feature Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-20">
+          <div id="features" className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-20 scroll-mt-28">
             {[
               { icon: Zap, title: 'Deploy in 60s', desc: 'From upload to live' },
               { icon: Shield, title: 'Enterprise Ready', desc: 'SOC 2 compliant' },
@@ -183,7 +244,7 @@ export function NewLandingPage() {
       </section>
 
       {/* Interactive Demo Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-4">
@@ -323,33 +384,6 @@ export function NewLandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black text-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '10K+', label: 'Active Users' },
-              { value: '1M+', label: 'Messages/Day' },
-              { value: '99.9%', label: 'Uptime' },
-              { value: '<100ms', label: 'Response Time' },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-gray-400">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
         <div className="absolute inset-0">
@@ -386,6 +420,68 @@ export function NewLandingPage() {
           <p className="text-sm text-gray-500 mt-6">No credit card required • Free forever plan</p>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-[#050505] text-white px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
+            <div className="lg:col-span-5">
+              <Link to="/" className="inline-flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-gray-300 text-black flex items-center justify-center">
+                  <Sparkles size={16} />
+                </div>
+                <span className="font-semibold text-lg">botbase.ai</span>
+              </Link>
+              <p className="text-gray-400 max-w-md">
+                Build and ship AI chatbots from your docs in minutes. Fast setup, rich analytics, and production-ready embeds.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link to="/register" className="px-4 py-2 rounded-xl bg-white text-black text-sm font-semibold hover:bg-gray-200 transition-colors">
+                  Start Free
+                </Link>
+                <Link to="/login" className="px-4 py-2 rounded-xl border border-white/20 text-sm font-semibold hover:border-white/40 transition-colors">
+                  Sign In
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-white">Product</h4>
+                <div className="space-y-2 text-sm text-gray-400">
+                  <button type="button" onClick={() => scrollToSection('features')} className="block hover:text-white transition-colors">Features</button>
+                  <button type="button" onClick={() => scrollToSection('how-it-works')} className="block hover:text-white transition-colors">How It Works</button>
+                  <button type="button" onClick={() => scrollToSection('pricing')} className="block hover:text-white transition-colors">Pricing</button>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-white">Company</h4>
+                <div className="space-y-2 text-sm text-gray-400">
+                  <a href="#" className="block hover:text-white transition-colors">About</a>
+                  <a href="#" className="block hover:text-white transition-colors">Contact</a>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-white">Why Teams Pick Us</h4>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div className="flex items-start gap-2"><span className="text-emerald-300 mt-0.5">✓</span><span>Launch in 60s</span></div>
+                  <div className="flex items-start gap-2"><span className="text-emerald-300 mt-0.5">✓</span><span>No-code embed</span></div>
+                  <div className="flex items-start gap-2"><span className="text-emerald-300 mt-0.5">✓</span><span>Built-in analytics</span></div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-gray-500">
+            <p>© 2026 botbase.ai. All rights reserved.</p>
+            <p>Built for speed, clarity, and conversion.</p>
+          </div>
+        </div>
+      </footer>
 
       {/* Chatbot Widget */}
       <ChatbotWidget botName="Demo Bot" emoji="🤖" themeColor="#0A0A0A" />
