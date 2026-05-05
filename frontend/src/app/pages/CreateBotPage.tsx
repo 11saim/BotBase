@@ -30,7 +30,7 @@ export function CreateBotPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="h-[60px] border-b border-[var(--border-default)] px-6 flex items-center justify-between">
+      <div className="h-[60px] border-b border-[var(--border-default)] px-4 sm:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-1" style={{ fontWeight: 500, fontSize: '15px' }}>
           <span>botbase</span>
           <span style={{ color: 'var(--text-secondary)' }}>.ai</span>
@@ -41,9 +41,9 @@ export function CreateBotPage() {
       </div>
 
       {/* Step Indicator */}
-      <div className="flex items-center justify-center py-8 gap-12">
+      <div className="flex items-center justify-start sm:justify-center overflow-x-auto px-4 sm:px-6 py-8 gap-6 sm:gap-12">
         {steps.map((step, index) => (
-          <div key={step} className="flex items-center gap-3">
+          <div key={step} className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-3">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all"
@@ -79,7 +79,7 @@ export function CreateBotPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {currentStep === 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Form Column */}
@@ -108,7 +108,7 @@ export function CreateBotPage() {
                 <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                   CHOOSE AN AVATAR
                 </p>
-                <div className="grid grid-cols-8 gap-2">
+                <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2">
                   {emojis.map((emoji) => (
                     <button
                       key={emoji}
@@ -129,7 +129,7 @@ export function CreateBotPage() {
                 <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                   ACCENT COLOR
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {colors.map((color) => (
                     <button
                       key={color}
@@ -147,7 +147,7 @@ export function CreateBotPage() {
             </div>
 
             {/* Preview Column */}
-            <div className="sticky top-8">
+            <div className="lg:sticky lg:top-8">
               <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                 LIVE PREVIEW
               </p>
@@ -173,7 +173,7 @@ export function CreateBotPage() {
             <h2 style={{ fontSize: '20px', fontWeight: 500, letterSpacing: '-0.4px' }}>What should your bot know?</h2>
 
             {/* Tabs */}
-            <div className="flex gap-2 p-1 bg-[var(--bg-secondary)] rounded-lg w-fit">
+            <div className="flex gap-2 p-1 bg-[var(--bg-secondary)] rounded-lg w-full sm:w-fit overflow-x-auto">
               {[
                 { id: 'file', label: 'Upload file' },
                 { id: 'url', label: 'Paste URL' },
@@ -182,7 +182,7 @@ export function CreateBotPage() {
                 <button
                   key={tab.id}
                   onClick={() => setSelectedTab(tab.id as typeof selectedTab)}
-                  className="px-4 py-2 rounded-lg text-sm transition-all"
+                  className="px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap"
                   style={{
                     background: selectedTab === tab.id ? 'white' : 'transparent',
                     color: selectedTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -240,7 +240,7 @@ export function CreateBotPage() {
 
             {selectedTab === 'url' && (
               <div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="url"
                     placeholder="https://docs.yoursite.com/..."
@@ -278,7 +278,7 @@ export function CreateBotPage() {
               </div>
 
               <div
-                className="p-4 rounded-lg border font-mono text-xs"
+                className="p-4 rounded-lg border font-mono text-xs overflow-x-auto"
                 style={{ border: '1px solid var(--border-default)', background: 'var(--bg-secondary)' }}
               >
                 <code>&lt;script src="https://botbase.ai/widget.js" data-bot-id="abc123"&gt;&lt;/script&gt;</code>

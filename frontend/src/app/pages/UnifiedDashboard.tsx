@@ -120,17 +120,17 @@ export function UnifiedDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white border-b px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-start gap-4 sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
               <p className="text-sm text-gray-500 mt-0.5">Welcome back! Here's your overview</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
                 <Bell size={20} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
               </button>
-              <Link to="/create-bot" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-gray-900 transition-colors">
+              <Link to="/create-bot" className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-gray-900 transition-colors">
                 <Plus size={18} />
                 <span className="hidden sm:inline">New Bot</span>
               </Link>
@@ -214,9 +214,9 @@ export function UnifiedDashboard() {
 
             {/* Bots Section */}
             <div>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <h2 className="text-xl font-bold">My Bots</h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-1">
                   {[
                     { id: 'all', label: `All (${bots.length})` },
                     { id: 'active', label: 'Active' },
@@ -225,7 +225,7 @@ export function UnifiedDashboard() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveFilter(tab.id as typeof activeFilter)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                         activeFilter === tab.id ? 'bg-black text-white' : 'bg-white border hover:border-black'
                       }`}
                     >
@@ -251,7 +251,7 @@ export function UnifiedDashboard() {
                       </button>
 
                       {showMenu === bot.id && (
-                        <div ref={menuRef} className="absolute top-14 right-6 w-48 bg-white rounded-xl border shadow-xl z-20 py-1">
+                        <div ref={menuRef} className="absolute top-14 right-4 sm:right-6 w-48 bg-white rounded-xl border shadow-xl z-20 py-1">
                           {[
                             { label: 'Open bot', action: 'open' },
                             { label: 'Duplicate', action: 'duplicate' },
@@ -304,8 +304,8 @@ export function UnifiedDashboard() {
             </div>
 
             {/* Unanswered Questions */}
-            <div className="bg-white rounded-2xl p-6 border">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h3 className="font-semibold text-lg">Unanswered Questions</h3>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-red-50 text-red-600">Needs Attention</span>
               </div>
@@ -317,7 +317,7 @@ export function UnifiedDashboard() {
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-4 rounded-xl border hover:border-black transition-all cursor-pointer group"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border hover:border-black transition-all cursor-pointer group"
                     onClick={() => {
                       const answer = prompt(`Add answer for: "${item.q}"`);
                       if (answer) setToast({ message: 'Answer saved!', type: 'success' });
@@ -330,7 +330,7 @@ export function UnifiedDashboard() {
                         <span className="text-xs text-gray-500">🔴 Asked {item.count}×</span>
                       </div>
                     </div>
-                    <button className="px-4 py-2 text-sm font-medium border rounded-xl hover:border-black transition-all">Add Answer</button>
+                    <button className="self-start sm:self-auto px-4 py-2 text-sm font-medium border rounded-xl hover:border-black transition-all">Add Answer</button>
                   </div>
                 ))}
               </div>

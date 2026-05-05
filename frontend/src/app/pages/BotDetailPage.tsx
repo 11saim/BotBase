@@ -18,7 +18,7 @@ export function BotDetailPage() {
     <div className="min-h-screen bg-[var(--bg-secondary)]">
       {/* Header */}
       <div className="bg-white border-b border-[var(--border-default)]">
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-4">
           <Link
             to="/dashboard"
             className="flex items-center gap-2 text-xs mb-4"
@@ -28,8 +28,8 @@ export function BotDetailPage() {
             My bots
           </Link>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-3 min-w-0">
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center text-2xl"
                 style={{ background: 'var(--bg-secondary)' }}
@@ -37,7 +37,7 @@ export function BotDetailPage() {
                 💬
               </div>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 500, letterSpacing: '-0.4px' }}>Support Bot</h2>
+                <h2 className="truncate" style={{ fontSize: '20px', fontWeight: 500, letterSpacing: '-0.4px' }}>Support Bot</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0FDF4]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
@@ -47,7 +47,7 @@ export function BotDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 className="px-4 h-[36px] rounded-lg border transition-all hover:bg-[var(--bg-secondary)]"
                 style={{ border: '1px solid var(--border-default)', fontSize: '14px' }}
@@ -64,12 +64,12 @@ export function BotDetailPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-8 mt-6 border-b border-[var(--border-default)]">
+          <div className="flex gap-6 mt-6 border-b border-[var(--border-default)] overflow-x-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(index)}
-                className="pb-3 text-sm relative transition-all"
+                className="pb-3 text-sm relative transition-all whitespace-nowrap"
                 style={{
                   color: activeTab === index ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: activeTab === index ? 500 : 400,
@@ -89,7 +89,7 @@ export function BotDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-6xl mx-auto">
         {activeTab === 0 && (
           <div className="space-y-6">
             {/* Script Tag Card */}
@@ -97,7 +97,7 @@ export function BotDetailPage() {
               <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                 EMBED SCRIPT
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div
                   className="flex-1 p-3 rounded-lg font-mono text-xs overflow-x-auto"
                   style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-default)' }}
@@ -120,7 +120,7 @@ export function BotDetailPage() {
                 Paste before &lt;/body&gt;. Changes reflect instantly.
               </p>
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-wrap gap-3 mt-4">
                 {[
                   { label: 'live since Apr 12', color: '#1A6B3C' },
                   { label: '0ms sync delay', color: 'var(--text-tertiary)' },
@@ -166,11 +166,11 @@ export function BotDetailPage() {
 
             {/* Chart */}
             <div className="bg-white rounded-xl border p-6" style={{ border: '1px solid var(--border-default)' }}>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)' }}>
                   ACTIVITY
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto">
                   {['7d', '30d', '90d'].map((period) => (
                     <button
                       key={period}
@@ -317,7 +317,7 @@ export function BotDetailPage() {
 
         {activeTab === 3 && (
           <div className="space-y-6">
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-wrap justify-start sm:justify-end gap-2">
               {['7d', '30d', '90d', 'Custom'].map((period) => (
                 <button
                   key={period}
