@@ -258,7 +258,7 @@ export function NewLandingPage() {
           {/* Feature Highlights */}
           <div
             id="features"
-            className="max-w-5xl mx-auto py-5 mt-20 scroll-mt-28"
+            className="max-w-5xl mx-auto pt-2 pb-5 mt-20 scroll-mt-28"
           >
             <div className="text-center mb-8">
               <p className="text-xs font-semibold tracking-[0.18em] text-gray-500">
@@ -268,7 +268,7 @@ export function NewLandingPage() {
                 Built for speed, trust, and global reach
               </h3>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
                 {
                   icon: Zap,
@@ -318,7 +318,7 @@ export function NewLandingPage() {
       {/* Interactive Demo Section */}
       <section
         id="how-it-works"
-        className="pt-5 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
+        className="pt-2 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
@@ -388,7 +388,7 @@ export function NewLandingPage() {
       {/* Pricing Section */}
       <section
         id="pricing"
-        className="pt-5 pb-20 px-4 sm:px-6 lg:px-8 bg-white"
+        className="pt-2 pb-20 px-4 sm:px-6 lg:px-8 bg-white"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
