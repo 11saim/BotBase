@@ -249,10 +249,6 @@ export function NewLandingPage() {
                 className="group-hover:translate-x-1 transition-transform"
               />
             </Link>
-            <button className="flex items-center gap-2 px-8 py-4 bg-white border-2 border-gray-200 rounded-2xl text-base font-semibold hover:border-black transition-all">
-              <MessageSquare size={18} />
-              See Demo
-            </button>
           </motion.div>
 
           {/* Feature Highlights */}
@@ -360,13 +356,13 @@ export function NewLandingPage() {
                 transition={{ delay: i * 0.15 }}
                 className="relative group"
               >
-                <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:transition-all h-full">
+                <div className="bg-white rounded-3xl p-8 pb-10 border-2 border-gray-100 hover:transition-all h-full">
                   <div className="text-6xl font-bold text-gray-100 mb-4 group-hover:text-gray-200 transition-colors">
                     {step.num}
                   </div>
                   <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
                   <p className="text-gray-600">{step.desc}</p>
-                  <div className="mt-6 w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-[80%] absolute left-1/2 -translate-x-1/2 bottom-4 h-2 bg-gray-100 rounded-full overflow-hidden flex items-center justify-start">
                     <motion.div
                       className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
                       initial={{ width: 0 }}
@@ -377,7 +373,7 @@ export function NewLandingPage() {
                   </div>
                 </div>
                 {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-gray-300 to-transparent" />
+                  <div className="hidden md:block absolute top-1/2 -right-8 w-10 h-0.5 bg-gradient-to-r from-gray-300 to-transparent" />
                 )}
               </motion.div>
             ))}
