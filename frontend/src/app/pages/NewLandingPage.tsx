@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { ChatbotWidget } from "../components/ChatbotWidget";
+import PricingSection from "../components/PricingSection";
 
 export function NewLandingPage() {
   const [scrollY, setScrollY] = useState(0);
@@ -382,7 +383,7 @@ export function NewLandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section
+      {/* <section
         id="pricing"
         className="pt-2 pb-20 px-4 sm:px-6 lg:px-8 bg-white"
       >
@@ -494,7 +495,9 @@ export function NewLandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
+
+      <PricingSection/>
 
       {/* CTA Section */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
