@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface TableRow {
   label: string;
   values: (string | boolean)[];
@@ -13,8 +11,6 @@ interface TableSection {
   rows: TableRow[];
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
 const columns = ["Free", "Starter", "Pro", "Agency"];
 
 const tableSections: TableSection[] = [
@@ -22,78 +18,36 @@ const tableSections: TableSection[] = [
     category: "Limits",
     rows: [
       { label: "Bots", values: ["1", "3", "10", "Unlimited"], proIndex: 2 },
-      {
-        label: "Messages / month",
-        values: ["100", "2,000", "10,000", "50,000"],
-        proIndex: 2,
-      },
-      {
-        label: "File uploads / bot",
-        values: ["1", "5", "20", "Unlimited"],
-        proIndex: 2,
-      },
+      { label: "Messages / month", values: ["100", "2,000", "10,000", "50,000"], proIndex: 2 },
+      { label: "File uploads / bot", values: ["1", "5", "20", "Unlimited"], proIndex: 2 },
       { label: "Team members", values: ["1", "1", "3", "10"], proIndex: 2 },
     ],
   },
   {
     category: "Features",
     rows: [
-      {
-        label: "Lead collection",
-        values: [false, true, true, true],
-        proIndex: 2,
-      },
-      {
-        label: "Custom Q&A overrides",
-        values: [false, true, true, true],
-        proIndex: 2,
-      },
-      {
-        label: "Unanswered question gaps",
-        values: [false, true, true, true],
-        proIndex: 2,
-      },
-      {
-        label: "Chatbot customization",
-        values: [true, true, true, true],
-        proIndex: 2,
-      },
-      {
-        label: "Training history",
-        values: [true, true, true, true],
-        proIndex: 2,
-      },
+      { label: "Lead collection", values: [false, true, true, true], proIndex: 2 },
+      { label: "Custom Q&A overrides", values: [false, true, true, true], proIndex: 2 },
+      { label: "Unanswered question gaps", values: [false, true, true, true], proIndex: 2 },
+      { label: "Chatbot customization", values: [true, true, true, true], proIndex: 2 },
+      { label: "Training history", values: [true, true, true, true], proIndex: 2 },
     ],
   },
   {
     category: "Analytics",
     rows: [
-      {
-        label: "Analytics level",
-        values: ["Basic", "Basic", "Full", "Full"],
-        proIndex: 2,
-      },
+      { label: "Analytics level", values: ["Basic", "Basic", "Full", "Full"], proIndex: 2 },
     ],
   },
   {
     category: "Advanced",
     rows: [
       { label: "API access", values: [false, false, true, true], proIndex: 2 },
-      {
-        label: "White-label widget",
-        values: [false, false, false, true],
-        proIndex: 2,
-      },
-      {
-        label: "Team collaboration",
-        values: [false, false, true, true],
-        proIndex: 2,
-      },
+      { label: "White-label widget", values: [false, false, false, true], proIndex: 2 },
+      { label: "Team collaboration", values: [false, false, true, true], proIndex: 2 },
     ],
   },
 ];
-
-// ─── Cell ─────────────────────────────────────────────────────────────────────
 
 function Cell({ value, isPro }: { value: string | boolean; isPro: boolean }) {
   const base = "px-5 py-3.5 text-center align-middle";
@@ -112,18 +66,11 @@ function Cell({ value, isPro }: { value: string | boolean; isPro: boolean }) {
   }
 
   return (
-    <td
-      className={`${base} ${bg} text-[13px] tracking-tight ${
-        isPro ? "text-white font-semibold" : "text-neutral-500"
-      }`}
-      style={{ fontFamily: "'Geist Mono', monospace" }}
-    >
+    <td className={`${base} ${bg} text-[13px] tracking-tight ${isPro ? "text-white font-semibold" : "text-neutral-500"}`}>
       {value}
     </td>
   );
 }
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function PricingSection() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -133,9 +80,7 @@ export default function PricingSection() {
     const el = wrapRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.05 },
     );
     obs.observe(el);
@@ -143,29 +88,17 @@ export default function PricingSection() {
   }, []);
 
   return (
-    <section id="pricing" className="max-w-5xl mx-auto px-4 pt-3 pb-24">
+    <section id="pricing" className="max-w-5xl mx-auto px-4 pt-2 pb-24">
       {/* Header */}
-      <div className="mb-12">
-        <span
-          className="inline-block text-[11px] font-semibold tracking-[.14em] uppercase text-neutral-400 border border-neutral-200 px-3 py-1 rounded-sm mb-5"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+      <div className="mb-12 flex justify-center items-center flex-col">
+        <span className="inline-block px-6 py-2 rounded-full bg-green-100 text-green-700 text-sm font-semibold mb-4">
           Pricing
         </span>
-        <h2
-          className="text-5xl md:text-6xl font-normal leading-none text-neutral-950 mb-4"
-          style={{ fontFamily: "'DM Serif Display', serif" }}
-        >
-          Plans that grow
-          <br />
-          <em className="italic">with you</em>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-center">
+          Plans that grow with you
         </h2>
-        <p
-          className="text-[15px] text-neutral-400 max-w-sm leading-relaxed"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          Start free, upgrade when your traffic does. No hidden fees, cancel
-          anytime.
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center">
+          Start free, upgrade when your traffic does. No hidden fees, cancel anytime.
         </p>
       </div>
 
@@ -180,41 +113,23 @@ export default function PricingSection() {
           {/* Head */}
           <thead>
             <tr className="bg-neutral-950">
-              <th
-                className="px-5 py-4 text-left text-[11px] font-medium tracking-[.1em] uppercase text-neutral-400 border-b border-neutral-800 w-[32%]"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
+              <th className="px-5 py-4 text-left text-[11px] font-medium tracking-[.1em] uppercase text-neutral-400 border-b border-neutral-800 w-[32%]">
                 Feature
               </th>
               {columns.map((col) => {
                 const isPro = col === "Pro";
                 return (
-                  <th
-                    key={col}
-                    className="px-5 py-4 text-center border-b border-neutral-800"
-                  >
+                  <th key={col} className="px-5 py-4 text-center border-b border-neutral-800">
                     {isPro ? (
                       <div className="inline-flex flex-col items-center gap-1.5">
-                        <span
-                          className="text-white text-sm font-semibold"
-                          style={{ fontFamily: "'DM Serif Display', serif" }}
-                        >
-                          {col}
-                        </span>
-                        <span
-                          className="text-[9px] font-semibold tracking-[.1em] uppercase bg-white text-neutral-950 px-2 py-0.5 rounded-sm"
-                          style={{ fontFamily: "'DM Sans', sans-serif" }}
-                        >
+                        <span className="text-white text-sm font-semibold">{col}</span>
+                        {/* Colorful gradient badge */}
+                        <span className="text-[9px] font-semibold tracking-[.1em] uppercase text-white px-2 py-0.5 rounded-sm bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
                           Popular
                         </span>
                       </div>
                     ) : (
-                      <span
-                        className="text-neutral-400 text-sm font-medium"
-                        style={{ fontFamily: "'DM Serif Display', serif" }}
-                      >
-                        {col}
-                      </span>
+                      <span className="text-neutral-400 text-sm font-medium">{col}</span>
                     )}
                   </th>
                 );
@@ -227,11 +142,7 @@ export default function PricingSection() {
             {tableSections.map((section) => (
               <>
                 <tr key={section.category} className="bg-neutral-50">
-                  <td
-                    colSpan={5}
-                    className="px-5 py-2.5 text-[11px] font-semibold tracking-[.12em] uppercase text-neutral-400"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  >
+                  <td colSpan={5} className="px-5 py-2.5 text-[11px] font-semibold tracking-[.12em] uppercase text-neutral-400">
                     {section.category}
                   </td>
                 </tr>
@@ -249,10 +160,7 @@ export default function PricingSection() {
                       transitionDelay: `${ri * 35}ms`,
                     }}
                   >
-                    <td
-                      className="px-5 py-3.5 text-[13px] font-medium text-neutral-800"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}
-                    >
+                    <td className="px-5 py-3.5 text-[13px] font-medium text-neutral-800">
                       {row.label}
                     </td>
                     {row.values.map((val, ci) => (
@@ -267,27 +175,20 @@ export default function PricingSection() {
           {/* Footer CTA row */}
           <tfoot>
             <tr className="bg-neutral-50 border-t border-neutral-200">
-              <td
-                className="px-5 py-4 text-[13px] text-neutral-400 italic"
-                style={{ fontFamily: "'DM Serif Display', serif" }}
-              >
+              <td className="px-5 py-4 text-[13px] text-neutral-400">
                 Ready to start?
               </td>
               {columns.map((col) => {
                 const isPro = col === "Pro";
                 return (
-                  <td
-                    key={col}
-                    className={`px-5 py-4 text-center ${isPro ? "bg-neutral-950" : ""}`}
-                  >
+                  <td key={col} className={`px-2 sm:px-5 py-4 text-center ${isPro ? "bg-neutral-950" : ""}`}>
                     <a
                       href="/register"
-                      className={`inline-block text-[12px] font-semibold tracking-wide px-4 py-2 rounded-sm border transition-all duration-150 ${
+                      className={`inline-block w-full sm:w-auto text-[11px] sm:text-[12px] font-semibold tracking-wide px-2 sm:px-4 py-2 rounded-sm border transition-all duration-150 whitespace-nowrap ${
                         isPro
                           ? "bg-white text-neutral-950 border-white hover:bg-transparent hover:text-white"
                           : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
                       }`}
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}
                     >
                       {col === "Free" ? "Get started" : `Get ${col}`}
                     </a>
