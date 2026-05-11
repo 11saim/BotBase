@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "motion/react";
 import {
@@ -19,6 +19,7 @@ import PricingSection from "../components/PricingSection";
 export function NewLandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
@@ -317,7 +318,7 @@ export function NewLandingPage() {
         id="how-it-works"
         className="pt-2 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
       >
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto mt-2">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-4">
               SEE IT IN ACTION
@@ -383,124 +384,10 @@ export function NewLandingPage() {
       </section>
 
       {/* Pricing Section */}
-      {/* <section
-        id="pricing"
-        className="pt-2 pb-20 px-4 sm:px-6 lg:px-8 bg-white"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold mb-4">
-              SIMPLE PRICING
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
-              Choose a plan that scales with you
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Start free and upgrade when your chatbot traffic grows.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Starter",
-                price: "$0",
-                period: "/mo",
-                description: "Perfect for trying botbase.ai",
-                cta: "Start Free",
-                popular: false,
-                features: [
-                  "1 bot",
-                  "500 messages/month",
-                  "Basic analytics",
-                  "Community support",
-                ],
-              },
-              {
-                name: "Pro",
-                price: "$19",
-                period: "/mo",
-                description: "For growing products and teams",
-                cta: "Choose Pro",
-                popular: true,
-                features: [
-                  "10 bots",
-                  "10,000 messages/month",
-                  "Advanced analytics",
-                  "Priority support",
-                  "Custom branding",
-                ],
-              },
-              {
-                name: "Business",
-                price: "$49",
-                period: "/mo",
-                description: "For high-volume and complex use cases",
-                cta: "Choose Business",
-                popular: false,
-                features: [
-                  "Unlimited bots",
-                  "50,000 messages/month",
-                  "API access",
-                  "Team collaboration",
-                  "White-label widget",
-                ],
-              },
-            ].map((plan, i) => (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`relative rounded-3xl p-8 transition-all ${plan.popular ? "border-2 border-black shadow-2xl bg-white" : "border border-gray-200 shadow-lg bg-gray-50/40"}`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black text-white text-xs font-semibold tracking-wide">
-                    MOST POPULAR
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold">{plan.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {plan.description}
-                  </p>
-                </div>
-
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-bold">{plan.price}</span>
-                  <span className="text-gray-500 mb-1">{plan.period}</span>
-                </div>
-
-                <Link
-                  to="/register"
-                  className={`w-full inline-flex items-center justify-center rounded-xl px-4 py-3 font-semibold transition-colors ${plan.popular ? "bg-black text-white hover:bg-gray-900" : "bg-white text-black border border-gray-300 hover:border-black"}`}
-                >
-                  {plan.cta}
-                </Link>
-
-                <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                  {plan.features.map((feature) => (
-                    <div
-                      key={feature}
-                      className="flex items-center gap-3 text-sm text-gray-700"
-                    >
-                      <Check size={16} className="text-green-600 shrink-0" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      <PricingSection/>
+      <PricingSection />
 
       {/* CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
+      <section className="pt-32 pb-0 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
         <div className="absolute inset-0">
           {[...Array(50)].map((_, i) => (
             <div
@@ -536,119 +423,118 @@ export function NewLandingPage() {
             No credit card required • Free forever plan
           </p>
         </div>
+        {/* Footer */}
+        <footer className="bg-transparent text-white px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12">
+              <div className="lg:col-span-5">
+                <Link to="/" className="inline-flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-gray-300 text-black flex items-center justify-center">
+                    <Sparkles size={16} />
+                  </div>
+                  <span className="font-semibold text-lg">botbase.ai</span>
+                </Link>
+                <p className="text-gray-400 max-w-md">
+                  Build and ship AI chatbots from your docs in minutes. Fast
+                  setup, rich analytics, and production-ready embeds.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    to="/register"
+                    className="px-4 py-2 rounded-xl bg-white text-black text-sm font-semibold hover:bg-gray-200 transition-colors"
+                  >
+                    Start Free
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 rounded-xl border border-white/20 text-sm font-semibold hover:border-white/40 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-white">
+                      Product
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-400">
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection("features")}
+                        className="block hover:text-white transition-colors"
+                      >
+                        Features
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection("how-it-works")}
+                        className="block hover:text-white transition-colors"
+                      >
+                        How It Works
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection("pricing")}
+                        className="block hover:text-white transition-colors"
+                      >
+                        Pricing
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-white">
+                      Company
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-400">
+                      <a
+                        href="#"
+                        className="block hover:text-white transition-colors"
+                      >
+                        About
+                      </a>
+                      <a
+                        href="#"
+                        className="block hover:text-white transition-colors"
+                      >
+                        Contact
+                      </a>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-white">
+                      Why Teams Pick Us
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-300">
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-300 mt-0.5">✓</span>
+                        <span>Launch in 60s</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-300 mt-0.5">✓</span>
+                        <span>No-code embed</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-300 mt-0.5">✓</span>
+                        <span>Built-in analytics</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-gray-500">
+              <p>© 2026 botbase.ai. All rights reserved.</p>
+              <p>Built for speed, clarity, and conversion.</p>
+            </div>
+          </div>
+        </footer>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-[#050505] text-white px-4 sm:px-6 lg:px-8 pt-16 pb-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
-            <div className="lg:col-span-5">
-              <Link to="/" className="inline-flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-gray-300 text-black flex items-center justify-center">
-                  <Sparkles size={16} />
-                </div>
-                <span className="font-semibold text-lg">botbase.ai</span>
-              </Link>
-              <p className="text-gray-400 max-w-md">
-                Build and ship AI chatbots from your docs in minutes. Fast
-                setup, rich analytics, and production-ready embeds.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  to="/register"
-                  className="px-4 py-2 rounded-xl bg-white text-black text-sm font-semibold hover:bg-gray-200 transition-colors"
-                >
-                  Start Free
-                </Link>
-                <Link
-                  to="/login"
-                  className="px-4 py-2 rounded-xl border border-white/20 text-sm font-semibold hover:border-white/40 transition-colors"
-                >
-                  Sign In
-                </Link>
-              </div>
-            </div>
-
-            <div className="lg:col-span-7">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-white">
-                    Product
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-400">
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection("features")}
-                      className="block hover:text-white transition-colors"
-                    >
-                      Features
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection("how-it-works")}
-                      className="block hover:text-white transition-colors"
-                    >
-                      How It Works
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection("pricing")}
-                      className="block hover:text-white transition-colors"
-                    >
-                      Pricing
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-white">
-                    Company
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-400">
-                    <a
-                      href="#"
-                      className="block hover:text-white transition-colors"
-                    >
-                      About
-                    </a>
-                    <a
-                      href="#"
-                      className="block hover:text-white transition-colors"
-                    >
-                      Contact
-                    </a>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-white">
-                    Why Teams Pick Us
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-300">
-                    <div className="flex items-start gap-2">
-                      <span className="text-emerald-300 mt-0.5">✓</span>
-                      <span>Launch in 60s</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-emerald-300 mt-0.5">✓</span>
-                      <span>No-code embed</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-emerald-300 mt-0.5">✓</span>
-                      <span>Built-in analytics</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-gray-500">
-            <p>© 2026 botbase.ai. All rights reserved.</p>
-            <p>Built for speed, clarity, and conversion.</p>
-          </div>
-        </div>
-      </footer>
 
       {/* Chatbot Widget */}
       <ChatbotWidget botName="Demo Bot" emoji="🤖" themeColor="#0A0A0A" />

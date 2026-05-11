@@ -18,33 +18,73 @@ const tableSections: TableSection[] = [
     category: "Limits",
     rows: [
       { label: "Bots", values: ["1", "3", "10", "Unlimited"], proIndex: 2 },
-      { label: "Messages / month", values: ["100", "2,000", "10,000", "50,000"], proIndex: 2 },
-      { label: "File uploads / bot", values: ["1", "5", "20", "Unlimited"], proIndex: 2 },
+      {
+        label: "Messages / month",
+        values: ["100", "2,000", "10,000", "50,000"],
+        proIndex: 2,
+      },
+      {
+        label: "File uploads / bot",
+        values: ["1", "5", "20", "Unlimited"],
+        proIndex: 2,
+      },
       { label: "Team members", values: ["1", "1", "3", "10"], proIndex: 2 },
     ],
   },
   {
     category: "Features",
     rows: [
-      { label: "Lead collection", values: [false, true, true, true], proIndex: 2 },
-      { label: "Custom Q&A overrides", values: [false, true, true, true], proIndex: 2 },
-      { label: "Unanswered question gaps", values: [false, true, true, true], proIndex: 2 },
-      { label: "Chatbot customization", values: [true, true, true, true], proIndex: 2 },
-      { label: "Training history", values: [true, true, true, true], proIndex: 2 },
+      {
+        label: "Lead collection",
+        values: [false, true, true, true],
+        proIndex: 2,
+      },
+      {
+        label: "Custom Q&A overrides",
+        values: [false, true, true, true],
+        proIndex: 2,
+      },
+      {
+        label: "Unanswered question gaps",
+        values: [false, true, true, true],
+        proIndex: 2,
+      },
+      {
+        label: "Chatbot customization",
+        values: [true, true, true, true],
+        proIndex: 2,
+      },
+      {
+        label: "Training history",
+        values: [true, true, true, true],
+        proIndex: 2,
+      },
     ],
   },
   {
     category: "Analytics",
     rows: [
-      { label: "Analytics level", values: ["Basic", "Basic", "Full", "Full"], proIndex: 2 },
+      {
+        label: "Analytics level",
+        values: ["Basic", "Basic", "Full", "Full"],
+        proIndex: 2,
+      },
     ],
   },
   {
     category: "Advanced",
     rows: [
       { label: "API access", values: [false, false, true, true], proIndex: 2 },
-      { label: "White-label widget", values: [false, false, false, true], proIndex: 2 },
-      { label: "Team collaboration", values: [false, false, true, true], proIndex: 2 },
+      {
+        label: "White-label widget",
+        values: [false, false, false, true],
+        proIndex: 2,
+      },
+      {
+        label: "Team collaboration",
+        values: [false, false, true, true],
+        proIndex: 2,
+      },
     ],
   },
 ];
@@ -66,7 +106,9 @@ function Cell({ value, isPro }: { value: string | boolean; isPro: boolean }) {
   }
 
   return (
-    <td className={`${base} ${bg} text-[13px] tracking-tight ${isPro ? "text-white font-semibold" : "text-neutral-500"}`}>
+    <td
+      className={`${base} ${bg} text-[13px] tracking-tight ${isPro ? "text-white font-semibold" : "text-neutral-500"}`}
+    >
       {value}
     </td>
   );
@@ -80,7 +122,9 @@ export default function PricingSection() {
     const el = wrapRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.05 },
     );
     obs.observe(el);
@@ -90,7 +134,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="max-w-5xl mx-auto px-4 pt-2 pb-24">
       {/* Header */}
-      <div className="mb-12 flex justify-center items-center flex-col">
+      <div className="mt-2 mb-12 flex justify-center items-center flex-col">
         <span className="inline-block px-6 py-2 rounded-full bg-green-100 text-green-700 text-sm font-semibold mb-4">
           Pricing
         </span>
@@ -98,7 +142,8 @@ export default function PricingSection() {
           Plans that grow with you
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center">
-          Start free, upgrade when your traffic does. No hidden fees, cancel anytime.
+          Start free, upgrade when your traffic does. No hidden fees, cancel
+          anytime.
         </p>
       </div>
 
@@ -119,17 +164,24 @@ export default function PricingSection() {
               {columns.map((col) => {
                 const isPro = col === "Pro";
                 return (
-                  <th key={col} className="px-5 py-4 text-center border-b border-neutral-800">
+                  <th
+                    key={col}
+                    className="px-5 py-4 text-center border-b border-neutral-800"
+                  >
                     {isPro ? (
                       <div className="inline-flex flex-col items-center gap-1.5">
-                        <span className="text-white text-sm font-semibold">{col}</span>
+                        <span className="text-white text-sm font-semibold">
+                          {col}
+                        </span>
                         {/* Colorful gradient badge */}
                         <span className="text-[9px] font-semibold tracking-[.1em] uppercase text-white px-2 py-0.5 rounded-sm bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
                           Popular
                         </span>
                       </div>
                     ) : (
-                      <span className="text-neutral-400 text-sm font-medium">{col}</span>
+                      <span className="text-neutral-400 text-sm font-medium">
+                        {col}
+                      </span>
                     )}
                   </th>
                 );
@@ -142,7 +194,10 @@ export default function PricingSection() {
             {tableSections.map((section) => (
               <>
                 <tr key={section.category} className="bg-neutral-50">
-                  <td colSpan={5} className="px-5 py-2.5 text-[11px] font-semibold tracking-[.12em] uppercase text-neutral-400">
+                  <td
+                    colSpan={5}
+                    className="px-5 py-2.5 text-[11px] font-semibold tracking-[.12em] uppercase text-neutral-400"
+                  >
                     {section.category}
                   </td>
                 </tr>
@@ -181,7 +236,10 @@ export default function PricingSection() {
               {columns.map((col) => {
                 const isPro = col === "Pro";
                 return (
-                  <td key={col} className={`px-2 sm:px-5 py-4 text-center ${isPro ? "bg-neutral-950" : ""}`}>
+                  <td
+                    key={col}
+                    className={`px-2 sm:px-5 py-4 text-center ${isPro ? "bg-neutral-950" : ""}`}
+                  >
                     <a
                       href="/register"
                       className={`inline-block w-full sm:w-auto text-[11px] sm:text-[12px] font-semibold tracking-wide px-2 sm:px-4 py-2 rounded-sm border transition-all duration-150 whitespace-nowrap ${
