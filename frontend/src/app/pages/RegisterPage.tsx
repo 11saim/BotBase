@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { setAuthToken } from "../lib/auth";
+import { Eye, EyeOff } from "lucide-react";
 
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
@@ -27,14 +28,15 @@ export function RegisterPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (agreedToTerms) {
-      navigate('/dashboard');
+      setAuthToken("dev_session");
+      navigate("/dashboard");
     }
   };
 
   const getStrengthColor = () => {
-    if (passwordStrength === 1) return '#CC2222';
-    if (passwordStrength === 2) return '#FFBD2E';
-    return '#1A6B3C';
+    if (passwordStrength === 1) return "#CC2222";
+    if (passwordStrength === 2) return "#FFBD2E";
+    return "#1A6B3C";
   };
 
   return (
@@ -45,8 +47,9 @@ export function RegisterPage() {
           <div
             className="w-full h-full"
             style={{
-              backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
+              backgroundImage:
+                "radial-gradient(circle, white 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
             }}
           />
         </div>
@@ -55,9 +58,9 @@ export function RegisterPage() {
           <p
             className="text-white"
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '18px',
-              fontStyle: 'italic',
+              fontFamily: "var(--font-display)",
+              fontSize: "18px",
+              fontStyle: "italic",
               lineHeight: 1.4,
             }}
           >
@@ -73,7 +76,7 @@ export function RegisterPage() {
           <div
             className="w-full h-[80px] bg-gradient-to-b from-transparent via-white/40 to-transparent"
             style={{
-              animation: 'slide-vertical 3s ease-in-out infinite',
+              animation: "slide-vertical 3s ease-in-out infinite",
             }}
           />
         </div>
@@ -84,28 +87,51 @@ export function RegisterPage() {
         <Link
           to="/"
           className="absolute top-6 left-6 flex items-center gap-1"
-          style={{ fontWeight: 500, fontSize: '15px' }}
+          style={{ fontWeight: 500, fontSize: "15px" }}
         >
           <span>botbase</span>
-          <span style={{ color: 'var(--text-secondary)' }}>.ai</span>
+          <span style={{ color: "var(--text-secondary)" }}>.ai</span>
         </Link>
 
         <div className="w-full max-w-[360px]">
           <div className="mb-8">
-            <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: 'var(--text-tertiary)' }}>
+            <p
+              style={{
+                fontSize: "10px",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontWeight: 500,
+                color: "var(--text-tertiary)",
+              }}
+            >
               CREATE ACCOUNT
             </p>
-            <h2 style={{ fontSize: '20px', fontWeight: 500, letterSpacing: '-0.4px', marginTop: '8px' }}>
+            <h2
+              style={{
+                fontSize: "20px",
+                fontWeight: 500,
+                letterSpacing: "-0.4px",
+                marginTop: "8px",
+              }}
+            >
               Start for free
             </h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            <p
+              style={{
+                fontSize: "14px",
+                color: "var(--text-secondary)",
+                marginTop: "4px",
+              }}
+            >
               No credit card needed.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Full name</label>
+              <label className="block text-sm font-medium mb-2">
+                Full name
+              </label>
               <input
                 type="text"
                 value={name}
@@ -113,16 +139,16 @@ export function RegisterPage() {
                 placeholder="John Doe"
                 className="w-full h-[36px] px-3 rounded-lg border bg-white transition-all"
                 style={{
-                  border: '1px solid var(--border-default)',
-                  fontSize: '14px',
+                  border: "1px solid var(--border-default)",
+                  fontSize: "14px",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--text-primary)';
-                  e.target.style.outline = '3px solid rgba(10, 10, 10, 0.06)';
+                  e.target.style.borderColor = "var(--text-primary)";
+                  e.target.style.outline = "3px solid rgba(10, 10, 10, 0.06)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-default)';
-                  e.target.style.outline = 'none';
+                  e.target.style.borderColor = "var(--border-default)";
+                  e.target.style.outline = "none";
                 }}
               />
             </div>
@@ -136,16 +162,16 @@ export function RegisterPage() {
                 placeholder="you@example.com"
                 className="w-full h-[36px] px-3 rounded-lg border bg-white transition-all"
                 style={{
-                  border: '1px solid var(--border-default)',
-                  fontSize: '14px',
+                  border: "1px solid var(--border-default)",
+                  fontSize: "14px",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--text-primary)';
-                  e.target.style.outline = '3px solid rgba(10, 10, 10, 0.06)';
+                  e.target.style.borderColor = "var(--text-primary)";
+                  e.target.style.outline = "3px solid rgba(10, 10, 10, 0.06)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--border-default)';
-                  e.target.style.outline = 'none';
+                  e.target.style.borderColor = "var(--border-default)";
+                  e.target.style.outline = "none";
                 }}
               />
             </div>
@@ -154,22 +180,22 @@ export function RegisterPage() {
               <label className="block text-sm font-medium mb-2">Password</label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
                   placeholder="••••••••"
                   className="w-full h-[36px] px-3 pr-10 rounded-lg border bg-white transition-all"
                   style={{
-                    border: '1px solid var(--border-default)',
-                    fontSize: '14px',
+                    border: "1px solid var(--border-default)",
+                    fontSize: "14px",
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--text-primary)';
-                    e.target.style.outline = '3px solid rgba(10, 10, 10, 0.06)';
+                    e.target.style.borderColor = "var(--text-primary)";
+                    e.target.style.outline = "3px solid rgba(10, 10, 10, 0.06)";
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--border-default)';
-                    e.target.style.outline = 'none';
+                    e.target.style.borderColor = "var(--border-default)";
+                    e.target.style.outline = "none";
                   }}
                 />
                 <button
@@ -190,15 +216,21 @@ export function RegisterPage() {
                         key={segment}
                         className="flex-1 rounded-full transition-all duration-300"
                         style={{
-                          background: passwordStrength >= segment ? getStrengthColor() : 'var(--border-default)',
+                          background:
+                            passwordStrength >= segment
+                              ? getStrengthColor()
+                              : "var(--border-default)",
                         }}
                       />
                     ))}
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                    {passwordStrength === 1 && 'Weak'}
-                    {passwordStrength === 2 && 'Fair'}
-                    {passwordStrength === 3 && 'Strong'}
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
+                    {passwordStrength === 1 && "Weak"}
+                    {passwordStrength === 2 && "Fair"}
+                    {passwordStrength === 3 && "Strong"}
                   </p>
                 </div>
               )}
@@ -213,12 +245,20 @@ export function RegisterPage() {
                 className="mt-0.5"
               />
               <label htmlFor="terms" className="text-sm">
-                I agree to{' '}
-                <a href="#" className="underline" style={{ textDecorationOffset: '2px' }}>
+                I agree to{" "}
+                <a
+                  href="#"
+                  className="underline"
+                  style={{ textDecorationOffset: "2px" }}
+                >
                   Terms
-                </a>{' '}
-                and{' '}
-                <a href="#" className="underline" style={{ textDecorationOffset: '2px' }}>
+                </a>{" "}
+                and{" "}
+                <a
+                  href="#"
+                  className="underline"
+                  style={{ textDecorationOffset: "2px" }}
+                >
                   Privacy Policy
                 </a>
               </label>
@@ -229,8 +269,8 @@ export function RegisterPage() {
               disabled={!agreedToTerms}
               className="w-full h-[36px] rounded-lg text-white transition-all hover:bg-[#2A2A2A] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--text-primary)]"
               style={{
-                background: 'var(--text-primary)',
-                fontSize: '14px',
+                background: "var(--text-primary)",
+                fontSize: "14px",
                 fontWeight: 500,
               }}
             >
@@ -239,10 +279,16 @@ export function RegisterPage() {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t" style={{ borderColor: 'var(--border-default)' }} />
+                <div
+                  className="w-full border-t"
+                  style={{ borderColor: "var(--border-default)" }}
+                />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-white" style={{ color: 'var(--text-tertiary)' }}>
+                <span
+                  className="px-2 bg-white"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
                   or
                 </span>
               </div>
@@ -252,25 +298,49 @@ export function RegisterPage() {
               type="button"
               className="w-full h-[36px] rounded-lg border transition-all hover:bg-[var(--bg-secondary)]"
               style={{
-                border: '1px solid var(--border-default)',
-                fontSize: '14px',
+                border: "1px solid var(--border-default)",
+                fontSize: "14px",
               }}
             >
               <div className="flex items-center justify-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335"
+                  />
                 </svg>
                 Continue with Google
               </div>
             </button>
           </form>
 
-          <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>
-            Already have an account?{' '}
-            <Link to="/login" className="underline" style={{ color: 'var(--text-primary)' }}>
+          <p
+            className="text-center text-sm mt-6"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="underline"
+              style={{ color: "var(--text-primary)" }}
+            >
               Sign in
             </Link>
           </p>
