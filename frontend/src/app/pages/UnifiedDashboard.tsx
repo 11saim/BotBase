@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import {
@@ -243,29 +243,41 @@ export function UnifiedDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white border-b px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap items-start gap-4 sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex items-start justify-between gap-3 sm:gap-4">
+            <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
               <button
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                type="button"
+                className="lg:hidden shrink-0 p-2 hover:bg-gray-100 rounded-xl transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open menu"
               >
                 <Menu size={20} />
               </button>
-              <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Welcome back! Here's your overview
-              </p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold leading-tight">
+                  Dashboard
+                </h1>
+                <p className="mt-1 text-sm leading-snug text-gray-500 break-words">
+                  Welcome back! Here's your overview
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+              <button
+                type="button"
+                className="relative shrink-0 p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                aria-label="Notifications"
+              >
                 <Bell size={20} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
               </button>
               <Link
                 to="/create-bot"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-gray-900 transition-colors"
+                className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-black px-2.5 py-2 font-medium text-white transition-colors hover:bg-gray-900 sm:px-4"
+                aria-label="Create new bot"
+                title="New Bot"
               >
-                <Plus size={18} />
+                <Plus size={18} className="shrink-0" />
                 <span className="hidden sm:inline">New Bot</span>
               </Link>
             </div>
