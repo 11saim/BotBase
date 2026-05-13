@@ -5,17 +5,15 @@ import {
   Route,
   Navigate,
   useParams,
-  useLocation,
 } from "react-router-dom";
 import { GlobalEffects } from "./components/GlobalEffects";
 import { NewLandingPage } from "./pages/NewLandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { DashboardShell } from "./dashboard/DashboardShell";
-import { DashboardHomePage } from "./dashboard/DashboardHomePage";
-import { DashboardSettingsPage } from "./dashboard/DashboardSettingsPage";
-import { BotCreationWizardPage } from "./dashboard/BotCreationWizardPage";
-import { DashboardBotDetailPage } from "./dashboard/DashboardBotDetailPage";
+import { DashboardShell } from "./pages/dashboard/DashboardShell";
+import { DashboardHomePage } from "./pages/dashboard/DashboardHomePage";
+import { DashboardPlanUsagePage } from "./pages/dashboard/DashboardPlanUsagePage";
+import { DashboardBotDetailPage } from "./pages/dashboard/DashboardBotDetailPage";
 
 function LegacyBotRedirect() {
   const { id } = useParams();
@@ -23,12 +21,7 @@ function LegacyBotRedirect() {
 }
 
 function LegacySettingsRedirect() {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  if (params.get("tab") === "api-keys") {
-    return <Navigate to="/dashboard/settings" replace />;
-  }
-  return <Navigate to={`/dashboard/settings${location.search}`} replace />;
+  return <Navigate to="/dashboard/usage" replace />;
 }
 
 export default function App() {
@@ -42,8 +35,9 @@ export default function App() {
         <Route path="/forgot-password" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardShell />}>
           <Route index element={<DashboardHomePage />} />
-          <Route path="settings" element={<DashboardSettingsPage />} />
-          <Route path="bots/new" element={<BotCreationWizardPage />} />
+          <Route path="usage" element={<DashboardPlanUsagePage />} />
+          <Route path="settings" element={<Navigate to="/dashboard/usage" replace />} />
+          <Route path="bots/new" element={<Navigate to="/dashboard?create=1" replace />} />
           <Route path="bots/:botId" element={<DashboardBotDetailPage />} />
         </Route>
         <Route
@@ -53,7 +47,7 @@ export default function App() {
         <Route path="/settings" element={<LegacySettingsRedirect />} />
         <Route
           path="/create-bot"
-          element={<Navigate to="/dashboard/bots/new" replace />}
+          element={<Navigate to="/dashboard?create=1" replace />}
         />
         <Route path="/bot/:id" element={<LegacyBotRedirect />} />
         <Route path="*" element={<Navigate to="/" replace />} />

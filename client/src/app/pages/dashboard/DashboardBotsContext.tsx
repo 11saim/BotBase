@@ -23,6 +23,15 @@ export interface KnowledgeChunk {
   status: ChunkStatus;
 }
 
+export type BotFontId =
+  | "dm-sans"
+  | "inter"
+  | "system-ui"
+  | "georgia"
+  | "mono"
+  | "nunito"
+  | "source-serif";
+
 export interface BotAppearance {
   widgetPosition: "br" | "bl";
   widgetShape: "circle" | "rounded";
@@ -31,7 +40,7 @@ export interface BotAppearance {
   widgetTooltip: string;
   chatTheme: "light" | "dark" | "auto";
   primaryColor: string;
-  fontId: "dm-sans" | "inter" | "serif" | "mono";
+  fontId: BotFontId;
   welcomeMessage: string;
   inputPlaceholder: string;
   poweredBy: boolean;
@@ -39,7 +48,6 @@ export interface BotAppearance {
   pausedMessage: string;
   responseStyle: ResponseStyle;
   language: string;
-  confidenceThreshold: number;
 }
 
 export interface LeadEntry {
@@ -65,6 +73,8 @@ export interface DashboardBot {
   id: string;
   name: string;
   emoji: string;
+  /** Data URL or remote URL for custom avatar (optional) */
+  iconUrl?: string | null;
   description?: string;
   status: BotStatus;
   messagesThisWeek: number;
@@ -101,11 +111,25 @@ export const defaultAppearance = (): BotAppearance => ({
   pausedMessage: "This assistant is temporarily paused. Please try again later.",
   responseStyle: "friendly",
   language: "en",
-  confidenceThreshold: 72,
 });
 
+function coerceFontId(v: unknown): BotFontId {
+  const allowed: BotFontId[] = ["dm-sans", "inter", "system-ui", "georgia", "mono", "nunito", "source-serif"];
+  if (typeof v === "string" && allowed.includes(v as BotFontId)) return v as BotFontId;
+  if (v === "serif") return "source-serif";
+  return "dm-sans";
+}
+
+function normalizeAppearance(p: Partial<BotAppearance> | undefined): BotAppearance {
+  const merged = { ...defaultAppearance(), ...(p || {}) } as Record<string, unknown>;
+  delete merged.confidenceThreshold;
+  const a = { ...defaultAppearance(), ...merged } as BotAppearance;
+  a.fontId = coerceFontId(a.fontId);
+  return a;
+}
+
 function seedBot(partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "name" | "emoji">): DashboardBot {
-  const appearance = { ...defaultAppearance(), ...(partial.appearance || {}) };
+  const appearance = normalizeAppearance(partial.appearance);
   return {
     description: "",
     status: "active",
@@ -115,7 +139,7 @@ function seedBot(partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "nam
     storageMb: 2.4,
     avgConfidence: 0.87,
     gapsCount: 6,
-    domains: ["localhost", "example.com"],
+    domains: [],
     webhookEnabled: false,
     webhookUrl: "",
     leadCaptureEnabled: false,
@@ -148,7 +172,7 @@ function hydrateBot(b: Partial<DashboardBot>): DashboardBot {
     ...base,
     ...b,
     id,
-    appearance: { ...base.appearance, ...(b.appearance || {}) },
+    appearance: normalizeAppearance({ ...base.appearance, ...(b.appearance || {}) }),
     chunks: Array.isArray(b.chunks) ? b.chunks : base.chunks,
     activity: Array.isArray(b.activity) ? b.activity : base.activity,
     leads: Array.isArray(b.leads) ? b.leads : [],
@@ -194,7 +218,7 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
       ...seedBot({ id, name: bot.name, emoji: bot.emoji }),
       ...bot,
       id,
-      appearance: { ...defaultAppearance(), ...bot.appearance },
+      appearance: normalizeAppearance({ ...defaultAppearance(), ...bot.appearance }),
     };
     setBots((prev) => [...prev, full]);
     return full;
@@ -205,7 +229,7 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
       prev.map((b) => {
         if (b.id !== id) return b;
         const next = { ...b, ...patch };
-        if (patch.appearance) next.appearance = { ...b.appearance, ...patch.appearance };
+        if (patch.appearance) next.appearance = normalizeAppearance({ ...b.appearance, ...patch.appearance });
         return next;
       }),
     );
