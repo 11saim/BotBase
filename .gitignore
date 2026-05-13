@@ -1,14 +1,11 @@
-# Basic Web UI
-client/node_modules/
-
 # AI Server
-server/venv/
-server/.env
-server/faiss_db/
-server/uploads/
-server/__pycache__/
-server/routes/__pycache__/
-server/services/__pycache__/
+ai server/venv/
+ai server/.env
+ai server/faiss_db/
+ai server/uploads/
+ai server/__pycache__/
+ai server/routes/__pycache__/
+ai server/services/__pycache__/
 
-# Web UI
-frontend/node_modules/
+# client
+client/node_modules/
