@@ -49,7 +49,8 @@ export function DashboardHomePage() {
   }, [totals, bots.length]);
 
   const showUsageBanner = !bannerDismissed && usage.worst >= 0.8;
-  const onboardingDone = onboarding.upload && onboarding.widget && onboarding.snippet;
+  const onboardingDone =
+    onboarding.upload && onboarding.widget && onboarding.snippet;
 
   const toggleStep = (key: keyof Onboarding) => {
     setOnboarding((o) => ({ ...o, [key]: !o[key] }));
@@ -67,11 +68,18 @@ export function DashboardHomePage() {
             }}
           >
             <div>
-              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              <p
+                className="text-sm font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
                 You are approaching a plan limit
               </p>
-              <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                One or more of messages, storage, or bot count is above 80% of your current plan.
+              <p
+                className="mt-1 text-xs"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                One or more of messages, storage, or bot count is above 80% of
+                your current plan.
               </p>
             </div>
             <button
@@ -91,9 +99,15 @@ export function DashboardHomePage() {
         {bots.length > 0 && !onboardingDone && (
           <div
             className="rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-            style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
+            style={{
+              borderColor: "var(--border-default)",
+              background: "var(--bg-primary)",
+            }}
           >
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+            <p
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: "var(--text-tertiary)" }}
+            >
               Onboarding
             </p>
             <ul className="mt-3 space-y-2">
@@ -115,7 +129,9 @@ export function DashboardHomePage() {
                       className="flex h-5 w-5 shrink-0 items-center justify-center rounded border"
                       style={{
                         borderColor: "var(--border-default)",
-                        background: onboarding[key] ? "var(--text-primary)" : "transparent",
+                        background: onboarding[key]
+                          ? "var(--text-primary)"
+                          : "transparent",
                         color: onboarding[key] ? "white" : "transparent",
                       }}
                     >
@@ -164,21 +180,40 @@ export function DashboardHomePage() {
 
         <div
           className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-8"
-          style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
+          style={{
+            borderColor: "var(--border-default)",
+            background: "var(--bg-primary)",
+          }}
         >
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+              <p
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}
+              >
                 Analytics
               </p>
-              <p className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+              <p
+                className="mt-1 text-lg font-medium tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Workspace activity
               </p>
-              <p className="mt-1 max-w-md text-sm" style={{ color: "var(--text-secondary)" }}>
-                Messages and unique users across all bots (sample trend for the selected window).
+              <p
+                className="mt-1 max-w-md text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Messages and unique users across all bots (sample trend for the
+                selected window).
               </p>
             </div>
-            <div className="flex shrink-0 gap-1 rounded-xl border p-1" style={{ borderColor: "var(--border-default)", background: "var(--bg-secondary)" }}>
+            <div
+              className="flex shrink-0 gap-1 rounded-xl border p-1"
+              style={{
+                borderColor: "var(--border-default)",
+                background: "var(--bg-secondary)",
+              }}
+            >
               {(["7d", "30d", "90d"] as const).map((r) => (
                 <button
                   key={r}
@@ -186,9 +221,11 @@ export function DashboardHomePage() {
                   onClick={() => setRange(r)}
                   className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
                   style={{
-                    background: range === r ? "var(--text-primary)" : "transparent",
+                    background:
+                      range === r ? "var(--text-primary)" : "transparent",
                     color: range === r ? "white" : "var(--text-secondary)",
-                    boxShadow: range === r ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+                    boxShadow:
+                      range === r ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
                   }}
                 >
                   {r === "7d" ? "7 days" : r === "30d" ? "30 days" : "90 days"}
@@ -202,23 +239,39 @@ export function DashboardHomePage() {
         </div>
 
         <section>
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+          <p
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: "var(--text-tertiary)" }}
+          >
             Bots
           </p>
-          <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+          <h2
+            className="mt-1 text-lg font-medium tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
             Your workspace
           </h2>
           {bots.length === 0 ? (
             <div
               className="mt-6 flex flex-col items-center justify-center rounded-2xl border py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-              style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
+              style={{
+                borderColor: "var(--border-default)",
+                background: "var(--bg-primary)",
+              }}
             >
               <div className="mb-4 text-5xl opacity-40">🤖</div>
-              <p className="text-base font-medium" style={{ color: "var(--text-primary)" }}>
+              <p
+                className="text-base font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Create your first bot
               </p>
-              <p className="mt-2 max-w-sm text-sm" style={{ color: "var(--text-secondary)" }}>
-                Connect your knowledge, match your brand, and go live with a single snippet.
+              <p
+                className="mt-2 max-w-sm text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Connect your knowledge, match your brand, and go live with a
+                single snippet.
               </p>
               <Link
                 to="?create=1"
@@ -227,15 +280,21 @@ export function DashboardHomePage() {
               >
                 Create bot
               </Link>
-              <ul className="mt-8 space-y-2 text-left text-sm" style={{ color: "var(--text-secondary)" }}>
+              <ul
+                className="mt-8 space-y-2 text-left text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} /> Upload data
+                  <Check size={16} style={{ color: "var(--success)" }} /> Upload
+                  data
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} /> Customize widget
+                  <Check size={16} style={{ color: "var(--success)" }} />{" "}
+                  Customize widget
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} /> Copy snippet
+                  <Check size={16} style={{ color: "var(--success)" }} /> Copy
+                  snippet
                 </li>
               </ul>
             </div>
@@ -245,7 +304,10 @@ export function DashboardHomePage() {
                 <div
                   key={bot.id}
                   className="flex flex-col rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-[0_4px_14px_rgba(0,0,0,0.06)]"
-                  style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
+                  style={{
+                    borderColor: "var(--border-default)",
+                    background: "var(--bg-primary)",
+                  }}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -254,20 +316,31 @@ export function DashboardHomePage() {
                         style={{ background: "var(--bg-secondary)" }}
                       >
                         {bot.iconUrl ? (
-                          <img src={bot.iconUrl} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={bot.iconUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           bot.emoji
                         )}
                       </div>
                       <div>
-                        <p className="font-medium" style={{ color: "var(--text-primary)" }}>
+                        <p
+                          className="font-medium"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {bot.name}
                         </p>
                         <span
                           className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
                           style={{
-                            background: bot.status === "active" ? "#F0FDF4" : "#FFFBEB",
-                            color: bot.status === "active" ? "var(--success)" : "#B45309",
+                            background:
+                              bot.status === "active" ? "#F0FDF4" : "#FFFBEB",
+                            color:
+                              bot.status === "active"
+                                ? "var(--success)"
+                                : "#B45309",
                           }}
                         >
                           {bot.status === "active" ? "Active" : "Paused"}
@@ -275,9 +348,15 @@ export function DashboardHomePage() {
                       </div>
                     </div>
                   </div>
-                  <p className="mt-4 text-sm" style={{ color: "var(--text-secondary)" }}>
+                  <p
+                    className="mt-4 text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     Messages this week:{" "}
-                    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
+                    <span
+                      className="font-medium"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {bot.messagesThisWeek.toLocaleString()}
                     </span>
                   </p>
@@ -292,13 +371,24 @@ export function DashboardHomePage() {
                     <button
                       type="button"
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[var(--bg-secondary)]"
-                      style={{ borderColor: "var(--border-default)", color: "var(--text-primary)" }}
+                      style={{
+                        borderColor: "var(--border-default)",
+                        color: "var(--text-primary)",
+                      }}
                       onClick={() =>
-                        updateBot(bot.id, { status: bot.status === "active" ? "paused" : "active" })
+                        updateBot(bot.id, {
+                          status: bot.status === "active" ? "paused" : "active",
+                        })
                       }
-                      aria-label={bot.status === "active" ? "Pause bot" : "Resume bot"}
+                      aria-label={
+                        bot.status === "active" ? "Pause bot" : "Resume bot"
+                      }
                     >
-                      {bot.status === "active" ? <Pause size={16} /> : <Play size={16} />}
+                      {bot.status === "active" ? (
+                        <Pause size={16} />
+                      ) : (
+                        <Play size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -311,16 +401,33 @@ export function DashboardHomePage() {
   );
 }
 
-function StatCard({ title, value, sub }: { title: string; value: string; sub: ReactNode }) {
+function StatCard({
+  title,
+  value,
+  sub,
+}: {
+  title: string;
+  value: string;
+  sub: ReactNode;
+}) {
   return (
     <div
       className="rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-      style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
+      style={{
+        borderColor: "var(--border-default)",
+        background: "var(--bg-primary)",
+      }}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+      <p
+        className="text-xs font-semibold uppercase tracking-wider"
+        style={{ color: "var(--text-tertiary)" }}
+      >
         {title}
       </p>
-      <p className="mt-2 text-2xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+      <p
+        className="mt-2 text-2xl font-medium tracking-tight"
+        style={{ color: "var(--text-primary)" }}
+      >
         {value}
       </p>
       <div className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>

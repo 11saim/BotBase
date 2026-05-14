@@ -20,7 +20,24 @@ import {
 } from "../../components/ui/dialog";
 
 const STEPS = ["Identity", "Knowledge", "Appearance", "Deploy"] as const;
-const ICONS = ["💬", "💼", "🤖", "🎓", "📦", "⚡", "🔮", "🧠", "📚", "🛟", "✨", "🌐", "📎", "🎯", "💡", "🏷️"];
+const ICONS = [
+  "💬",
+  "💼",
+  "🤖",
+  "🎓",
+  "📦",
+  "⚡",
+  "🔮",
+  "🧠",
+  "📚",
+  "🛟",
+  "✨",
+  "🌐",
+  "📎",
+  "🎯",
+  "💡",
+  "🏷️",
+];
 
 const LANGS = [
   { v: "en", l: "English" },
@@ -50,7 +67,9 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
   const [ingestBusy, setIngestBusy] = useState(false);
   const [ingestLog, setIngestLog] = useState("");
 
-  const [appearance, setAppearance] = useState<BotAppearance>(() => defaultAppearance());
+  const [appearance, setAppearance] = useState<BotAppearance>(() =>
+    defaultAppearance(),
+  );
 
   useEffect(() => {
     if (!open) {
@@ -103,12 +122,22 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
           if (ev.error) throw new Error(String(ev.message));
           if (ev.done) {
             setChunks((c) =>
-              c.map((x) => (x.id === id ? { ...x, status: "ready" as const, name: String(ev.source || file.name) } : x)),
+              c.map((x) =>
+                x.id === id
+                  ? {
+                      ...x,
+                      status: "ready" as const,
+                      name: String(ev.source || file.name),
+                    }
+                  : x,
+              ),
             );
           }
         });
       } catch {
-        setChunks((c) => c.map((x) => (x.id === id ? { ...x, status: "failed" as const } : x)));
+        setChunks((c) =>
+          c.map((x) => (x.id === id ? { ...x, status: "failed" as const } : x)),
+        );
       } finally {
         setIngestBusy(false);
       }
@@ -139,18 +168,25 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
     try {
       await postIngestText(pasteText, { botName: name || "Text bot" }, (ev) => {
         if (ev.done) {
-          setChunks((c) => c.map((x) => (x.id === id ? { ...x, status: "ready" as const } : x)));
+          setChunks((c) =>
+            c.map((x) =>
+              x.id === id ? { ...x, status: "ready" as const } : x,
+            ),
+          );
         }
       });
       setPasteText("");
     } catch {
-      setChunks((c) => c.map((x) => (x.id === id ? { ...x, status: "failed" as const } : x)));
+      setChunks((c) =>
+        c.map((x) => (x.id === id ? { ...x, status: "failed" as const } : x)),
+      );
     } finally {
       setIngestBusy(false);
     }
   };
 
-  const removeChunk = (id: string) => setChunks((c) => c.filter((x) => x.id !== id));
+  const removeChunk = (id: string) =>
+    setChunks((c) => c.filter((x) => x.id !== id));
 
   const onIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -184,7 +220,13 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       handoffInboxEnabled: false,
       appearance,
       chunks,
-      activity: [{ id: "a0", text: "Bot created — " + new Date().toLocaleDateString(), at: new Date().toISOString().slice(0, 10) }],
+      activity: [
+        {
+          id: "a0",
+          text: "Bot created — " + new Date().toLocaleDateString(),
+          at: new Date().toISOString().slice(0, 10),
+        },
+      ],
       leads: [],
       inbox: [],
     });
@@ -197,18 +239,40 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
   const previewFont = BOT_FONT_STACK[appearance.fontId];
   const chatShell =
     appearance.chatTheme === "dark"
-      ? { bg: "#171717", surface: "#262626", text: "#fafafa", muted: "#a3a3a3", bubbleBot: "#404040", border: "#404040" }
+      ? {
+          bg: "#171717",
+          surface: "#262626",
+          text: "#fafafa",
+          muted: "#a3a3a3",
+          bubbleBot: "#404040",
+          border: "#404040",
+        }
       : appearance.chatTheme === "light"
-        ? { bg: "#ffffff", surface: "#f5f5f5", text: "#0a0a0a", muted: "#737373", bubbleBot: "#f0f0f0", border: "#e5e5e5" }
-        : { bg: "#fafafa", surface: "#f4f4f5", text: "#18181b", muted: "#71717a", bubbleBot: "#e4e4e7", border: "#e4e4e7" };
+        ? {
+            bg: "#ffffff",
+            surface: "#f5f5f5",
+            text: "#0a0a0a",
+            muted: "#737373",
+            bubbleBot: "#f0f0f0",
+            border: "#e5e5e5",
+          }
+        : {
+            bg: "#fafafa",
+            surface: "#f4f4f5",
+            text: "#18181b",
+            muted: "#71717a",
+            bubbleBot: "#e4e4e7",
+            border: "#e4e4e7",
+          };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="fixed top-1/2 left-1/2 z-50 flex max-h-[min(920px,94vh)] w-[calc(100%-1.25rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-0 shadow-2xl sm:max-h-[92vh]"
-      >
+      <DialogContent className="fixed top-1/2 left-1/2 z-50 flex max-h-[min(920px,94vh)] w-[calc(100%-1.25rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-0 shadow-2xl sm:max-h-[92vh]">
         <DialogHeader className="shrink-0 border-b border-[var(--border-default)] px-5 py-4 text-left sm:px-6">
-          <DialogTitle className="text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+          <DialogTitle
+            className="text-lg font-medium tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
             Create a bot
           </DialogTitle>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -220,23 +284,35 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
                   style={{
-                    background: i <= step ? "var(--text-primary)" : "var(--bg-tertiary)",
+                    background:
+                      i <= step ? "var(--text-primary)" : "var(--bg-tertiary)",
                     color: i <= step ? "white" : "var(--text-tertiary)",
-                    border: i > step ? "1px solid var(--border-default)" : "none",
+                    border:
+                      i > step ? "1px solid var(--border-default)" : "none",
                   }}
                 >
                   {i < step ? <Check size={14} /> : i + 1}
                 </div>
                 <span
                   className="hidden text-xs font-medium sm:inline"
-                  style={{ color: i === step ? "var(--text-primary)" : "var(--text-tertiary)" }}
+                  style={{
+                    color:
+                      i === step
+                        ? "var(--text-primary)"
+                        : "var(--text-tertiary)",
+                  }}
                 >
                   {label}
                 </span>
                 {i < STEPS.length - 1 && (
                   <div
                     className="hidden h-px w-6 sm:block"
-                    style={{ background: i < step ? "var(--text-primary)" : "var(--border-default)" }}
+                    style={{
+                      background:
+                        i < step
+                          ? "var(--text-primary)"
+                          : "var(--border-default)",
+                    }}
                   />
                 )}
               </div>
@@ -248,13 +324,22 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
           <div className="min-w-0 space-y-6 px-5 py-6 sm:px-6">
             {step === 0 && (
               <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]/60 p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                <p
+                  className="text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
                   Identity
                 </p>
-                <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+                <h2
+                  className="mt-1 text-lg font-medium tracking-tight"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Name &amp; avatar
                 </h2>
-                <label className="mt-5 block text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                <label
+                  className="mt-5 block text-sm font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Bot name *
                 </label>
                 <input
@@ -263,7 +348,10 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--text-primary)]/15"
                   placeholder="e.g. Support Bot"
                 />
-                <label className="mt-5 block text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                <label
+                  className="mt-5 block text-sm font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Description (shown in chat preview)
                 </label>
                 <textarea
@@ -273,25 +361,44 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   className="mt-2 w-full resize-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--text-primary)]/15"
                   placeholder="One line about what this bot helps with"
                 />
-                <p className="mt-5 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                <p
+                  className="mt-5 text-sm font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Avatar
                 </p>
-                <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                  Pick an emoji or upload a square image (PNG/JPG/WebP, max ~400KB).
+                <p
+                  className="mt-1 text-xs"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Pick an emoji or upload a square image (PNG/JPG/WebP, max
+                  ~400KB).
                 </p>
                 <div className="mt-3 flex flex-wrap items-start gap-4">
                   <label className="flex cursor-pointer flex-col items-center gap-2">
                     <span
                       className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-xs font-medium transition-colors hover:bg-[var(--bg-tertiary)]"
-                      style={{ borderColor: "var(--border-default)", color: "var(--text-secondary)" }}
+                      style={{
+                        borderColor: "var(--border-default)",
+                        color: "var(--text-secondary)",
+                      }}
                     >
                       {iconDataUrl ? (
-                        <img src={iconDataUrl} alt="" className="h-full w-full object-cover" />
+                        <img
+                          src={iconDataUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         "Upload"
                       )}
                     </span>
-                    <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onIconUpload} />
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={onIconUpload}
+                    />
                   </label>
                   {iconDataUrl && (
                     <button
@@ -315,8 +422,14 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       }}
                       className="flex h-10 w-10 items-center justify-center rounded-xl border text-xl transition-all"
                       style={{
-                        borderColor: emoji === ic && !iconDataUrl ? "var(--text-primary)" : "var(--border-default)",
-                        background: emoji === ic && !iconDataUrl ? "var(--bg-tertiary)" : "var(--bg-primary)",
+                        borderColor:
+                          emoji === ic && !iconDataUrl
+                            ? "var(--text-primary)"
+                            : "var(--border-default)",
+                        background:
+                          emoji === ic && !iconDataUrl
+                            ? "var(--bg-tertiary)"
+                            : "var(--bg-primary)",
                       }}
                     >
                       {ic}
@@ -328,10 +441,16 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
             {step === 1 && (
               <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]/60 p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                <p
+                  className="text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
                   Knowledge
                 </p>
-                <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+                <h2
+                  className="mt-1 text-lg font-medium tracking-tight"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Train your bot
                 </h2>
                 <div className="mt-5 flex gap-1 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-1">
@@ -342,7 +461,8 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       onClick={() => setKbTab(t)}
                       className="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all"
                       style={{
-                        background: kbTab === t ? "var(--text-primary)" : "transparent",
+                        background:
+                          kbTab === t ? "var(--text-primary)" : "transparent",
                         color: kbTab === t ? "white" : "var(--text-secondary)",
                       }}
                     >
@@ -355,13 +475,18 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     {...getRootProps()}
                     className="mt-4 cursor-pointer rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors"
                     style={{
-                      borderColor: isDragActive ? "var(--text-primary)" : "var(--border-default)",
+                      borderColor: isDragActive
+                        ? "var(--text-primary)"
+                        : "var(--border-default)",
                       background: "var(--bg-primary)",
                     }}
                   >
                     <input {...getInputProps()} />
                     <FileText className="mx-auto mb-2 opacity-50" size={28} />
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                    <p
+                      className="text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Drop PDF or TXT, or click to browse
                     </p>
                   </div>
@@ -387,7 +512,10 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   </div>
                 )}
                 {ingestLog && (
-                  <p className="mt-3 text-xs" style={{ color: "var(--text-secondary)" }}>
+                  <p
+                    className="mt-3 text-xs"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     {ingestLog}
                   </p>
                 )}
@@ -398,23 +526,42 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5"
                     >
                       <div className="flex min-w-0 items-center gap-2">
-                        {c.type === "file" ? <FileText size={16} /> : <Link2 size={16} />}
-                        <span className="truncate text-sm" style={{ color: "var(--text-primary)" }}>
+                        {c.type === "file" ? (
+                          <FileText size={16} />
+                        ) : (
+                          <Link2 size={16} />
+                        )}
+                        <span
+                          className="truncate text-sm"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {c.name}
                         </span>
                         <span
                           className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
                           style={{
                             background:
-                              c.status === "ready" ? "#F0FDF4" : c.status === "failed" ? "#FEF2F2" : "var(--bg-tertiary)",
+                              c.status === "ready"
+                                ? "#F0FDF4"
+                                : c.status === "failed"
+                                  ? "#FEF2F2"
+                                  : "var(--bg-tertiary)",
                             color:
-                              c.status === "ready" ? "var(--success)" : c.status === "failed" ? "var(--destructive)" : "var(--text-secondary)",
+                              c.status === "ready"
+                                ? "var(--success)"
+                                : c.status === "failed"
+                                  ? "var(--destructive)"
+                                  : "var(--text-secondary)",
                           }}
                         >
                           {c.status}
                         </span>
                       </div>
-                      <button type="button" onClick={() => removeChunk(c.id)} className="shrink-0 rounded-lg p-1.5 hover:bg-[var(--bg-secondary)]">
+                      <button
+                        type="button"
+                        onClick={() => removeChunk(c.id)}
+                        className="shrink-0 rounded-lg p-1.5 hover:bg-[var(--bg-secondary)]"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </li>
@@ -426,17 +573,28 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             {step === 2 && (
               <div className="space-y-6">
                 <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]/60 p-5 sm:p-6">
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                  <p
+                    className="text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
                     Launcher
                   </p>
-                  <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+                  <h2
+                    className="mt-1 text-lg font-medium tracking-tight"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     Widget on your site
                   </h2>
                   <div className="mt-5 grid gap-4 sm:grid-cols-3">
                     <LabeledSelect
                       label="Position"
                       value={appearance.widgetPosition}
-                      onChange={(v) => setAppearance((a) => ({ ...a, widgetPosition: v as BotAppearance["widgetPosition"] }))}
+                      onChange={(v) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          widgetPosition: v as BotAppearance["widgetPosition"],
+                        }))
+                      }
                       options={[
                         { v: "br", l: "Bottom right" },
                         { v: "bl", l: "Bottom left" },
@@ -445,7 +603,12 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     <LabeledSelect
                       label="Shape"
                       value={appearance.widgetShape}
-                      onChange={(v) => setAppearance((a) => ({ ...a, widgetShape: v as BotAppearance["widgetShape"] }))}
+                      onChange={(v) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          widgetShape: v as BotAppearance["widgetShape"],
+                        }))
+                      }
                       options={[
                         { v: "circle", l: "Circle" },
                         { v: "rounded", l: "Rounded" },
@@ -454,7 +617,12 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     <LabeledSelect
                       label="Size"
                       value={appearance.widgetSize}
-                      onChange={(v) => setAppearance((a) => ({ ...a, widgetSize: v as BotAppearance["widgetSize"] }))}
+                      onChange={(v) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          widgetSize: v as BotAppearance["widgetSize"],
+                        }))
+                      }
                       options={[
                         { v: "sm", l: "Small" },
                         { v: "md", l: "Medium" },
@@ -464,38 +632,66 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   </div>
                   <div className="mt-5 grid gap-6 sm:grid-cols-2">
                     <div>
-                      <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
                         Launcher color
                       </p>
                       <div className="mt-2 flex justify-center rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-3">
-                        <HexColorPicker color={appearance.widgetBg} onChange={(widgetBg) => setAppearance((a) => ({ ...a, widgetBg }))} style={{ width: 140, height: 140 }} />
+                        <HexColorPicker
+                          color={appearance.widgetBg}
+                          onChange={(widgetBg) =>
+                            setAppearance((a) => ({ ...a, widgetBg }))
+                          }
+                          style={{ width: 140, height: 140 }}
+                        />
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
                         Tooltip
                       </p>
                       <input
                         className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.widgetTooltip}
-                        onChange={(e) => setAppearance((a) => ({ ...a, widgetTooltip: e.target.value }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            widgetTooltip: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]/60 p-5 sm:p-6">
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                  <p
+                    className="text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
                     Chat panel
                   </p>
-                  <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+                  <h2
+                    className="mt-1 text-lg font-medium tracking-tight"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     Look &amp; copy
                   </h2>
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     <LabeledSelect
                       label="Panel theme"
                       value={appearance.chatTheme}
-                      onChange={(v) => setAppearance((a) => ({ ...a, chatTheme: v as BotAppearance["chatTheme"] }))}
+                      onChange={(v) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          chatTheme: v as BotAppearance["chatTheme"],
+                        }))
+                      }
                       options={[
                         { v: "light", l: "Light" },
                         { v: "dark", l: "Dark" },
@@ -503,13 +699,21 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       ]}
                     />
                     <div>
-                      <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
                         Chat font
                       </p>
                       <select
                         className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.fontId}
-                        onChange={(e) => setAppearance((a) => ({ ...a, fontId: e.target.value as BotFontId }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            fontId: e.target.value as BotFontId,
+                          }))
+                        }
                       >
                         {FONT_OPTIONS.map((f) => (
                           <option key={f.id} value={f.id}>
@@ -520,11 +724,20 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     </div>
                   </div>
                   <div className="mt-5">
-                    <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Accent (header &amp; buttons)
                     </p>
                     <div className="mt-2 flex justify-center rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-3">
-                      <HexColorPicker color={appearance.primaryColor} onChange={(primaryColor) => setAppearance((a) => ({ ...a, primaryColor }))} style={{ width: 140, height: 140 }} />
+                      <HexColorPicker
+                        color={appearance.primaryColor}
+                        onChange={(primaryColor) =>
+                          setAppearance((a) => ({ ...a, primaryColor }))
+                        }
+                        style={{ width: 140, height: 140 }}
+                      />
                     </div>
                   </div>
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -532,23 +745,41 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       <input
                         className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.welcomeMessage}
-                        onChange={(e) => setAppearance((a) => ({ ...a, welcomeMessage: e.target.value }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            welcomeMessage: e.target.value,
+                          }))
+                        }
                       />
                     </Field>
                     <Field label="Input placeholder">
                       <input
                         className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.inputPlaceholder}
-                        onChange={(e) => setAppearance((a) => ({ ...a, inputPlaceholder: e.target.value }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            inputPlaceholder: e.target.value,
+                          }))
+                        }
                       />
                     </Field>
                   </div>
-                  <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                  <label
+                    className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-3 text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-[var(--border-default)]"
                       checked={appearance.poweredBy}
-                      onChange={(e) => setAppearance((a) => ({ ...a, poweredBy: e.target.checked }))}
+                      onChange={(e) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          poweredBy: e.target.checked,
+                        }))
+                      }
                     />
                     Show “Powered by BotBase” in widget
                   </label>
@@ -558,7 +789,12 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                         rows={2}
                         className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.fallbackMessage}
-                        onChange={(e) => setAppearance((a) => ({ ...a, fallbackMessage: e.target.value }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            fallbackMessage: e.target.value,
+                          }))
+                        }
                       />
                     </Field>
                     <Field label="Paused message">
@@ -566,12 +802,20 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                         rows={2}
                         className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                         value={appearance.pausedMessage}
-                        onChange={(e) => setAppearance((a) => ({ ...a, pausedMessage: e.target.value }))}
+                        onChange={(e) =>
+                          setAppearance((a) => ({
+                            ...a,
+                            pausedMessage: e.target.value,
+                          }))
+                        }
                       />
                     </Field>
                   </div>
                   <div className="mt-5">
-                    <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Response style
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -579,11 +823,19 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                         <button
                           key={r}
                           type="button"
-                          onClick={() => setAppearance((a) => ({ ...a, responseStyle: r }))}
+                          onClick={() =>
+                            setAppearance((a) => ({ ...a, responseStyle: r }))
+                          }
                           className="rounded-xl px-4 py-2 text-sm font-medium capitalize transition-all"
                           style={{
-                            background: appearance.responseStyle === r ? "var(--text-primary)" : "var(--bg-primary)",
-                            color: appearance.responseStyle === r ? "white" : "var(--text-secondary)",
+                            background:
+                              appearance.responseStyle === r
+                                ? "var(--text-primary)"
+                                : "var(--bg-primary)",
+                            color:
+                              appearance.responseStyle === r
+                                ? "white"
+                                : "var(--text-secondary)",
                             border: "1px solid var(--border-default)",
                           }}
                         >
@@ -593,13 +845,21 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     </div>
                   </div>
                   <div className="mt-4 max-w-xs">
-                    <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Language
                     </p>
                     <select
                       className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm"
                       value={appearance.language}
-                      onChange={(e) => setAppearance((a) => ({ ...a, language: e.target.value }))}
+                      onChange={(e) =>
+                        setAppearance((a) => ({
+                          ...a,
+                          language: e.target.value,
+                        }))
+                      }
                     >
                       {LANGS.map((l) => (
                         <option key={l.v} value={l.v}>
@@ -614,15 +874,31 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
             {step === 3 && (
               <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]/60 p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                <p
+                  className="text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
                   Deploy
                 </p>
-                <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+                <h2
+                  className="mt-1 text-lg font-medium tracking-tight"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Install snippet
                 </h2>
-                <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Paste before the closing <code className="rounded bg-[var(--bg-tertiary)] px-1">&lt;/body&gt;</code> tag. Replace{" "}
-                  <code className="rounded bg-[var(--bg-tertiary)] px-1">NEW_BOT_ID</code> after creation.
+                <p
+                  className="mt-2 text-sm"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Paste before the closing{" "}
+                  <code className="rounded bg-[var(--bg-tertiary)] px-1">
+                    &lt;/body&gt;
+                  </code>{" "}
+                  tag. Replace{" "}
+                  <code className="rounded bg-[var(--bg-tertiary)] px-1">
+                    NEW_BOT_ID
+                  </code>{" "}
+                  after creation.
                 </p>
                 <pre
                   className="mt-4 overflow-x-auto rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-4 text-xs leading-relaxed"
@@ -668,7 +944,10 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
           </div>
 
           <aside className="border-t border-[var(--border-default)] bg-[var(--bg-secondary)]/80 p-5 lg:border-l lg:border-t-0">
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+            <p
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: "var(--text-tertiary)" }}
+            >
               Live preview
             </p>
             <div
@@ -678,29 +957,58 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                 fontFamily: previewFont,
               }}
             >
-              <div className="px-4 py-3 text-white" style={{ background: appearance.primaryColor }}>
+              <div
+                className="px-4 py-3 text-white"
+                style={{ background: appearance.primaryColor }}
+              >
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15 text-lg">
-                    {iconDataUrl ? <img src={iconDataUrl} alt="" className="h-full w-full object-cover" /> : emoji}
+                    {iconDataUrl ? (
+                      <img
+                        src={iconDataUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      emoji
+                    )}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{name || "Your bot"}</p>
+                    <p className="truncate text-sm font-semibold">
+                      {name || "Your bot"}
+                    </p>
                     {description.trim() ? (
-                      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-white/85">{description}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-white/85">
+                        {description}
+                      </p>
                     ) : (
-                      <p className="mt-0.5 text-xs text-white/70">Add a description on step 1</p>
+                      <p className="mt-0.5 text-xs text-white/70">
+                        Add a description on step 1
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="space-y-3 p-4" style={{ background: chatShell.bg, minHeight: 200 }}>
+              <div
+                className="space-y-3 p-4"
+                style={{ background: chatShell.bg, minHeight: 200 }}
+              >
                 <div
                   className="max-w-[92%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm leading-relaxed shadow-sm"
-                  style={{ background: chatShell.bubbleBot, color: chatShell.text }}
+                  style={{
+                    background: chatShell.bubbleBot,
+                    color: chatShell.text,
+                  }}
                 >
                   {appearance.welcomeMessage}
                 </div>
-                <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md px-3.5 py-2.5 text-sm shadow-sm" style={{ background: appearance.primaryColor, color: "white" }}>
+                <div
+                  className="ml-auto max-w-[85%] rounded-2xl rounded-br-md px-3.5 py-2.5 text-sm shadow-sm"
+                  style={{
+                    background: appearance.primaryColor,
+                    color: "white",
+                  }}
+                >
                   Example visitor question
                 </div>
                 <div
@@ -711,13 +1019,21 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     color: chatShell.muted,
                   }}
                 >
-                  <span className="min-w-0 flex-1 truncate">{appearance.inputPlaceholder}</span>
-                  <span className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style={{ background: appearance.primaryColor }}>
+                  <span className="min-w-0 flex-1 truncate">
+                    {appearance.inputPlaceholder}
+                  </span>
+                  <span
+                    className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                    style={{ background: appearance.primaryColor }}
+                  >
                     Send
                   </span>
                 </div>
                 {appearance.poweredBy && (
-                  <p className="text-center text-[10px]" style={{ color: chatShell.muted }}>
+                  <p
+                    className="text-center text-[10px]"
+                    style={{ color: chatShell.muted }}
+                  >
                     Powered by BotBase
                   </p>
                 )}
@@ -727,14 +1043,33 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
               <div
                 className="flex items-center justify-center text-lg text-white shadow-lg"
                 style={{
-                  width: appearance.widgetSize === "sm" ? 44 : appearance.widgetSize === "lg" ? 60 : 52,
-                  height: appearance.widgetSize === "sm" ? 44 : appearance.widgetSize === "lg" ? 60 : 52,
-                  borderRadius: appearance.widgetShape === "circle" ? "9999px" : "14px",
+                  width:
+                    appearance.widgetSize === "sm"
+                      ? 44
+                      : appearance.widgetSize === "lg"
+                        ? 60
+                        : 52,
+                  height:
+                    appearance.widgetSize === "sm"
+                      ? 44
+                      : appearance.widgetSize === "lg"
+                        ? 60
+                        : 52,
+                  borderRadius:
+                    appearance.widgetShape === "circle" ? "9999px" : "14px",
                   background: appearance.widgetBg,
                 }}
                 title={appearance.widgetTooltip}
               >
-                {iconDataUrl ? <img src={iconDataUrl} alt="" className="h-[55%] w-[55%] object-contain" /> : emoji}
+                {iconDataUrl ? (
+                  <img
+                    src={iconDataUrl}
+                    alt=""
+                    className="h-[55%] w-[55%] object-contain"
+                  />
+                ) : (
+                  emoji
+                )}
               </div>
             </div>
           </aside>
@@ -747,7 +1082,10 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+      <span
+        className="text-xs font-medium"
+        style={{ color: "var(--text-secondary)" }}
+      >
         {label}
       </span>
       {children}
@@ -768,7 +1106,10 @@ function LabeledSelect({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+      <p
+        className="text-xs font-medium"
+        style={{ color: "var(--text-secondary)" }}
+      >
         {label}
       </p>
       <select
