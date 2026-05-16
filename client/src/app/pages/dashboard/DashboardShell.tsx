@@ -7,7 +7,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { CreditCard, LayoutGrid, Menu, X } from "lucide-react";
+import { CreditCard, LayoutGrid, Menu, Plus, Search, X } from "lucide-react";
 import { isAuthenticated } from "../../lib/auth";
 import { DashboardBotsProvider } from "./DashboardBotsContext";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
@@ -87,46 +87,49 @@ function DashboardFrame() {
           <X size={18} />
         </button>
 
-        {/* Workspace Header */}
-        <div className="border-b border-black/5 px-4 pb-3 pt-4">
-          <button className="flex w-full items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-[#f5f5f2]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-black text-sm font-bold tracking-tight text-white">
-              BB
+        <div className="px-3.5 pt-5">
+          <div className="flex items-end gap-2">
+            {/* Logo mark */}
+            <div
+              className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-[13px] font-black tracking-tighter text-white"
+              style={{ background: "var(--text-primary)" }}
+            >
+              B{/* subtle inner glow */}
+              <div className="absolute inset-0 rounded-[10px] ring-1 ring-inset ring-white/20" />
             </div>
 
-            <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-[13.5px] font-semibold text-black">
-                Bot Base
-              </p>
-              <p className="text-[11px] text-neutral-500">Pro workspace</p>
+            {/* Wordmark */}
+            <div className="flex gap-[3px]">
+              <span
+                className="text-[22px] font-bold tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Bot
+              </span>
+              <span
+                className="text-[22px] font-bold tracking-tight"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                Base
+              </span>
             </div>
-
-            <i className="ti ti-chevrons-up-down text-sm text-neutral-400" />
-          </button>
-        </div>
-
-        {/* New Bot Button */}
-        <div className="px-3 py-3">
-          <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-medium text-white transition hover:opacity-90">
-            <i className="ti ti-plus text-[15px]" />
-            New bot
-          </button>
+          </div>
         </div>
 
         {/* Search */}
-        <div className="px-3 pb-3">
-          <div className="flex cursor-text items-center gap-2 rounded-xl border border-black/5 bg-[#f5f5f2] px-3 py-2">
-            <i className="ti ti-search text-sm text-neutral-400" />
-
-            <span className="flex-1 text-[12.5px] text-neutral-400">
-              Search...
-            </span>
-
-            <kbd className="rounded-md border border-black/10 bg-[#ebebeb] px-1.5 py-0.5 font-mono text-[10px] text-neutral-400">
-              ⌘K
-            </kbd>
-          </div>
-        </div>
+        <Link className="mx-3 my-3" to={""}>
+          <button
+            className="flex w-full items-center justify-start gap-2 leading-none rounded-lg border px-4 py-3 text-[13px] font-medium transition-colors hover:bg-[var(--bg-secondary)]"
+            style={{
+              borderColor: "var(--border-default)",
+              background: "var(--bg-primary)",
+              color: "var(--text-secondary)",
+            }}
+          >
+            <Search size={16} />
+            Search
+          </button>
+        </Link>
 
         {/* Scroll Area */}
         <div className="flex-1 overflow-y-auto px-2 pb-2">
@@ -136,38 +139,13 @@ function DashboardFrame() {
               Main
             </p>
 
-            <div className="space-y-1">
-              <button className="flex w-full items-center gap-3 rounded-xl bg-black px-3 py-2 text-left text-[13px] text-white">
-                <i className="ti ti-layout-grid text-[16px]" />
+            <div className="space-y-2">
+              <button className="flex w-full items-center gap-3 rounded-lg bg-black leading-none px-5 py-4 text-left text-[13px] text-white">
                 Dashboard
               </button>
 
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black">
-                <i className="ti ti-robot text-[16px]" />
-
-                <span>All bots</span>
-
-                <span className="ml-auto rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">
-                  3
-                </span>
-              </button>
-
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black">
-                <i className="ti ti-chart-bar text-[16px]" />
-                Analytics
-              </button>
-
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black">
-                <i className="ti ti-database text-[16px]" />
-                Knowledge base
-              </button>
-
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black">
-                <i className="ti ti-bell text-[16px]" />
-
-                <span>Activity</span>
-
-                <span className="ml-auto h-2 w-2 rounded-full bg-red-500" />
+              <button className="flex w-full items-center gap-3 rounded-lg leading-none px-5 py-4 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black">
+                <span>Plan & Usage</span>
               </button>
             </div>
           </div>
@@ -180,6 +158,12 @@ function DashboardFrame() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
                 Your bots
               </p>
+              <Link
+                to="/dashboard/bots"
+                className="rounded-md px-2 py-1 text-[10px] font-medium text-neutral-400 transition hover:bg-[#f5f5f2] hover:text-neutral-600"
+              >
+                View all
+              </Link>
             </div>
 
             <div className="space-y-1">
@@ -187,11 +171,9 @@ function DashboardFrame() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
                   🤖
                 </div>
-
                 <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
                   Support Assistant
                 </span>
-
                 <span className="h-2 w-2 rounded-full bg-green-500" />
               </button>
 
@@ -199,11 +181,9 @@ function DashboardFrame() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
                   📚
                 </div>
-
                 <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
                   Docs Bot
                 </span>
-
                 <span className="h-2 w-2 rounded-full bg-green-500" />
               </button>
 
@@ -211,40 +191,21 @@ function DashboardFrame() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
                   💼
                 </div>
-
                 <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
                   Sales Helper
                 </span>
-
                 <span className="h-2 w-2 rounded-full bg-neutral-300" />
               </button>
-            </div>
-          </div>
 
-          <div className="mx-2 mb-3 h-px bg-black/5" />
-
-          {/* Configure */}
-          <div>
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-              Configure
-            </p>
-
-            <div className="space-y-1">
-              {[
-                ["ti-puzzle", "Integrations"],
-                ["ti-code", "API & webhooks"],
-                ["ti-palette", "Appearance"],
-                ["ti-credit-card", "Plan & usage"],
-                ["ti-settings", "Settings"],
-              ].map(([icon, label]) => (
-                <button
-                  key={label}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] text-neutral-600 transition hover:bg-[#f5f5f2] hover:text-black"
-                >
-                  <i className={`ti ${icon} text-[16px]`} />
-                  {label}
+              {/* Create at bottom */}
+              <Link to="?create=1">
+                <button className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[12.5px] text-neutral-400 transition hover:bg-[#f5f5f2] hover:text-neutral-600">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-dashed border-black/15">
+                    <Plus size={13} strokeWidth={2.5} />
+                  </div>
+                  New bot
                 </button>
-              ))}
+              </Link>
             </div>
           </div>
         </div>
@@ -304,78 +265,30 @@ function DashboardFrame() {
       </aside>
 
       <div className="flex max-h-screen overflow-auto min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[var(--border-default)] bg-[var(--bg-primary)]/95 px-4 py-3.5 backdrop-blur-sm sm:px-6">
-          <div className="flex min-w-0 items-center gap-2">
-            <button
-              type="button"
-              className="shrink-0 rounded-xl p-2 hover:bg-[var(--bg-secondary)] lg:hidden"
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu size={20} />
-            </button>
-            <p
-              className="truncate text-sm sm:text-base"
-              style={{ fontWeight: 500, color: "var(--text-primary)" }}
-            >
-              {topBarTitle}
-            </p>
-          </div>
-          {showCreateCta && (
-            <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
-              <Link
-                to="?create=1"
-                className="rounded-xl px-3 py-2 text-sm font-medium text-white shadow-[0_1px_2px_rgba(0,0,0,0.12)] transition-opacity hover:opacity-90 sm:px-4"
-                style={{ background: "var(--text-primary)" }}
-              >
-                Create bot
-              </Link>
-              {isHome && (
-                <Link
-                  to="/dashboard/usage"
-                  className="flex max-w-[min(100%,14rem)] items-center gap-2 rounded-xl border p-1.5 pl-2 pr-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-colors hover:bg-[var(--bg-secondary)] sm:max-w-none sm:gap-3 sm:p-2 sm:pr-3"
-                  style={{
-                    borderColor: "var(--border-default)",
-                    background: "var(--bg-primary)",
-                  }}
-                  aria-label="Plan and usage"
-                >
-                  <div
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-medium text-white sm:h-10 sm:w-10 sm:text-sm"
-                    style={{ background: "var(--text-primary)" }}
-                  >
-                    SK
-                  </div>
-                  <div className="min-w-0 flex-1 max-sm:hidden">
-                    <p
-                      className="truncate text-sm font-medium"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Saim Khan
-                    </p>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                      <span
-                        className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                        style={{
-                          background: "var(--bg-tertiary)",
-                          color: "var(--text-secondary)",
-                          border: "1px solid var(--border-default)",
-                        }}
-                      >
-                        Pro plan
-                      </span>
-                      <span
-                        className="text-[11px] max-lg:hidden"
-                        style={{ color: "var(--text-tertiary)" }}
-                      >
-                        Since Jan 2026
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              )}
-            </div>
-          )}
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[var(--border-default)] bg-[var(--bg-primary)]/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+          <button
+            type="button"
+            className="rounded-xl p-2 hover:bg-[var(--bg-secondary)]"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={23} />
+          </button>
+
+          <span
+            className="text-sm font-semibold"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {topBarTitle}
+          </span>
+
+          <Link
+            to="?create=1"
+            className="rounded-lg p-2 bg-black text-white"
+            aria-label="Create bot"
+          >
+            <Plus size={20} />
+          </Link>
         </header>
 
         <main className="min-h-0 flex-1 bg-[var(--bg-secondary)]">
