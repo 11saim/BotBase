@@ -73,7 +73,6 @@ export interface DashboardBot {
   id: string;
   name: string;
   emoji: string;
-  /** Data URL or remote URL for custom avatar (optional) */
   iconUrl?: string | null;
   description?: string;
   status: BotStatus;
@@ -108,27 +107,44 @@ export const defaultAppearance = (): BotAppearance => ({
   inputPlaceholder: "Ask anything…",
   poweredBy: true,
   fallbackMessage: "I do not have enough information to answer that yet.",
-  pausedMessage: "This assistant is temporarily paused. Please try again later.",
+  pausedMessage:
+    "This assistant is temporarily paused. Please try again later.",
   responseStyle: "friendly",
   language: "en",
 });
 
 function coerceFontId(v: unknown): BotFontId {
-  const allowed: BotFontId[] = ["dm-sans", "inter", "system-ui", "georgia", "mono", "nunito", "source-serif"];
-  if (typeof v === "string" && allowed.includes(v as BotFontId)) return v as BotFontId;
+  const allowed: BotFontId[] = [
+    "dm-sans",
+    "inter",
+    "system-ui",
+    "georgia",
+    "mono",
+    "nunito",
+    "source-serif",
+  ];
+  if (typeof v === "string" && allowed.includes(v as BotFontId))
+    return v as BotFontId;
   if (v === "serif") return "source-serif";
   return "dm-sans";
 }
 
-function normalizeAppearance(p: Partial<BotAppearance> | undefined): BotAppearance {
-  const merged = { ...defaultAppearance(), ...(p || {}) } as Record<string, unknown>;
+function normalizeAppearance(
+  p: Partial<BotAppearance> | undefined,
+): BotAppearance {
+  const merged = { ...defaultAppearance(), ...(p || {}) } as Record<
+    string,
+    unknown
+  >;
   delete merged.confidenceThreshold;
   const a = { ...defaultAppearance(), ...merged } as BotAppearance;
   a.fontId = coerceFontId(a.fontId);
   return a;
 }
 
-function seedBot(partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "name" | "emoji">): DashboardBot {
+function seedBot(
+  partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "name" | "emoji">,
+): DashboardBot {
   const appearance = normalizeAppearance(partial.appearance);
   return {
     description: "",
@@ -156,7 +172,11 @@ function seedBot(partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "nam
     ],
     activity: [
       { id: `a-${partial.id}-1`, text: "Added data — May 8", at: "2026-05-08" },
-      { id: `a-${partial.id}-2`, text: "Updated appearance — May 6", at: "2026-05-06" },
+      {
+        id: `a-${partial.id}-2`,
+        text: "Updated appearance — May 6",
+        at: "2026-05-06",
+      },
     ],
     leads: [],
     inbox: [],
@@ -167,12 +187,19 @@ function seedBot(partial: Partial<DashboardBot> & Pick<DashboardBot, "id" | "nam
 
 function hydrateBot(b: Partial<DashboardBot>): DashboardBot {
   const id = String(b.id || `bot_${crypto.randomUUID().slice(0, 12)}`);
-  const base = seedBot({ id, name: b.name || "Untitled", emoji: b.emoji || "🤖" });
+  const base = seedBot({
+    id,
+    name: b.name || "Untitled",
+    emoji: b.emoji || "🤖",
+  });
   return {
     ...base,
     ...b,
     id,
-    appearance: normalizeAppearance({ ...base.appearance, ...(b.appearance || {}) }),
+    appearance: normalizeAppearance({
+      ...base.appearance,
+      ...(b.appearance || {}),
+    }),
     chunks: Array.isArray(b.chunks) ? b.chunks : base.chunks,
     activity: Array.isArray(b.activity) ? b.activity : base.activity,
     leads: Array.isArray(b.leads) ? b.leads : [],
@@ -203,7 +230,9 @@ interface DashboardBotsContextValue {
   addInbox: (botId: string, message: string) => void;
 }
 
-const DashboardBotsContext = createContext<DashboardBotsContextValue | null>(null);
+const DashboardBotsContext = createContext<DashboardBotsContextValue | null>(
+  null,
+);
 
 export function DashboardBotsProvider({ children }: { children: ReactNode }) {
   const [bots, setBots] = useState<DashboardBot[]>(() => loadBots());
@@ -212,24 +241,34 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bots));
   }, [bots]);
 
-  const addBot = useCallback((bot: Omit<DashboardBot, "id"> & { id?: string }) => {
-    const id = bot.id || `bot_${crypto.randomUUID().slice(0, 12)}`;
-    const full: DashboardBot = {
-      ...seedBot({ id, name: bot.name, emoji: bot.emoji }),
-      ...bot,
-      id,
-      appearance: normalizeAppearance({ ...defaultAppearance(), ...bot.appearance }),
-    };
-    setBots((prev) => [...prev, full]);
-    return full;
-  }, []);
+  const addBot = useCallback(
+    (bot: Omit<DashboardBot, "id"> & { id?: string }) => {
+      const id = bot.id || `bot_${crypto.randomUUID().slice(0, 12)}`;
+      const full: DashboardBot = {
+        ...seedBot({ id, name: bot.name, emoji: bot.emoji }),
+        ...bot,
+        id,
+        appearance: normalizeAppearance({
+          ...defaultAppearance(),
+          ...bot.appearance,
+        }),
+      };
+      setBots((prev) => [...prev, full]);
+      return full;
+    },
+    [],
+  );
 
   const updateBot = useCallback((id: string, patch: Partial<DashboardBot>) => {
     setBots((prev) =>
       prev.map((b) => {
         if (b.id !== id) return b;
         const next = { ...b, ...patch };
-        if (patch.appearance) next.appearance = normalizeAppearance({ ...b.appearance, ...patch.appearance });
+        if (patch.appearance)
+          next.appearance = normalizeAppearance({
+            ...b.appearance,
+            ...patch.appearance,
+          });
         return next;
       }),
     );
@@ -247,7 +286,9 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
     };
     setBots((prev) =>
       prev.map((b) =>
-        b.id === botId ? { ...b, activity: [entry, ...b.activity].slice(0, 10) } : b,
+        b.id === botId
+          ? { ...b, activity: [entry, ...b.activity].slice(0, 10) }
+          : b,
       ),
     );
   }, []);
@@ -257,8 +298,15 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addLead = useCallback((botId: string, lead: Omit<LeadEntry, "id">) => {
-    const row: LeadEntry = { ...lead, id: `l-${crypto.randomUUID().slice(0, 8)}` };
-    setBots((prev) => prev.map((b) => (b.id === botId ? { ...b, leads: [row, ...b.leads] } : b)));
+    const row: LeadEntry = {
+      ...lead,
+      id: `l-${crypto.randomUUID().slice(0, 8)}`,
+    };
+    setBots((prev) =>
+      prev.map((b) =>
+        b.id === botId ? { ...b, leads: [row, ...b.leads] } : b,
+      ),
+    );
   }, []);
 
   const addInbox = useCallback((botId: string, message: string) => {
@@ -267,7 +315,11 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
       message,
       createdAt: new Date().toLocaleString(),
     };
-    setBots((prev) => prev.map((b) => (b.id === botId ? { ...b, inbox: [row, ...b.inbox] } : b)));
+    setBots((prev) =>
+      prev.map((b) =>
+        b.id === botId ? { ...b, inbox: [row, ...b.inbox] } : b,
+      ),
+    );
   }, []);
 
   const value = useMemo(
@@ -281,14 +333,30 @@ export function DashboardBotsProvider({ children }: { children: ReactNode }) {
       addLead,
       addInbox,
     }),
-    [bots, addBot, updateBot, deleteBot, appendActivity, setChunks, addLead, addInbox],
+    [
+      bots,
+      addBot,
+      updateBot,
+      deleteBot,
+      appendActivity,
+      setChunks,
+      addLead,
+      addInbox,
+    ],
   );
 
-  return <DashboardBotsContext.Provider value={value}>{children}</DashboardBotsContext.Provider>;
+  return (
+    <DashboardBotsContext.Provider value={value}>
+      {children}
+    </DashboardBotsContext.Provider>
+  );
 }
 
 export function useDashboardBots() {
   const ctx = useContext(DashboardBotsContext);
-  if (!ctx) throw new Error("useDashboardBots must be used inside DashboardBotsProvider");
+  if (!ctx)
+    throw new Error(
+      "useDashboardBots must be used inside DashboardBotsProvider",
+    );
   return ctx;
 }
