@@ -205,73 +205,14 @@ export function DashboardPlanUsagePage() {
         </div>
 
         {/* ── Upgrade plans ── */}
-        {/* <div>
+        <div>
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
             Upgrade your plan
           </p>
           <div className="rounded-3xl border border-neutral-200 bg-white p-5">
-            <div className="grid gap-3 sm:grid-cols-3">
-              {plans.map((plan) => (
-                <div
-                  key={plan.key}
-                  className={`rounded-2xl p-5 ${
-                    plan.featured
-                      ? "border-[1.5px] border-blue-500 bg-white"
-                      : plan.current
-                        ? "border-[1.5px] border-neutral-300 bg-white"
-                        : "border border-neutral-100 bg-neutral-50"
-                  }`}
-                >
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${plan.pillStyle}`}
-                  >
-                    {plan.pill}
-                  </span>
-
-                  <p className="mt-2 text-[15px] font-semibold text-neutral-900">
-                    {plan.label}
-                  </p>
-
-                  <p className="mt-1 font-mono text-2xl font-medium tracking-tight text-neutral-900">
-                    {plan.price}
-                    <span className="font-sans text-sm font-normal text-neutral-400">
-                      {plan.period}
-                    </span>
-                  </p>
-
-                  <p className="mt-1.5 text-xs leading-relaxed text-neutral-500">
-                    {plan.desc}
-                  </p>
-
-                  <ul className="my-4 space-y-1.5">
-                    {plan.features.map((f) => (
-                      <li
-                        key={f.text}
-                        className="flex items-center gap-2 text-xs text-neutral-500"
-                      >
-                        {f.included ? (
-                          <Check
-                            size={13}
-                            className="shrink-0 text-emerald-500"
-                          />
-                        ) : (
-                          <X size={13} className="shrink-0 text-neutral-300" />
-                        )}
-                        {f.text}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button className={plan.btnStyle} disabled={plan.current}>
-                    {plan.btnLabel}
-                  </button>
-                </div>
-              ))}
-            </div>
+            <PricingSection variant="plan&usage" currentPlan="Pro" />
           </div>
-        </div> */}
-
-        {/* <PricingSection/> */}
+        </div>
 
         {/* ── Bottom row ── */}
         <div className="grid gap-3 sm:grid-cols-2">

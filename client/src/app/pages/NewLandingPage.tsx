@@ -384,10 +384,10 @@ export function NewLandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <PricingSection />
+      <PricingSection variant="home" />
 
       {/* CTA Section */}
-      <section className="pt-32 pb-0 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
+      <section className="mt-24 pt-32 pb-0 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
         <div className="absolute inset-0">
           {[...Array(50)].map((_, i) => (
             <div
