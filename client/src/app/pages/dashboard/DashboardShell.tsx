@@ -86,14 +86,14 @@ function DashboardFrame() {
         </button>
 
         <div className="px-3.5 pt-5">
-          <div className="flex items-end gap-2">
+          <div className="flex items-center gap-2">
             {/* Logo mark */}
             <div
-              className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-[13px] font-black tracking-tighter text-white"
+              className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] text-[12px] font-black tracking-tighter text-white"
               style={{ background: "var(--text-primary)" }}
             >
-              B{/* subtle inner glow */}
-              <div className="absolute inset-0 rounded-[10px] ring-1 ring-inset ring-white/20" />
+              B
+              <div className="absolute inset-0 rounded-[7px] ring-1 ring-inset ring-white/20" />
             </div>
 
             {/* Wordmark */}
@@ -150,7 +150,7 @@ function DashboardFrame() {
           <div className="mb-3 px-1">
             <div className="mb-2 flex items-center justify-between px-2">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-                Your bots
+                Popular Bots
               </p>
               <Link
                 to="?create=1"

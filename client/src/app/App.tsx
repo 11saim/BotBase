@@ -10,6 +10,7 @@ import { GlobalEffects } from "./components/GlobalEffects";
 import { NewLandingPage } from "./pages/NewLandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import SeeAllBots from "./pages/SeeAllBots";
 import { DashboardShell } from "./pages/dashboard/DashboardShell";
 import { DashboardHomePage } from "./pages/dashboard/DashboardHomePage";
 import { DashboardPlanUsagePage } from "./pages/dashboard/DashboardPlanUsagePage";
@@ -36,8 +37,15 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardShell />}>
           <Route index element={<DashboardHomePage />} />
           <Route path="usage" element={<DashboardPlanUsagePage />} />
-          <Route path="settings" element={<Navigate to="/dashboard/usage" replace />} />
-          <Route path="bots/new" element={<Navigate to="/dashboard?create=1" replace />} />
+          <Route
+            path="settings"
+            element={<Navigate to="/dashboard/usage" replace />}
+          />
+          <Route
+            path="bots/new"
+            element={<Navigate to="/dashboard?create=1" replace />}
+          />
+          <Route path="bots" element={<SeeAllBots />} />
           <Route path="bots/:botId" element={<DashboardBotDetailPage />} />
         </Route>
         <Route

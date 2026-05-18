@@ -209,7 +209,7 @@ export function DashboardPlanUsagePage() {
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
             Upgrade your plan
           </p>
-          <div className="rounded-3xl border border-neutral-200 bg-white p-5">
+          <div className="rounded-3xl border border-neutral-200 bg-white px-1 py-5 md:p-5">
             <PricingSection variant="plan&usage" currentPlan="Pro" />
           </div>
         </div>
