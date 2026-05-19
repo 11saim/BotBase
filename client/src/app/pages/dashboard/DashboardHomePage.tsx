@@ -239,21 +239,34 @@ export function DashboardHomePage() {
         </div>
 
         <section>
-          <p
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            Bots
-          </p>
-          <h2
-            className="mt-1 text-lg font-medium tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Your workspace
-          </h2>
+          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                {bots.length === 0 ? "Bots" : "Activity"}
+              </p>
+              <h2
+                className="mt-1 text-lg font-medium tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
+                {bots.length === 0 ? "Your workspace" : "Recent Conversations"}
+              </h2>
+            </div>
+            {bots.length > 0 && (
+              <Link
+                to="/dashboard/bots"
+                className="text-sm font-medium hover:underline"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                View all bots &rarr;
+              </Link>
+            )}
+          </div>
           {bots.length === 0 ? (
             <div
-              className="mt-6 flex flex-col items-center justify-center rounded-2xl border py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+              className="flex flex-col items-center justify-center rounded-2xl border py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
               style={{
                 borderColor: "var(--border-default)",
                 background: "var(--bg-primary)",
@@ -299,100 +312,57 @@ export function DashboardHomePage() {
               </ul>
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {bots.map((bot) => (
-                <div
-                  key={bot.id}
-                  className="flex flex-col rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-[0_4px_14px_rgba(0,0,0,0.06)]"
-                  style={{
-                    borderColor: "var(--border-default)",
-                    background: "var(--bg-primary)",
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
+            <div
+              className="rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden"
+              style={{
+                borderColor: "var(--border-default)",
+                background: "var(--bg-primary)",
+              }}
+            >
+              <div
+                className="divide-y"
+                style={{ borderColor: "var(--border-default)" }}
+              >
+                {[
+                  { bot: "Support Bot", icon: "💬", bg: "bg-emerald-100", msg: "User asked about pricing plans...", time: "2 mins ago" },
+                  { bot: "Sales Assistant", icon: "🛒", bg: "bg-violet-100", msg: "Lead captured: john@example.com", time: "1 hour ago" },
+                  { bot: "Docs Bot", icon: "📄", bg: "bg-sky-100", msg: "Resolved API rate limit query", time: "3 hours ago" },
+                  { bot: "HR Helper", icon: "👥", bg: "bg-orange-100", msg: "Question about holiday policy", time: "5 hours ago" },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-4 transition-colors hover:bg-[var(--bg-secondary)] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
                       <div
-                        className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl"
-                        style={{ background: "var(--bg-secondary)" }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${item.bg}`}
                       >
-                        {bot.iconUrl ? (
-                          <img
-                            src={bot.iconUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          bot.emoji
-                        )}
+                        {item.icon}
                       </div>
                       <div>
                         <p
-                          className="font-medium"
+                          className="text-sm font-medium"
                           style={{ color: "var(--text-primary)" }}
                         >
-                          {bot.name}
+                          {item.bot}
                         </p>
-                        <span
-                          className="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
-                          style={{
-                            background:
-                              bot.status === "active" ? "#F0FDF4" : "#FFFBEB",
-                            color:
-                              bot.status === "active"
-                                ? "var(--success)"
-                                : "#B45309",
-                          }}
+                        <p
+                          className="mt-0.5 text-xs"
+                          style={{ color: "var(--text-secondary)" }}
                         >
-                          {bot.status === "active" ? "Active" : "Paused"}
-                        </span>
+                          {item.msg}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  <p
-                    className="mt-4 text-sm"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    Messages this week:{" "}
                     <span
-                      className="font-medium"
-                      style={{ color: "var(--text-primary)" }}
+                      className="text-xs"
+                      style={{ color: "var(--text-tertiary)" }}
                     >
-                      {bot.messagesThisWeek.toLocaleString()}
+                      {item.time}
                     </span>
-                  </p>
-                  <div className="mt-6 flex flex-wrap items-center gap-2">
-                    <Link
-                      to={`/dashboard/bots/${bot.id}`}
-                      className="rounded-lg px-4 py-2 text-sm font-medium text-white"
-                      style={{ background: "var(--text-primary)" }}
-                    >
-                      Open
-                    </Link>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-[var(--bg-secondary)]"
-                      style={{
-                        borderColor: "var(--border-default)",
-                        color: "var(--text-primary)",
-                      }}
-                      onClick={() =>
-                        updateBot(bot.id, {
-                          status: bot.status === "active" ? "paused" : "active",
-                        })
-                      }
-                      aria-label={
-                        bot.status === "active" ? "Pause bot" : "Resume bot"
-                      }
-                    >
-                      {bot.status === "active" ? (
-                        <Pause size={16} />
-                      ) : (
-                        <Play size={16} />
-                      )}
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </section>

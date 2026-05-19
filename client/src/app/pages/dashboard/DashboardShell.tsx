@@ -146,47 +146,16 @@ function DashboardFrame() {
 
           <div className="mx-2 mb-3 h-px bg-black/5" />
 
-          {/* Bots */}
-          <div className="mb-3 px-1">
-            <div className="mb-2 flex items-center justify-between px-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-                Popular Bots
-              </p>
-              <Link
-                to="?create=1"
-                className="rounded-md px-2 py-1 text-[10px] font-medium text-neutral-400 transition hover:bg-[#f5f5f2] hover:text-neutral-600"
-              >
-                <Plus size={20} />
-              </Link>
-            </div>
-
-            <div className="space-y-1">
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-[#f5f5f2]">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
-                  🤖
-                </div>
-                <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
-                  Support Assistant
-                </span>
-              </button>
-
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-[#f5f5f2]">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
-                  📚
-                </div>
-                <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
-                  Docs Bot
-                </span>
-              </button>
-
-              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-[#f5f5f2]">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 bg-[#f0f0ec] text-sm">
-                  💼
-                </div>
-                <span className="flex-1 truncate text-left text-[12.5px] text-neutral-800">
-                  Sales Helper
-                </span>
-              </button>
+          {/* Integration Guide */}
+          <div className="mb-3 px-3">
+            <div className="rounded-xl border border-black/5 bg-[#f0f0ec] p-4">
+               <h4 className="text-[12px] font-semibold text-neutral-800 mb-1">Integration Guide</h4>
+               <p className="text-[11px] text-neutral-500 mb-3 leading-relaxed">
+                 Add the bot to your website by pasting our JS snippet before the closing <span className="font-mono bg-black/5 px-1 rounded">&lt;/body&gt;</span> tag.
+               </p>
+               <Link to="/dashboard/integration" className="block text-center w-full rounded-lg bg-black text-white px-3 py-2 text-[11.5px] font-medium transition hover:bg-neutral-800">
+                 View snippet instructions
+               </Link>
             </div>
           </div>
         </div>

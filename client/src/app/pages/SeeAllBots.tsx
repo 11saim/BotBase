@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, MessageSquare, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, MessageSquare, Search } from "lucide-react";
 
 type Bot = {
   id: string;
   name: string;
   emoji: string;
-  status: "active" | "inactive";
+  status: "active" | "pause";
   msgs: number;
   created: string;
   model: string;
@@ -47,7 +48,7 @@ const BOTS: Bot[] = [
     id: "bot_b7d20e51-9fa2",
     name: "HR Helper",
     emoji: "👥",
-    status: "inactive",
+    status: "pause",
     msgs: 38,
     created: "Feb 20, 2025",
     model: "gpt-4o",
@@ -67,7 +68,6 @@ const BOTS: Bot[] = [
 
 export default function SeeAllBots() {
   const [query, setQuery] = useState("");
-  const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
 
   const filteredBots = useMemo(() => {
     const q = query.toLowerCase();
@@ -77,71 +77,6 @@ export default function SeeAllBots() {
         bot.name.toLowerCase().includes(q) || bot.id.toLowerCase().includes(q),
     );
   }, [query]);
-
-  if (selectedBot) {
-    return (
-      <div className="max-w-6xl px-6 py-8">
-        <button
-          onClick={() => setSelectedBot(null)}
-          className="mb-6 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          All bots
-        </button>
-
-        <div className="mb-8 flex items-start gap-4">
-          <div
-            className={`flex h-14 w-14 items-center justify-center rounded-2xl text-2xl ${selectedBot.avatarColor}`}
-          >
-            {selectedBot.emoji}
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-medium text-zinc-900">
-              {selectedBot.name}
-            </h1>
-
-            <p className="mt-1 font-mono text-xs text-zinc-500">
-              {selectedBot.id}
-            </p>
-          </div>
-
-          <div className="ml-auto">
-            <StatusBadge status={selectedBot.status} />
-          </div>
-        </div>
-
-        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard label="Messages this week" value={selectedBot.msgs} />
-
-          <StatCard label="Total messages" value={selectedBot.msgs * 7 + 12} />
-
-          <StatCard
-            label="Unique users"
-            value={Math.max(1, Math.round(selectedBot.msgs * 0.4))}
-          />
-        </div>
-
-        <h2 className="mb-3 text-sm font-medium tracking-wide text-zinc-600">
-          Configuration
-        </h2>
-
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <InfoRow label="Model" value={selectedBot.model} />
-          <InfoRow label="Created" value={selectedBot.created} />
-          <InfoRow label="Bot ID" value={selectedBot.id} />
-
-          <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 text-sm">
-            <span className="text-zinc-500">Embed status</span>
-
-            <span className="rounded bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700">
-              Embedded
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl px-6 py-8">
@@ -173,8 +108,7 @@ export default function SeeAllBots() {
           {filteredBots.map((bot) => (
             <div
               key={bot.id}
-              onClick={() => setSelectedBot(bot)}
-              className="group cursor-pointer rounded-2xl border border-zinc-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-zinc-300"
+              className="group rounded-2xl border border-zinc-200 bg-white p-5 transition-all duration-200 hover:-translate-y-1 hover:border-zinc-300"
             >
               <div className="mb-4 flex items-start gap-3">
                 <div
@@ -212,16 +146,13 @@ export default function SeeAllBots() {
                   Created {bot.created}
                 </span>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedBot(bot);
-                  }}
+                <Link
+                  to={`/dashboard/bots/${bot.id}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100"
                 >
                   Open
                   <ArrowRight className="h-3.5 w-3.5" />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -231,39 +162,18 @@ export default function SeeAllBots() {
   );
 }
 
-function StatusBadge({ status }: { status: "active" | "inactive" }) {
+function StatusBadge({ status }: { status: "active" | "pause" }) {
   const isActive = status === "active";
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${
-        isActive ? "bg-lime-100 text-lime-700" : "bg-stone-200 text-stone-700"
-      }`}
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${isActive ? "bg-lime-100 text-lime-700" : "bg-stone-200 text-stone-700"
+        }`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
-      {isActive ? "Active" : "Inactive"}
+      {isActive ? "Active" : "pause"}
     </span>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl bg-zinc-100 p-4">
-      <div className="mb-1 text-xs text-zinc-500">{label}</div>
 
-      <div className="text-2xl font-medium text-zinc-900">{value}</div>
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 text-sm last:border-b-0">
-      <span className="text-zinc-500">{label}</span>
-
-      <span className="font-mono text-xs font-medium text-zinc-900">
-        {value}
-      </span>
-    </div>
-  );
-}
