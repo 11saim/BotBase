@@ -15,15 +15,16 @@ import { DashboardShell } from "./pages/dashboard/DashboardShell";
 import { DashboardHomePage } from "./pages/dashboard/DashboardHomePage";
 import { DashboardPlanUsagePage } from "./pages/dashboard/DashboardPlanUsagePage";
 import { DashboardBotDetailPage } from "./pages/dashboard/DashboardBotDetailPage";
+import { DashboardAnalyticsPage } from "./pages/dashboard/DashboardAnalyticsPage";
+import { DashboardIntegrationsPage } from "./pages/dashboard/DashboardIntegrationsPage";
+import { DashboardRecentConversationsPage } from "./pages/dashboard/DashboardRecentConversationsPage";
 
 function LegacyBotRedirect() {
   const { id } = useParams();
   return <Navigate to={`/dashboard/bots/${id ?? ""}`} replace />;
 }
 
-function LegacySettingsRedirect() {
-  return <Navigate to="/dashboard/usage" replace />;
-}
+
 
 export default function App() {
   return (
@@ -37,10 +38,9 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardShell />}>
           <Route index element={<DashboardHomePage />} />
           <Route path="usage" element={<DashboardPlanUsagePage />} />
-          <Route
-            path="settings"
-            element={<Navigate to="/dashboard/usage" replace />}
-          />
+          <Route path="analytics" element={<DashboardAnalyticsPage />} />
+          <Route path="integrations" element={<DashboardIntegrationsPage />} />
+          <Route path="recent-conversations" element={<DashboardRecentConversationsPage />} />
           <Route
             path="bots/new"
             element={<Navigate to="/dashboard?create=1" replace />}
@@ -52,7 +52,6 @@ export default function App() {
           path="/unified-dashboard"
           element={<Navigate to="/dashboard" replace />}
         />
-        <Route path="/settings" element={<LegacySettingsRedirect />} />
         <Route
           path="/create-bot"
           element={<Navigate to="/dashboard?create=1" replace />}

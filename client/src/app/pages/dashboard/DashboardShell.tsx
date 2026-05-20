@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import { CreditCard, LayoutGrid, Menu, Plus, Search, X } from "lucide-react";
 import { isAuthenticated } from "../../lib/auth";
-import { DashboardBotsProvider } from "./DashboardBotsContext";
+import { DashboardBotsProvider, useDashboardBots } from "./DashboardBotsContext";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
 
 function greetingName(): string {
@@ -20,6 +20,7 @@ function greetingName(): string {
 }
 
 function DashboardFrame() {
+  const { bots } = useDashboardBots();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,8 +45,11 @@ function DashboardFrame() {
 
   const navItems = [
     { label: "Dashboard", path: "/dashboard" },
+    { label: "All Bots", path: "/dashboard/bots" },
+    { label: "Analytics", path: "/dashboard/analytics" },
+    { label: "Integrations", path: "/dashboard/integrations" },
     { label: "Plan & Usage", path: "/dashboard/usage" },
-    { label: "See All Bots", path: "/dashboard/bots" },
+    { label: "Recent Conversations", path: "/dashboard/recent-conversations" },
   ];
 
   const close = () => setMobileMenuOpen(false);
@@ -119,10 +123,6 @@ function DashboardFrame() {
         <div className="flex-1 overflow-y-auto px-2 pb-2">
           {/* Main Navigation */}
           <div className="mb-3">
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-              Main
-            </p>
-
             <div className="space-y-2">
               {navItems.map(({ label, path }) => {
                 const isActive = location.pathname === path;
@@ -130,14 +130,19 @@ function DashboardFrame() {
                   <Link
                     key={path}
                     to={path}
-                    className={`flex w-full items-center gap-3 rounded-lg leading-none px-5 py-4 text-[13px] transition
+                    className={`flex w-full items-center justify-between gap-3 rounded-lg leading-none px-5 py-4 text-[13px] transition
             ${
               isActive
                 ? "bg-black text-white"
                 : "text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
             }`}
                   >
-                    {label}
+                    <span>{label}</span>
+                    {label === "All Bots" && (
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/20' : 'bg-black/5'}`}>
+                        {bots.length}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -146,17 +151,37 @@ function DashboardFrame() {
 
           <div className="mx-2 mb-3 h-px bg-black/5" />
 
-          {/* Integration Guide */}
-          <div className="mb-3 px-3">
-            <div className="rounded-xl border border-black/5 bg-[#f0f0ec] p-4">
-               <h4 className="text-[12px] font-semibold text-neutral-800 mb-1">Integration Guide</h4>
-               <p className="text-[11px] text-neutral-500 mb-3 leading-relaxed">
-                 Add the bot to your website by pasting our JS snippet before the closing <span className="font-mono bg-black/5 px-1 rounded">&lt;/body&gt;</span> tag.
-               </p>
-               <Link to="/dashboard/integration" className="block text-center w-full rounded-lg bg-black text-white px-3 py-2 text-[11.5px] font-medium transition hover:bg-neutral-800">
-                 View snippet instructions
-               </Link>
+          {/* Recent Bots */}
+          <div className="mb-3">
+            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+              Recent Bots
+            </p>
+            <div className="space-y-1">
+              {bots.slice(0, 3).map((bot) => (
+                <Link
+                  key={bot.id}
+                  to={`/dashboard/bots/${bot.id}`}
+                  className="flex w-full items-center gap-3 rounded-lg px-5 py-2.5 text-[13px] transition text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      bot.status === "active" ? "bg-green-500" : "bg-neutral-300"
+                    }`}
+                  />
+                  <span className="truncate">{bot.name}</span>
+                </Link>
+              ))}
             </div>
+          </div>
+          
+          <div className="px-3 mt-4">
+            <Link
+              to="?create=1"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-[13px] font-medium text-white transition hover:bg-neutral-800"
+            >
+              <Plus size={16} />
+              New Bot
+            </Link>
           </div>
         </div>
 

@@ -1,408 +1,173 @@
-import React, { useMemo, useState, useEffect, type ReactNode } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { Check, Pause, Play, X } from "lucide-react";
 import { useDashboardBots } from "./DashboardBotsContext";
-import { WorkspaceActivityChart } from "./DashboardCharts";
-
-const LIMITS = { messages: 5000, storageMb: 500, bots: 10 };
-const ONBOARD_KEY = "botbase_onboarding_steps";
-const BANNER_KEY = "botbase_usage_banner_dismissed";
-
-type Onboarding = { upload: boolean; widget: boolean; snippet: boolean };
-
-function loadOnboarding(): Onboarding {
-  try {
-    const r = localStorage.getItem(ONBOARD_KEY);
-    if (!r) return { upload: false, widget: false, snippet: false };
-    return { ...JSON.parse(r) };
-  } catch {
-    return { upload: false, widget: false, snippet: false };
-  }
-}
 
 export function DashboardHomePage() {
-  const { bots, updateBot } = useDashboardBots();
-  const [range, setRange] = useState<"7d" | "30d" | "90d">("7d");
-  const [onboarding, setOnboarding] = useState<Onboarding>(loadOnboarding);
-  const [bannerDismissed, setBannerDismissed] = useState(
-    () => localStorage.getItem(BANNER_KEY) === "1",
-  );
+  const { bots } = useDashboardBots();
 
-  useEffect(() => {
-    localStorage.setItem(ONBOARD_KEY, JSON.stringify(onboarding));
-  }, [onboarding]);
+  const mockRecentActivity = [
+    { type: "msg", action: "Support Bot answered a query", time: "Just now" },
+    { type: "bot", action: "New bot 'HR Helper' created", time: "2 hours ago" },
+    { type: "warn", action: "Sales Bot escalated to human", time: "5 hours ago" },
+    { type: "milestone", action: "Support Bot hit 1,000 messages", time: "1 day ago" },
+  ];
 
-  const totals = useMemo(() => {
-    const active = bots.filter((b) => b.status === "active").length;
-    const paused = bots.filter((b) => b.status === "paused").length;
-    const messages = bots.reduce((a, b) => a + b.messagesMonth, 0);
-    const users = bots.reduce((a, b) => a + b.usersMonth, 0);
-    const storage = bots.reduce((a, b) => a + b.storageMb, 0);
-    return { active, paused, messages, users, storage };
-  }, [bots]);
+  const mockTopBots = [
+    { name: "Support Bot", count: "1.2k", value: 100, color: "#8b5cf6", bg: "#7F77DD" },
+    { name: "Sales Bot", count: "856", value: 71, color: "#0d9488", bg: "#AFA9EC" },
+    { name: "Docs Bot", count: "423", value: 35, color: "#d97706", bg: "#AFA9EC" },
+  ];
 
-  const usage = useMemo(() => {
-    const m = totals.messages / LIMITS.messages;
-    const s = totals.storage / LIMITS.storageMb;
-    const b = bots.length / LIMITS.bots;
-    return { worst: Math.max(m, s, b) };
-  }, [totals, bots.length]);
+  const mockRecentConversations = [
+    { bot: "Support Bot", text: "How do I reset my password?", time: "2m ago", resolved: true },
+    { bot: "Sales Bot", text: "Pricing for enterprise team", time: "15m ago", resolved: false },
+    { bot: "Support Bot", text: "Billing issue with latest invoice", time: "1h ago", resolved: true },
+    { bot: "Docs Bot", text: "Where is the API documentation?", time: "2h ago", resolved: true },
+    { bot: "HR Helper", text: "Holiday policy 2026", time: "3h ago", resolved: false },
+    { bot: "Support Bot", text: "Can I get a refund?", time: "4h ago", resolved: true },
+    { bot: "Sales Bot", text: "I want to upgrade my plan", time: "5h ago", resolved: true },
+    { bot: "Docs Bot", text: "How to use webhooks?", time: "6h ago", resolved: false },
+  ];
 
-  const showUsageBanner = !bannerDismissed && usage.worst >= 0.8;
-  const onboardingDone =
-    onboarding.upload && onboarding.widget && onboarding.snippet;
-
-  const toggleStep = (key: keyof Onboarding) => {
-    setOnboarding((o) => ({ ...o, [key]: !o[key] }));
-  };
+  function greetingName(): string {
+    const h = new Date().getHours();
+    const part = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+    return `${part}, Saim`;
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        {showUsageBanner && (
-          <div
-            className="flex items-start justify-between gap-3 rounded-2xl border p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-            style={{
-              borderColor: "var(--border-strong)",
-              background: "var(--bg-primary)",
-            }}
-          >
-            <div>
-              <p
-                className="text-sm font-medium"
-                style={{ color: "var(--text-primary)" }}
-              >
-                You are approaching a plan limit
-              </p>
-              <p
-                className="mt-1 text-xs"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                One or more of messages, storage, or bot count is above 80% of
-                your current plan.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="shrink-0 rounded-lg p-1 hover:bg-[var(--bg-secondary)]"
-              aria-label="Dismiss"
-              onClick={() => {
-                setBannerDismissed(true);
-                localStorage.setItem(BANNER_KEY, "1");
-              }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-        )}
+      <div className="mx-auto max-w-6xl space-y-6">
+        
+        {/* Welcome Message */}
+        <div style={{ marginBottom: '18px' }}>
+          <h1 className="text-[16px] font-medium text-[var(--text-primary)]">
+            {greetingName()}
+          </h1>
+          <p className="text-[12px] text-[var(--text-tertiary)] mt-1">
+            Here's what's happening across your bots today
+          </p>
+        </div>
 
-        {bots.length > 0 && !onboardingDone && (
-          <div
-            className="rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-            style={{
-              borderColor: "var(--border-default)",
-              background: "var(--bg-primary)",
-            }}
-          >
-            <p
-              className="text-xs font-semibold uppercase tracking-wider"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Onboarding
-            </p>
-            <ul className="mt-3 space-y-2">
-              {(
-                [
-                  ["upload", "Upload your first document"],
-                  ["widget", "Customize your widget"],
-                  ["snippet", "Copy your snippet"],
-                ] as const
-              ).map(([key, label]) => (
-                <li key={key}>
-                  <button
-                    type="button"
-                    onClick={() => toggleStep(key)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-[var(--bg-secondary)]"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    <span
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded border"
-                      style={{
-                        borderColor: "var(--border-default)",
-                        background: onboarding[key]
-                          ? "var(--text-primary)"
-                          : "transparent",
-                        color: onboarding[key] ? "white" : "transparent",
-                      }}
-                    >
-                      {onboarding[key] ? <Check size={12} /> : null}
-                    </span>
-                    {label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
+        {/* TOP ROW */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            title="Total bots"
-            value={String(bots.length)}
-            sub={`${totals.active} active · ${totals.paused} paused`}
-          />
-          <StatCard
-            title="Messages this month"
-            value={totals.messages.toLocaleString()}
-            sub="Across all bots"
-          />
-          <StatCard
-            title="Unique users this month"
-            value={totals.users.toLocaleString()}
-            sub="Across all bots"
-          />
-          <StatCard
-            title="Storage used"
-            value={`${totals.storage.toFixed(1)} MB / ${LIMITS.storageMb} MB`}
-            sub={
-              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[var(--bg-tertiary)]">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${Math.min(100, (totals.storage / LIMITS.storageMb) * 100)}%`,
-                    background: "var(--text-primary)",
-                  }}
-                />
-              </div>
-            }
-          />
+          <StatCard title="Total Bots" value={String(bots.length)} delta="↑ 1 new this week" isPositive={true} />
+          <StatCard title="Conversations Today" value="342" delta="↑ 24% vs yesterday" isPositive={true} />
+          <StatCard title="Avg. Response Time" value="1.2s" delta="↑ 0.3s faster" isPositive={true} />
+          <StatCard title="Unanswered Queries" value="12" delta="↑ 4 need attention" isPositive={false} />
         </div>
 
-        <div
-          className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-8"
-          style={{
-            borderColor: "var(--border-default)",
-            background: "var(--bg-primary)",
-          }}
-        >
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Analytics
-              </p>
-              <p
-                className="mt-1 text-lg font-medium tracking-tight"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Workspace activity
-              </p>
-              <p
-                className="mt-1 max-w-md text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                Messages and unique users across all bots (sample trend for the
-                selected window).
-              </p>
+        {/* MIDDLE ROW */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+            <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
+              <i className="ti ti-activity text-[16px]" />
+              <h3 className="text-[14px] font-semibold tracking-tight">Recent activity</h3>
             </div>
-            <div
-              className="flex shrink-0 gap-1 rounded-xl border p-1"
-              style={{
-                borderColor: "var(--border-default)",
-                background: "var(--bg-secondary)",
-              }}
-            >
-              {(["7d", "30d", "90d"] as const).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRange(r)}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-                  style={{
-                    background:
-                      range === r ? "var(--text-primary)" : "transparent",
-                    color: range === r ? "white" : "var(--text-secondary)",
-                    boxShadow:
-                      range === r ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
-                  }}
-                >
-                  {r === "7d" ? "7 days" : r === "30d" ? "30 days" : "90 days"}
-                </button>
+            <div className="flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
+              {mockRecentActivity.map((item, i) => {
+                let iconClass, bg, color;
+                if (item.type === "msg") {
+                  iconClass = "ti-message"; bg = "#E6F1FB"; color = "#185FA5";
+                } else if (item.type === "bot") {
+                  iconClass = "ti-robot"; bg = "#EEEDFE"; color = "#534AB7";
+                } else if (item.type === "warn") {
+                  iconClass = "ti-alert-triangle"; bg = "#FAEEDA"; color = "#854F0B";
+                } else {
+                  iconClass = "ti-trophy"; bg = "#EAF3DE"; color = "#3B6D11";
+                }
+
+                return (
+                  <div key={i} className="flex items-center gap-3 py-3 border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+                    <div className="w-[26px] h-[26px] rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color: color }}>
+                      <i className={`ti ${iconClass} text-[14px]`} />
+                    </div>
+                    <div>
+                      <p className="text-[12px] text-[var(--text-primary)]">{item.action}</p>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">{item.time}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Bots This Week */}
+          <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+            <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
+              <i className="ti ti-trophy text-[16px]" />
+              <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
+            </div>
+            <div className="flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
+              {mockTopBots.map((bot, i) => (
+                <div key={i} className="flex items-center gap-3 py-3 border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+                  <div className="w-[28px] h-[28px] rounded-md flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ backgroundColor: bot.color }}>
+                    {bot.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div className="w-24 shrink-0">
+                    <p className="text-[12px] font-medium text-[var(--text-primary)] truncate">{bot.name}</p>
+                    <p className="text-[11px] text-[var(--text-secondary)]">{bot.count}</p>
+                  </div>
+                  <div className="flex-1 h-[6px] bg-[#f0f0f0] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${bot.value}%`, backgroundColor: bot.bg }} />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-          <div className="h-[min(22rem,55vw)] w-full min-h-[240px]">
-            <WorkspaceActivityChart range={range} height={320} />
+        </div>
+
+        {/* BOTTOM ROW */}
+        <div className="w-full rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)] flex flex-col overflow-hidden">
+          <div className="p-6 pb-2">
+            <div className="flex items-center gap-2 text-[var(--text-primary)]">
+              <i className="ti ti-messages text-[16px]" />
+              <h3 className="text-[14px] font-semibold tracking-tight">Recent conversations</h3>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
+            {mockRecentConversations.map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-4 hover:bg-[var(--bg-secondary)] transition-colors border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="shrink-0 text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EEEDFE", color: "#534AB7" }}>
+                    {item.bot}
+                  </span>
+                  <span className="text-[12px] text-[var(--text-primary)] truncate" style={{ maxWidth: '60%' }}>
+                    {item.text}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <span className="text-[11px] text-[var(--text-tertiary)] text-right w-16">
+                    {item.time}
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full w-20 text-center" style={item.resolved ? { backgroundColor: '#EAF3DE', color: '#3B6D11' } : { backgroundColor: '#FCEBEB', color: '#A32D2D' }}>
+                    {item.resolved ? 'Resolved' : 'Unanswered'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="p-4 flex justify-end">
+            <Link to="/dashboard/analytics" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+              View full analytics &rarr;
+            </Link>
           </div>
         </div>
 
-        <section>
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                {bots.length === 0 ? "Bots" : "Activity"}
-              </p>
-              <h2
-                className="mt-1 text-lg font-medium tracking-tight"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {bots.length === 0 ? "Your workspace" : "Recent Conversations"}
-              </h2>
-            </div>
-            {bots.length > 0 && (
-              <Link
-                to="/dashboard/bots"
-                className="text-sm font-medium hover:underline"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                View all bots &rarr;
-              </Link>
-            )}
-          </div>
-          {bots.length === 0 ? (
-            <div
-              className="flex flex-col items-center justify-center rounded-2xl border py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-              style={{
-                borderColor: "var(--border-default)",
-                background: "var(--bg-primary)",
-              }}
-            >
-              <div className="mb-4 text-5xl opacity-40">🤖</div>
-              <p
-                className="text-base font-medium"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Create your first bot
-              </p>
-              <p
-                className="mt-2 max-w-sm text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                Connect your knowledge, match your brand, and go live with a
-                single snippet.
-              </p>
-              <Link
-                to="?create=1"
-                className="mt-6 rounded-xl px-5 py-2.5 text-sm font-medium text-white"
-                style={{ background: "var(--text-primary)" }}
-              >
-                Create bot
-              </Link>
-              <ul
-                className="mt-8 space-y-2 text-left text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} /> Upload
-                  data
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} />{" "}
-                  Customize widget
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} style={{ color: "var(--success)" }} /> Copy
-                  snippet
-                </li>
-              </ul>
-            </div>
-          ) : (
-            <div
-              className="rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden"
-              style={{
-                borderColor: "var(--border-default)",
-                background: "var(--bg-primary)",
-              }}
-            >
-              <div
-                className="divide-y"
-                style={{ borderColor: "var(--border-default)" }}
-              >
-                {[
-                  { bot: "Support Bot", icon: "💬", bg: "bg-emerald-100", msg: "User asked about pricing plans...", time: "2 mins ago" },
-                  { bot: "Sales Assistant", icon: "🛒", bg: "bg-violet-100", msg: "Lead captured: john@example.com", time: "1 hour ago" },
-                  { bot: "Docs Bot", icon: "📄", bg: "bg-sky-100", msg: "Resolved API rate limit query", time: "3 hours ago" },
-                  { bot: "HR Helper", icon: "👥", bg: "bg-orange-100", msg: "Question about holiday policy", time: "5 hours ago" },
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-4 transition-colors hover:bg-[var(--bg-secondary)] cursor-pointer"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${item.bg}`}
-                      >
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p
-                          className="text-sm font-medium"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          {item.bot}
-                        </p>
-                        <p
-                          className="mt-0.5 text-xs"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          {item.msg}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className="text-xs"
-                      style={{ color: "var(--text-tertiary)" }}
-                    >
-                      {item.time}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );
 }
 
-function StatCard({
-  title,
-  value,
-  sub,
-}: {
-  title: string;
-  value: string;
-  sub: ReactNode;
-}) {
+function StatCard({ title, value, delta, isPositive }: { title: string; value: string; delta: string; isPositive: boolean }) {
   return (
-    <div
-      className="rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-      style={{
-        borderColor: "var(--border-default)",
-        background: "var(--bg-primary)",
-      }}
-    >
-      <p
-        className="text-xs font-semibold uppercase tracking-wider"
-        style={{ color: "var(--text-tertiary)" }}
-      >
-        {title}
+    <div className="rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{title}</p>
+      <p className="mt-2 text-[22px] font-medium tracking-tight text-[var(--text-primary)]">{value}</p>
+      <p className="text-[11px] mt-1" style={{ color: isPositive ? '#3B6D11' : '#A32D2D', backgroundColor: 'transparent' }}>
+        {delta}
       </p>
-      <p
-        className="mt-2 text-2xl font-medium tracking-tight"
-        style={{ color: "var(--text-primary)" }}
-      >
-        {value}
-      </p>
-      <div className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-        {sub}
-      </div>
     </div>
   );
 }
