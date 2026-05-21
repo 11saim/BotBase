@@ -38,7 +38,7 @@ export function DashboardHomePage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
-        
+
         {/* Welcome Message */}
         <div style={{ marginBottom: '18px' }}>
           <h1 className="text-[16px] font-medium text-[var(--text-primary)]">
@@ -79,7 +79,7 @@ export function DashboardHomePage() {
                 }
 
                 return (
-                  <div key={i} className="flex items-center gap-3 py-3 border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+                  <div key={i} className="flex items-center gap-3 py-3 border-black/5">
                     <div className="w-[26px] h-[26px] rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color: color }}>
                       <i className={`ti ${iconClass} text-[14px]`} />
                     </div>
@@ -101,7 +101,7 @@ export function DashboardHomePage() {
             </div>
             <div className="flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
               {mockTopBots.map((bot, i) => (
-                <div key={i} className="flex items-center gap-3 py-3 border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+                <div key={i} className="flex items-center gap-3 py-3 border-black/5">
                   <div className="w-[28px] h-[28px] rounded-md flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ backgroundColor: bot.color }}>
                     {bot.name.substring(0, 2).toUpperCase()}
                   </div>
@@ -128,17 +128,17 @@ export function DashboardHomePage() {
           </div>
           <div className="flex-1 flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
             {mockRecentConversations.map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-4 hover:bg-[var(--bg-secondary)] transition-colors border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
+              <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 p-4 hover:bg-[var(--bg-secondary)] transition-colors border-black/5" style={{ borderWidth: i === 0 ? 0 : '0.5px' }}>
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <span className="shrink-0 text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EEEDFE", color: "#534AB7" }}>
                     {item.bot}
                   </span>
-                  <span className="text-[12px] text-[var(--text-primary)] truncate" style={{ maxWidth: '60%' }}>
+                  <span className="text-[12px] text-[var(--text-primary)] truncate">
                     {item.text}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-[11px] text-[var(--text-tertiary)] text-right w-16">
+                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                  <span className="text-[11px] text-[var(--text-tertiary)] text-left sm:text-right w-16">
                     {item.time}
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-full w-20 text-center" style={item.resolved ? { backgroundColor: '#EAF3DE', color: '#3B6D11' } : { backgroundColor: '#FCEBEB', color: '#A32D2D' }}>

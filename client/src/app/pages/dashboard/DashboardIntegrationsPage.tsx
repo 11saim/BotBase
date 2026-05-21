@@ -1,4 +1,5 @@
 import React from "react";
+import { Copy, Plus } from "lucide-react";
 
 export function DashboardIntegrationsPage() {
   return (
@@ -67,35 +68,35 @@ export function DashboardIntegrationsPage() {
 
         {/* API Keys Section */}
         <section>
-          <div className="bg-white rounded-lg p-5 border border-black/10" style={{ borderWidth: '0.5px' }}>
+          <div className="bg-white rounded-lg p-4 border border-black/10" style={{ borderWidth: '0.5px' }}>
             <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
               <i className="ti ti-key text-[16px]" />
               <h3 className="text-[14px] font-medium">API keys</h3>
             </div>
-            
+
             <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between py-2 border-b border-black/5" style={{ borderWidth: '0 0 0.5px 0' }}>
-                <div>
+              <div className="flex items-end justify-between py-2 border-b border-black/5" style={{ borderWidth: '0 0 0.5px 0' }}>
+                <div className="min-w-0 pr-2 flex-1">
                   <p className="text-[11px] text-[var(--text-tertiary)] mb-0.5">Live key</p>
                   <p className="font-mono text-[13px] text-[var(--text-primary)]">sk_live_••••••••••••••••8f92</p>
                 </div>
-                <button className="text-[11px] font-medium px-2.5 py-1 rounded border border-black/10 hover:bg-[var(--bg-secondary)] transition-colors">
-                  Copy
+                <button className="shrink-0 p-1.5 rounded border border-black/10 hover:bg-[var(--bg-secondary)] transition-colors" title="Copy">
+                  <Copy size={14} className="text-[var(--text-secondary)]" />
                 </button>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-black/5" style={{ borderWidth: '0 0 0.5px 0' }}>
-                <div>
+              <div className="flex items-end justify-between py-2 border-b border-black/5" style={{ borderWidth: '0 0 0.5px 0' }}>
+                <div className="min-w-0 pr-2 flex-1">
                   <p className="text-[11px] text-[var(--text-tertiary)] mb-0.5">Test key</p>
                   <p className="font-mono text-[13px] text-[var(--text-primary)]">sk_test_••••••••••••••••3a1b</p>
                 </div>
-                <button className="text-[11px] font-medium px-2.5 py-1 rounded border border-black/10 hover:bg-[var(--bg-secondary)] transition-colors">
-                  Copy
+                <button className="shrink-0 p-1.5 rounded border border-black/10 hover:bg-[var(--bg-secondary)] transition-colors" title="Copy">
+                  <Copy size={14} className="text-[var(--text-secondary)]" />
                 </button>
               </div>
             </div>
 
             <button className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded border border-black/10 hover:bg-[var(--bg-secondary)] transition-colors">
-              <i className="ti ti-plus text-[14px]" />
+              <Plus size={14} className="text-[var(--text-secondary)]" />
               Generate new key
             </button>
           </div>

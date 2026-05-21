@@ -63,7 +63,7 @@ export function NewLandingPage() {
                 <Sparkles size={16} className="text-white" />
               </div>
               <span className="font-semibold text-lg">
-                botbase<span className="text-gray-500">.ai</span>
+                Bot Base
               </span>
             </Link>
 

@@ -165,9 +165,8 @@ export default function PricingSection({
       {/* TABLE */}
       <div
         ref={wrapRef}
-        className={`overflow-x-auto border border-neutral-200 rounded-sm transition-all duration-700 ease-out ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-        }`}
+        className={`overflow-x-auto border border-neutral-200 rounded-sm transition-all duration-700 ease-out ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
       >
         <table className="w-full border-collapse min-w-[580px]">
           {/* HEADER */}
@@ -184,9 +183,8 @@ export default function PricingSection({
                   <th key={col} className="px-5 py-4 text-center">
                     <div className="flex flex-col items-center gap-1.5">
                       <span
-                        className={`text-sm font-semibold ${
-                          isCurrent ? "text-white" : "text-neutral-400"
-                        }`}
+                        className={`text-sm font-semibold ${isCurrent ? "text-white" : "text-neutral-400"
+                          }`}
                       >
                         {col}
                       </span>
@@ -252,7 +250,7 @@ export default function PricingSection({
           {/* FOOTER */}
           <tfoot>
             <tr className="bg-neutral-50 border-t border-neutral-200">
-              <td className="px-5 py-4 text-[13px] text-neutral-400">
+              <td className="whitespace-nowrap px-5 py-4 text-[13px] text-neutral-400">
                 Ready to start?
               </td>
 
@@ -264,13 +262,12 @@ export default function PricingSection({
                   <td key={col} className="px-5 py-4 text-center">
                     <button
                       disabled={disable}
-                      className={`w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${
-                        disable
+                      className={`whitespace-nowrap w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${disable
                           ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
                           : isCurrent && variant !== "home"
                             ? "bg-emerald-500 text-white border-emerald-500"
                             : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
-                      }`}
+                        }`}
                     >
                       {variant !== "home" && isCurrent
                         ? "Current Plan"

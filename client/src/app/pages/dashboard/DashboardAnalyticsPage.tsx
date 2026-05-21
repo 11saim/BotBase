@@ -47,10 +47,10 @@ export function DashboardAnalyticsPage() {
               { label: "W3", height: 45, color: lightPurple },
               { label: "W4", height: 85, color: brandPurple },
             ].map((bar, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
-                <div 
-                  className="w-12 rounded-t-sm transition-all group-hover:opacity-80" 
-                  style={{ height: `${bar.height}%`, backgroundColor: bar.color }} 
+              <div key={i} className="flex flex-col items-center justify-end gap-2 flex-1 group h-full">
+                <div
+                  className="w-8 sm:w-12 rounded-t-sm transition-all group-hover:opacity-80"
+                  style={{ height: `${bar.height}%`, backgroundColor: bar.color }}
                 />
                 <span className="text-xs text-[var(--text-secondary)]">{bar.label}</span>
               </div>
@@ -61,7 +61,7 @@ export function DashboardAnalyticsPage() {
         {/* Resolution breakdown */}
         <div className="bg-white rounded-lg border border-black/10 p-4" style={{ borderWidth: '0.5px' }}>
           <h3 className="text-[14px] font-medium text-[var(--text-primary)] mb-6">Resolution breakdown</h3>
-          <div className="flex items-center justify-center gap-8 h-40">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 h-auto sm:h-40">
             {/* Donut SVG mock */}
             <div className="relative w-32 h-32 shrink-0">
               <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
@@ -126,22 +126,16 @@ export function DashboardAnalyticsPage() {
               { q: "Refund policy for annual plans", freq: 4 },
               { q: "Can I self-host the widget?", freq: 2 },
             ].map((item, i) => {
-              let badgeColor = "";
+              let badgeColor = "bg-gray-100 text-gray-700";
               if (item.freq >= 8) badgeColor = "bg-red-100 text-red-700";
               else if (item.freq >= 4) badgeColor = "bg-amber-100 text-amber-700";
 
               return (
                 <div key={i} className="flex items-center justify-between py-2.5">
                   <span className="text-sm text-[var(--text-primary)] flex-1 truncate pr-4">{item.q}</span>
-                  {badgeColor ? (
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${badgeColor}`}>
-                      {item.freq}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-medium px-2 py-0.5 text-[var(--text-tertiary)]">
-                      {item.freq}
-                    </span>
-                  )}
+                  <span className={`text-[10px] font-medium w-6 h-6 flex items-center justify-center rounded-full shrink-0 ${badgeColor}`}>
+                    {item.freq}
+                  </span>
                 </div>
               );
             })}
@@ -154,7 +148,7 @@ export function DashboardAnalyticsPage() {
 
 function StatCard({ title, value, delta, deltaColor }: { title: string; value: string; delta: string; deltaColor: string }) {
   return (
-    <div className="bg-[var(--bg-primary)] rounded-lg p-[14px]" style={{ borderWidth: '0.5px', borderColor: 'var(--border-tertiary)' }}>
+    <div className="bg-[var(--bg-primary)] rounded-lg p-[14px]">
       <p className="text-[11px] text-[var(--text-tertiary)] mb-1">{title}</p>
       <p className="text-[22px] font-medium text-[var(--text-primary)] leading-tight">{value}</p>
       <p className={`text-[11px] mt-1 ${deltaColor}`}>{delta}</p>

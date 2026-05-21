@@ -58,7 +58,11 @@ function DashboardFrame() {
     if (createOpen) return "Create bot";
     if (isHome) return greetingName();
     if (location.pathname.startsWith("/dashboard/usage")) return "Plan & usage";
+    if (location.pathname.startsWith("/dashboard/analytics")) return "Analytics";
+    if (location.pathname.startsWith("/dashboard/integrations")) return "Integrations";
+    if (location.pathname.startsWith("/dashboard/recent-conversations")) return "Recent Conversations";
     if (isBotWorkspace) return "Bot workspace";
+    if (location.pathname === "/dashboard/bots") return "All bots";
     return "Dashboard";
   }, [location.pathname, isHome, createOpen, isBotWorkspace]);
 
@@ -76,9 +80,8 @@ function DashboardFrame() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 max-h-screen flex w-[18rem] flex-col border-r border-[var(--border-default)] bg-[var(--bg-primary)] shadow-[4px_0_40px_rgba(0,0,0,0.04)] transition-transform duration-300 lg:static lg:translate-x-0 ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 max-h-screen flex w-[18rem] flex-col border-r border-[var(--border-default)] bg-[var(--bg-primary)] shadow-[4px_0_40px_rgba(0,0,0,0.04)] transition-transform duration-300 lg:static lg:translate-x-0 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <button
           type="button"
@@ -131,11 +134,10 @@ function DashboardFrame() {
                     key={path}
                     to={path}
                     className={`flex w-full items-center justify-between gap-3 rounded-lg leading-none px-5 py-4 text-[13px] transition
-            ${
-              isActive
-                ? "bg-black text-white"
-                : "text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
-            }`}
+            ${isActive
+                        ? "bg-black text-white"
+                        : "text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
+                      }`}
                   >
                     <span>{label}</span>
                     {label === "All Bots" && (
@@ -164,16 +166,15 @@ function DashboardFrame() {
                   className="flex w-full items-center gap-3 rounded-lg px-5 py-2.5 text-[13px] transition text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
                 >
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      bot.status === "active" ? "bg-green-500" : "bg-neutral-300"
-                    }`}
+                    className={`h-2 w-2 rounded-full ${bot.status === "active" ? "bg-green-500" : "bg-neutral-300"
+                      }`}
                   />
                   <span className="truncate">{bot.name}</span>
                 </Link>
               ))}
             </div>
           </div>
-          
+
           <div className="px-3 mt-4">
             <Link
               to="?create=1"

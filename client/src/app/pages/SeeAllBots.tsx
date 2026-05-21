@@ -79,7 +79,7 @@ export default function SeeAllBots() {
   }, [query]);
 
   return (
-    <div className="max-w-6xl px-6 py-8">
+    <div className="p-4 sm:p-6 lg:p-8 w-full max-w-none">
       <div className="mb-7 flex items-baseline gap-2">
         <h1 className="text-2xl font-medium text-zinc-900">Bots</h1>
 

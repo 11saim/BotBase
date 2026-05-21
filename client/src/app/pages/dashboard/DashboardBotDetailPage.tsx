@@ -120,13 +120,13 @@ export function DashboardBotDetailPage() {
             </div>
           </div>
         </div>
-        <div className="mt-5 flex gap-1 overflow-x-auto border-t border-[var(--border-default)] pt-4">
+        <div className="mt-5 flex flex-wrap gap-2 sm:gap-1 border-t border-[var(--border-default)] pt-4">
           {TABS.map((label, i) => (
             <button
               key={label}
               type="button"
               onClick={() => setTab(i)}
-              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm transition-all"
+              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm transition-all flex-1 sm:flex-none text-center"
               style={{
                 background: tab === i ? "var(--bg-tertiary)" : "transparent",
                 color: tab === i ? "var(--text-primary)" : "var(--text-secondary)",
@@ -140,7 +140,7 @@ export function DashboardBotDetailPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8 overflow-hidden sm:overflow-visible">
         {tab === 0 && (
           <OverviewTab bot={bot} metrics={metrics} range={range} setRange={setRange} botId={bot.id} />
         )}
@@ -284,7 +284,7 @@ function OverviewTab({
         <p className="mt-1 max-w-lg text-sm" style={{ color: "var(--text-secondary)" }}>
           Sample trend for this bot (preview). Granularity follows the range you select.
         </p>
-        <div className="mt-6 h-[min(20rem,50vw)] w-full min-h-[220px]">
+        <div className="mt-6 w-full h-64 sm:h-80 overflow-hidden">
           <BotMessagesTrendChart range={range} botId={botId} height={300} />
         </div>
       </div>
@@ -323,14 +323,16 @@ function OverviewTab({
           {bot.leads.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>No leads yet.</p>
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Name</th><th>Email</th><th>Date</th></tr></thead>
-              <tbody>
-                {bot.leads.map((l) => (
-                  <tr key={l.id} className="border-t border-[var(--border-default)]"><td className="py-2">{l.name}</td><td>{l.email}</td><td>{l.createdAt}</td></tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm min-w-[400px]">
+                <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Name</th><th>Email</th><th>Date</th></tr></thead>
+                <tbody>
+                  {bot.leads.map((l) => (
+                    <tr key={l.id} className="border-t border-[var(--border-default)]"><td className="py-2 pr-2">{l.name}</td><td className="pr-2">{l.email}</td><td className="whitespace-nowrap">{l.createdAt}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -345,7 +347,7 @@ function OverviewTab({
           ) : (
             <ul className="mt-3 space-y-2 text-sm">
               {bot.inbox.map((m) => (
-                <li key={m.id} className="rounded-lg border p-3" style={{ borderColor: "var(--border-default)" }}>{m.message}</li>
+                <li key={m.id} className="rounded-lg border p-3 break-words" style={{ borderColor: "var(--border-default)" }}>{m.message}</li>
               ))}
             </ul>
           )}
@@ -363,35 +365,39 @@ function QuestionsTab({ setGapDrawer, setGapPaste }: { setGapDrawer: (q: string 
         style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
       >
         <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Top questions</h3>
-        <table className="mt-4 w-full text-left text-sm">
-          <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Question</th><th>Asked</th><th>Avg. confidence</th></tr></thead>
-          <tbody>
-            {MOCK_TOP_Q.map((row) => (
-              <tr key={row.q} className="border-t border-[var(--border-default)]">
-                <td className="py-2 pr-2">{row.q}</td><td>{row.n}×</td><td>{Math.round(row.conf * 100)}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-left text-sm min-w-[400px]">
+            <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Question</th><th>Asked</th><th>Avg. confidence</th></tr></thead>
+            <tbody>
+              {MOCK_TOP_Q.map((row) => (
+                <tr key={row.q} className="border-t border-[var(--border-default)]">
+                  <td className="py-2 pr-2">{row.q}</td><td>{row.n}×</td><td>{Math.round(row.conf * 100)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
       <section
         className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
         style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}
       >
         <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Gaps</h3>
-        <table className="mt-4 w-full text-left text-sm">
-          <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Question</th><th>Asked</th><th>Confidence</th><th /></tr></thead>
-          <tbody>
-            {MOCK_GAPS.map((row) => (
-              <tr key={row.q} className="border-t border-[var(--border-default)]">
-                <td className="py-2 pr-2">{row.q}</td><td>{row.n}×</td><td>{Math.round(row.conf * 100)}%</td>
-                <td className="py-2 text-right">
-                  <button type="button" className="text-xs font-medium underline" style={{ color: "var(--text-primary)" }} onClick={() => { setGapDrawer(row.q); setGapPaste(""); }}>Add to Knowledge Base</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-left text-sm min-w-[500px]">
+            <thead><tr style={{ color: "var(--text-tertiary)" }}><th className="pb-2">Question</th><th>Asked</th><th>Confidence</th><th /></tr></thead>
+            <tbody>
+              {MOCK_GAPS.map((row) => (
+                <tr key={row.q} className="border-t border-[var(--border-default)]">
+                  <td className="py-2 pr-2">{row.q}</td><td>{row.n}×</td><td>{Math.round(row.conf * 100)}%</td>
+                  <td className="py-2 text-right">
+                    <button type="button" className="text-xs font-medium underline whitespace-nowrap" style={{ color: "var(--text-primary)" }} onClick={() => { setGapDrawer(row.q); setGapPaste(""); }}>Add to Knowledge Base</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
@@ -441,7 +447,7 @@ function KnowledgeTab({
       <div className="rounded-2xl border p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}>
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Activity log</p>
         <ul className="mt-2 space-y-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-          {bot.activity.slice(0, 10).map((a) => (<li key={a.id}>{a.text}</li>))}
+          {bot.activity.slice(0, 10).map((a) => (<li key={a.id} className="break-words">{a.text}</li>))}
         </ul>
       </div>
     </div>
