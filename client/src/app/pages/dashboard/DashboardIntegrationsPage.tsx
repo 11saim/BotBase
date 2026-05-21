@@ -1,5 +1,5 @@
 import React from "react";
-import { Copy, Plus } from "lucide-react";
+import { Code, Copy, Globe, Key, Mail, MessageCircle, Plus, ShoppingBag, Webhook } from "lucide-react";
 
 export function DashboardIntegrationsPage() {
   return (
@@ -15,14 +15,14 @@ export function DashboardIntegrationsPage() {
           <h2 className="text-[12px] font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wider">Connected</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <IntegrationCard
-              icon={<i className="ti ti-code text-[20px] text-green-600" />}
+              icon={<Code size={20} className="text-green-600" />}
               iconBg="bg-green-50"
               name="Website embed"
               desc="Live chat widget for your website"
               status="Connected"
             />
             <IntegrationCard
-              icon={<i className="ti ti-brand-slack text-[20px] text-blue-600" />}
+              icon={<MessageCircle size={20} className="text-blue-600" />}
               iconBg="bg-blue-50"
               name="Slack"
               desc="Answer questions directly in Slack channels"
@@ -36,28 +36,28 @@ export function DashboardIntegrationsPage() {
           <h2 className="text-[12px] font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wider">Available</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <IntegrationCard
-              icon={<i className="ti ti-brand-shopify text-[20px] text-amber-600" />}
+              icon={<ShoppingBag size={20} className="text-amber-600" />}
               iconBg="bg-amber-100"
               name="Shopify"
               desc="Product & order context"
               status="Connect"
             />
             <IntegrationCard
-              icon={<i className="ti ti-brand-wordpress text-[20px] text-purple-600" />}
+              icon={<Globe size={20} className="text-purple-600" />}
               iconBg="bg-purple-100"
               name="WordPress"
               desc="Plugin-based embed"
               status="Connect"
             />
             <IntegrationCard
-              icon={<i className="ti ti-mail text-[20px] text-pink-600" />}
+              icon={<Mail size={20} className="text-pink-600" />}
               iconBg="bg-pink-100"
               name="Email/SMTP"
               desc="Trigger emails on events"
               status="Connect"
             />
             <IntegrationCard
-              icon={<i className="ti ti-webhook text-[20px] text-teal-600" />}
+              icon={<Webhook size={20} className="text-teal-600" />}
               iconBg="bg-teal-100"
               name="Webhooks"
               desc="Custom HTTP callbacks"
@@ -70,7 +70,7 @@ export function DashboardIntegrationsPage() {
         <section>
           <div className="bg-white rounded-lg p-4 border border-black/10" style={{ borderWidth: '0.5px' }}>
             <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
-              <i className="ti ti-key text-[16px]" />
+              <Key size={16} />
               <h3 className="text-[14px] font-medium">API keys</h3>
             </div>
 

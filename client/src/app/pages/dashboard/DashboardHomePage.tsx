@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Activity, MessageSquare, Bot, AlertTriangle, Trophy, MessagesSquare } from "lucide-react";
 import { useDashboardBots } from "./DashboardBotsContext";
 
 export function DashboardHomePage() {
@@ -62,26 +63,26 @@ export function DashboardHomePage() {
           {/* Recent Activity */}
           <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
             <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
-              <i className="ti ti-activity text-[16px]" />
+              <Activity size={16} />
               <h3 className="text-[14px] font-semibold tracking-tight">Recent activity</h3>
             </div>
             <div className="flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
               {mockRecentActivity.map((item, i) => {
-                let iconClass, bg, color;
+                let IconComp: React.ElementType, bg: string, color: string;
                 if (item.type === "msg") {
-                  iconClass = "ti-message"; bg = "#E6F1FB"; color = "#185FA5";
+                  IconComp = MessageSquare; bg = "#E6F1FB"; color = "#185FA5";
                 } else if (item.type === "bot") {
-                  iconClass = "ti-robot"; bg = "#EEEDFE"; color = "#534AB7";
+                  IconComp = Bot; bg = "#EEEDFE"; color = "#534AB7";
                 } else if (item.type === "warn") {
-                  iconClass = "ti-alert-triangle"; bg = "#FAEEDA"; color = "#854F0B";
+                  IconComp = AlertTriangle; bg = "#FAEEDA"; color = "#854F0B";
                 } else {
-                  iconClass = "ti-trophy"; bg = "#EAF3DE"; color = "#3B6D11";
+                  IconComp = Trophy; bg = "#EAF3DE"; color = "#3B6D11";
                 }
 
                 return (
                   <div key={i} className="flex items-center gap-3 py-3 border-black/5">
                     <div className="w-[26px] h-[26px] rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color: color }}>
-                      <i className={`ti ${iconClass} text-[14px]`} />
+                      <IconComp size={14} />
                     </div>
                     <div>
                       <p className="text-[12px] text-[var(--text-primary)]">{item.action}</p>
@@ -96,7 +97,7 @@ export function DashboardHomePage() {
           {/* Top Bots This Week */}
           <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
             <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
-              <i className="ti ti-trophy text-[16px]" />
+              <Trophy size={16} />
               <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
             </div>
             <div className="flex flex-col divide-y divide-[var(--border-tertiary)]" style={{ borderColor: 'var(--border-tertiary)' }}>
@@ -122,7 +123,7 @@ export function DashboardHomePage() {
         <div className="w-full rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)] flex flex-col overflow-hidden">
           <div className="p-6 pb-2">
             <div className="flex items-center gap-2 text-[var(--text-primary)]">
-              <i className="ti ti-messages text-[16px]" />
+              <MessagesSquare size={16} />
               <h3 className="text-[14px] font-semibold tracking-tight">Recent conversations</h3>
             </div>
           </div>

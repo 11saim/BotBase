@@ -256,7 +256,7 @@ export function NewLandingPage() {
           {/* Feature Highlights */}
           <div
             id="features"
-            className="max-w-5xl mx-auto pt-2 pb-5 mt-20 scroll-mt-28"
+            className="max-w-5xl mx-auto pt-4 pb-5 mt-20"
           >
             <div className="text-center mb-8">
               <p className="text-xs font-semibold tracking-[0.18em] text-gray-500">

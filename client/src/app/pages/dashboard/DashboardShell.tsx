@@ -7,7 +7,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { CreditCard, LayoutGrid, Menu, Plus, Search, X } from "lucide-react";
+import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X } from "lucide-react";
 import { isAuthenticated } from "../../lib/auth";
 import { DashboardBotsProvider, useDashboardBots } from "./DashboardBotsContext";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
@@ -237,7 +237,7 @@ function DashboardFrame() {
               </p>
             </div>
 
-            <i className="ti ti-dots text-[16px] text-neutral-400" />
+            <MoreHorizontal size={16} className="text-neutral-400" />
           </button>
         </div>
       </aside>
