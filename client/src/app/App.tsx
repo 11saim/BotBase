@@ -16,7 +16,6 @@ import { DashboardHomePage } from "./pages/dashboard/DashboardHomePage";
 import { DashboardPlanUsagePage } from "./pages/dashboard/DashboardPlanUsagePage";
 import { DashboardBotDetailPage } from "./pages/dashboard/DashboardBotDetailPage";
 import { DashboardAnalyticsPage } from "./pages/dashboard/DashboardAnalyticsPage";
-import { DashboardIntegrationsPage } from "./pages/dashboard/DashboardIntegrationsPage";
 import { DashboardRecentConversationsPage } from "./pages/dashboard/DashboardRecentConversationsPage";
 
 function LegacyBotRedirect() {
@@ -39,7 +38,6 @@ export default function App() {
           <Route index element={<DashboardHomePage />} />
           <Route path="usage" element={<DashboardPlanUsagePage />} />
           <Route path="analytics" element={<DashboardAnalyticsPage />} />
-          <Route path="integrations" element={<DashboardIntegrationsPage />} />
           <Route path="recent-conversations" element={<DashboardRecentConversationsPage />} />
           <Route
             path="bots/new"

@@ -96,9 +96,6 @@ export function DashboardBotDetailPage() {
   return (
     <div className="min-h-full" style={{ fontFamily: "var(--font-ui)" }}>
       <div className="border-b border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-6">
-        <Link to="/dashboard" className="mb-3 inline-flex items-center gap-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-          ← Dashboard
-        </Link>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl" style={{ background: "var(--bg-secondary)" }}>
@@ -108,19 +105,20 @@ export function DashboardBotDetailPage() {
               <h1 className="text-xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
                 {bot.name}
               </h1>
-              <span
-                className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+              <button
+                className="inline-block rounded-full px-2.5 py-0.5 text-[12px] font-semibold uppercase"
                 style={{
                   background: bot.status === "active" ? "#F0FDF4" : "#FFFBEB",
                   color: bot.status === "active" ? "var(--success)" : "#B45309",
                 }}
+                onClick={() => updateBot(bot.id, { status: bot.status === "active" ? "paused" : "active" })}
               >
-                {bot.status === "active" ? "Active" : "Paused"}
-              </span>
+                {bot.status === "active" ? "Active" : "Pause"}
+              </button>
             </div>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2 sm:gap-1 border-t border-[var(--border-default)] pt-4">
+        <div className="mt-5 flex overflow-auto gap-2 sm:gap-1 border-t border-[var(--border-default)] pt-4">
           {TABS.map((label, i) => (
             <button
               key={label}
@@ -766,7 +764,7 @@ function BotSettingsTab({ bot, rename, setRename, updateBot, onDeleteOpen }: { b
         <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Webhook</p>
         <label className="mt-2 flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)" }}><input type="checkbox" checked={bot.webhookEnabled} onChange={(e) => updateBot(bot.id, { webhookEnabled: e.target.checked })} />Enable webhook</label>
         <input className="mt-2 w-full rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--border-default)" }} placeholder="https://…" value={bot.webhookUrl} onChange={(e) => updateBot(bot.id, { webhookUrl: e.target.value })} />
-        <button type="button" className="mt-2 rounded-lg border px-3 py-1.5 text-xs" style={{ borderColor: "var(--border-default)" }} onClick={() => { if (bot.webhookUrl) void fetch(bot.webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event: "test", botId: bot.id }) }).catch(() => {}); }}>Test webhook</button>
+        <button type="button" className="mt-2 rounded-lg border px-3 py-1.5 text-xs" style={{ borderColor: "var(--border-default)" }} onClick={() => { if (bot.webhookUrl) void fetch(bot.webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event: "test", botId: bot.id }) }).catch(() => { }); }}>Test webhook</button>
       </div>
       <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}><label className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)" }}><input type="checkbox" checked={bot.leadCaptureEnabled} onChange={(e) => updateBot(bot.id, { leadCaptureEnabled: e.target.checked })} />Ask for name/email before chat</label></div>
       <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}><label className="flex items-center gap-2 text-sm" style={{ color: "var(--text-secondary)" }}><input type="checkbox" checked={bot.handoffInboxEnabled} onChange={(e) => updateBot(bot.id, { handoffInboxEnabled: e.target.checked })} />Allow message when bot cannot answer</label></div>

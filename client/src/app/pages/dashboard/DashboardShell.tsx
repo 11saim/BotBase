@@ -7,7 +7,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X } from "lucide-react";
+import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot, BarChart2, MessageSquare } from "lucide-react";
 import { isAuthenticated } from "../../lib/auth";
 import { DashboardBotsProvider, useDashboardBots } from "./DashboardBotsContext";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
@@ -44,12 +44,11 @@ function DashboardFrame() {
   };
 
   const navItems = [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "All Bots", path: "/dashboard/bots" },
-    { label: "Analytics", path: "/dashboard/analytics" },
-    { label: "Integrations", path: "/dashboard/integrations" },
-    { label: "Plan & Usage", path: "/dashboard/usage" },
-    { label: "Recent Conversations", path: "/dashboard/recent-conversations" },
+    { label: "Dashboard", path: "/dashboard", icon: LayoutGrid },
+    { label: "All Bots", path: "/dashboard/bots", icon: Bot },
+    { label: "Analytics", path: "/dashboard/analytics", icon: BarChart2 },
+    { label: "Plan & Usage", path: "/dashboard/usage", icon: CreditCard },
+    { label: "Recent Conversations", path: "/dashboard/recent-conversations", icon: MessageSquare },
   ];
 
   const close = () => setMobileMenuOpen(false);
@@ -127,23 +126,25 @@ function DashboardFrame() {
           {/* Main Navigation */}
           <div className="mb-3">
             <div className="space-y-2">
-              {navItems.map(({ label, path }) => {
+              {navItems.map(({ label, path, icon }) => {
                 const isActive = location.pathname === path;
                 return (
                   <Link
                     key={path}
                     to={path}
-                    className={`flex w-full items-center justify-between gap-3 rounded-lg leading-none px-5 py-4 text-[13px] transition
+                    onClick={close}
+                    className={`flex w-full items-center justify-between gap-3 rounded-lg leading-none px-3 py-4 text-[13px] transition
             ${isActive
                         ? "bg-black text-white"
                         : "text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
                       }`}
                   >
-                    <span>{label}</span>
+                    <span className="flex items-center">
+                      {icon && React.createElement(icon, { size: 16, className: "mr-3" })}
+                      {label}
+                    </span>
                     {label === "All Bots" && (
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/20' : 'bg-black/5'}`}>
-                        {bots.length}
-                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/20' : 'bg-black/5'}`}>{bots.length}</span>
                     )}
                   </Link>
                 );
@@ -159,17 +160,16 @@ function DashboardFrame() {
               Recent Bots
             </p>
             <div className="space-y-1">
-              {bots.slice(0, 3).map((bot) => (
+              {[...bots].reverse().slice(0, 3).map((bot) => (
                 <Link
                   key={bot.id}
                   to={`/dashboard/bots/${bot.id}`}
-                  className="flex w-full items-center gap-3 rounded-lg px-5 py-2.5 text-[13px] transition text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
+                  onClick={close}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition text-neutral-600 hover:bg-[#f5f5f2] hover:text-black"
                 >
-                  <span
-                    className={`h-2 w-2 rounded-full ${bot.status === "active" ? "bg-green-500" : "bg-neutral-300"
-                      }`}
-                  />
-                  <span className="truncate">{bot.name}</span>
+                  {bot.iconUrl ? <img src={bot.iconUrl} alt="" className="h-4 w-4 object-cover mr-2" /> : <span className="text-lg">{bot.emoji}</span>}
+                  <span className="truncate flex-1">{bot.name}</span>
+                  <span className={`ml-auto h-1.5 w-1.5 rounded-full ${bot.status === "active" ? "bg-green-500" : "bg-neutral-300"}`} />
                 </Link>
               ))}
             </div>
@@ -177,6 +177,7 @@ function DashboardFrame() {
 
           <div className="px-3 mt-4">
             <Link
+              onClick={close}
               to="?create=1"
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-[13px] font-medium text-white transition hover:bg-neutral-800"
             >
@@ -209,7 +210,7 @@ function DashboardFrame() {
                 82% of plan used
               </span>
 
-              <Link to={"/dashboard/usage"}>
+              <Link to={"/dashboard/usage"} onClick={close}>
                 <button className="rounded-md border border-black/10 bg-white px-3 py-1 text-[11px] font-semibold text-black transition hover:bg-[#f0f0ec]">
                   Upgrade
                 </button>
