@@ -7,5 +7,9 @@ ai server/__pycache__/
 ai server/routes/__pycache__/
 ai server/services/__pycache__/
 
+# web server
+web server/node_modules/
+web server/.env
+
 # client
 client/node_modules/
