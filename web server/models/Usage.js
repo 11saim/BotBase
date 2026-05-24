@@ -6,45 +6,44 @@ const usageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      unique: true, // one doc per user always
       index: true,
     },
 
-    // First and last day of the billing month
-    periodStart: { type: Date, required: true },
-    periodEnd:   { type: Date, required: true },
+    periodStart: { type: Date, required: true }, // subscription or registration date
+    periodEnd: { type: Date, default: null },  // null = free forever
 
     // Counters — incremented as actions happen
-    messagesUsed:    { type: Number, default: 0 },
-    botsCreated:     { type: Number, default: 0 },
+    messagesUsed: { type: Number, default: 0 },
+    botsCreated: { type: Number, default: 0 },
     sourcesUploaded: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// Ensure one Usage doc per user per month
-usageSchema.index({ userId: 1, periodStart: 1 }, { unique: true });
+// ─── Static: get usage doc for a user ────────────────────────────────────────
+usageSchema.statics.getUsage = async function (userId) {
+  return this.findOne({ userId });
+};
 
-// Static: get or create the current month's usage doc for a user
-usageSchema.statics.getCurrentPeriod = async function (userId) {
-  const now = new Date();
-  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);       // 1st of month
-  const periodEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0);  // last day of month
-
+// ─── Static: increment a counter field ───────────────────────────────────────
+usageSchema.statics.increment = async function (userId, field, amount = 1) {
   return this.findOneAndUpdate(
-    { userId, periodStart },
-    { $setOnInsert: { userId, periodStart, periodEnd } },
-    { upsert: true, new: true }
+    { userId },
+    { $inc: { [field]: amount } },
+    { new: true }
   );
 };
 
-// Static: increment a counter field safely
-usageSchema.statics.increment = async function (userId, field, amount = 1) {
-  const now = new Date();
-  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
+// ─── Static: start a new period (only resets messages) ───────────────────────
+usageSchema.statics.startNewPeriod = async function (userId, periodStart, periodEnd = null) {
   return this.findOneAndUpdate(
-    { userId, periodStart },
-    { $inc: { [field]: amount } },
+    { userId },
+    {
+      periodStart,
+      periodEnd,
+      messagesUsed: 0,
+    },
     { new: true }
   );
 };

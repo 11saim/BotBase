@@ -8,31 +8,8 @@ const messageSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    role: {
-      type: String,
-      enum: ["user", "assistant"],
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-
-    // Which knowledge chunks were used to generate this response
-    // Stored as snippet text so it's readable without a separate lookup
-    // Only populated on assistant messages
-    sourceChunks: [
-      {
-        text:       { type: String },
-        sourceId:   { type: mongoose.Schema.Types.ObjectId, ref: "KnowledgeSource" },
-        sourceName: { type: String },
-      },
-    ],
-
-    tokensUsed: {
-      type: Number,
-      default: null,
-    },
+    role: { type: String, enum: ["user", "assistant"], required: true },
+    content: { type: String, required: true },
   },
   { timestamps: true }
 );

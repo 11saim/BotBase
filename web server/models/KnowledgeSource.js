@@ -17,18 +17,17 @@ const knowledgeSourceSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true, // e.g. "handbook.pdf" or "https://docs.example.com"
+      trim: true,
     },
     type: {
       type: String,
-      enum: ["pdf", "url", "text"],
+      enum: ["pdf", "text"],
       required: true,
     },
 
     // Type-specific fields
-    filePath:  { type: String, default: null }, // disk path for pdf uploads
-    sourceUrl: { type: String, default: null }, // for url type
-    rawText:   { type: String, default: null }, // for plain text type
+    filePath: { type: String, default: null }, // disk path for pdf uploads
+    rawText: { type: String, default: null }, // for plain text type
 
     // FAISS index file for this bot (shared across all sources of the bot)
     // Path format: /storage/faiss/{botId}.index
@@ -36,8 +35,8 @@ const knowledgeSourceSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "processing", "ready", "failed"],
-      default: "pending",
+      enum: ["active", "paused", "deleted"],
+      default: "active"
     },
     errorMsg: {
       type: String,
