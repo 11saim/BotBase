@@ -1,7 +1,10 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
+const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser()); // needed to read cookies from requests
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const authRoutes = require("./routes/auth.routes");
@@ -12,15 +15,18 @@ const conversationRoutes = require("./routes/conversation.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const chatRoutes = require("./routes/chat.routes");
 
-// Public routes — no auth needed
+// Public routes
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Protected routes — auth middleware will go here later
+// Protected routes — auth middleware goes here later
 app.use("/api/user", userRoutes);
 app.use("/api/bots", botRoutes);
 app.use("/api/bots/:botId/knowledge", knowledgeRoutes);
 app.use("/api/bots/:botId/conversations", conversationRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+
+// ─── Global error handler — must be last ─────────────────────────────────────
+app.use(errorHandler);
 
 module.exports = app;

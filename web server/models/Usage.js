@@ -6,7 +6,7 @@ const usageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // one doc per user always
+      unique: true,
       index: true,
     },
 
