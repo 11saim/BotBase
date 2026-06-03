@@ -3,8 +3,13 @@ const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
+const startCleanupJob = require("./jobs/M   arkEnd");
+
+// Starts cron job to auto-end conversations, that haven't had activity for 35+ mins
+startCleanupJob();
+
 app.use(express.json());
-app.use(cookieParser()); // needed to read cookies from requests
+app.use(cookieParser());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const authRoutes = require("./routes/auth.routes");

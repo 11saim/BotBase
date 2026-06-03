@@ -2,19 +2,15 @@ const express = require("express");
 const router = express.Router();
 const chatController = require("../controllers/chat.controller");
 
-// These routes are PUBLIC — no auth middleware
-// Called by the embedded widget on any website
+// Public routes — no auth middleware
 
 // POST /api/chat/start → start or resume a conversation
-// Body: { botId, sessionId }
 router.post("/start", chatController.startConversation);
 
-// POST /api/chat/message → send a message and get a response (SSE streaming)
-// Body: { sessionId, message }
+// POST /api/chat/message → send a message, stream response via SSE
 router.post("/message", chatController.sendMessage);
 
-// POST /api/chat/end → end a conversation (widget closed)
-// Body: { sessionId }
-router.post("/end", chatController.endConversation);
+// POST /api/chat/ping → heartbeat every 5 mins while widget is open
+router.post("/ping", chatController.ping);
 
 module.exports = router;
