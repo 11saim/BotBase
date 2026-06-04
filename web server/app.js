@@ -3,7 +3,7 @@ const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
-const startCleanupJob = require("./jobs/M   arkEnd");
+const startCleanupJob = require("./jobs/MarkEnd");
 
 // Starts cron job to auto-end conversations, that haven't had activity for 35+ mins
 startCleanupJob();
