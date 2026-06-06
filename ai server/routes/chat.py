@@ -14,6 +14,7 @@ def sse(data: dict) -> str:
 class ChatRequest(BaseModel):
     botId:       str
     message:     str
+    activeSourceIds:  list[str] = []
     botSettings: Optional[dict] = {}
 
 @router.post("/")
@@ -22,7 +23,7 @@ async def chat(body: ChatRequest):
     async def generate():
         try:
             # rag_answer is a generator that yields tokens
-            for token in rag_answer(body.message, body.botId, body.botSettings):
+            for token in rag_answer(body.message, body.botId, body.activeSourceIds, body.botSettings):
                 yield sse({"token": token})
 
             yield sse({"done": True})

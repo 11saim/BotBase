@@ -1,22 +1,21 @@
 const express = require("express");
-const router = express.Router({ mergeParams: true }); // mergeParams to access botId from parent
-const knowledgeController = require("../controllers/knowledge.controller");
+const router = express.Router({ mergeParams: true });
+const upload = require("../middleware/upload");
+const controller = require("../controllers/knowledge.controller");
 
-// All routes are scoped under /api/bots/:botId/knowledge
+// GET /api/bots/:botId/knowledge
+router.get("/", controller.getAllSources);
 
-// GET /api/bots/:botId/knowledge → get all sources for a bot
-router.get("/", knowledgeController.getAllSources);
+// POST /api/bots/:botId/knowledge/pdf
+router.post("/pdf", upload.single("file"), controller.uploadPDF);
 
-// POST /api/bots/:botId/knowledge/pdf → upload a PDF file
-router.post("/pdf", knowledgeController.uploadPDF);
+// POST /api/bots/:botId/knowledge/text
+router.post("/text", controller.uploadText);
 
-// POST /api/bots/:botId/knowledge/text → paste raw text
-router.post("/text", knowledgeController.uploadText);
+// PATCH /api/bots/:botId/knowledge/:id/status
+router.patch("/:id/status", controller.updateStatus);
 
-// PATCH /api/bots/:botId/knowledge/:id/status → pause or activate a source
-router.patch("/:id/status", knowledgeController.updateStatus);
-
-// DELETE /api/bots/:botId/knowledge/:id → soft delete a source
-router.delete("/:id", knowledgeController.deleteSource);
+// DELETE /api/bots/:botId/knowledge/:id
+router.delete("/:id", controller.deleteSource);
 
 module.exports = router;

@@ -35,8 +35,8 @@ const knowledgeSourceSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "paused", "deleted"],
-      default: "active"
+      enum: ["processing", "active", "paused", "deleted"],
+      default: "processing"
     },
     errorMsg: {
       type: String,
