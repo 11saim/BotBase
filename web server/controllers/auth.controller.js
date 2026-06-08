@@ -7,7 +7,7 @@ const AppError = require("../utils/AppError");
 const COOKIE_OPTIONS = {
     httpOnly: true,   // JS can't access it — safe from XSS attacks
     secure: process.env.NODE_ENV === "production", // HTTPS only in production
-    sameSite: "strict", // blocks CSRF attacks
+    sameSite: "lax", // blocks CSRF attacks, allows cross-port cookies on localhost
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
 };
 
@@ -38,12 +38,17 @@ const register = async (req, res, next) => {
             passwordHash: password,
         });
 
+
         // Create usage doc for free plan
         await Usage.create({
             userId: user._id,
             periodStart: new Date(),
             periodEnd: null,
         });
+
+        // Set token in cookie
+        const token = generateToken(user._id);
+        res.cookie("token", token, COOKIE_OPTIONS);
 
         res.status(201).json({ user });
 
@@ -78,7 +83,7 @@ const login = async (req, res, next) => {
         const token = generateToken(user._id);
         res.cookie("token", token, COOKIE_OPTIONS);
 
-        res.json({ user });
+        res.status(200).json({ user });
 
     } catch (err) {
         next(err);
@@ -89,7 +94,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
     // Clear the cookie
     res.clearCookie("token", COOKIE_OPTIONS);
-    res.json({ message: "Logged out successfully" });
+    res.status(200).json({ message: "Logged out successfully" });
 };
 
 // ─── GET /api/auth/me ─────────────────────────────────────────────────────────
@@ -100,7 +105,7 @@ const me = async (req, res, next) => {
             return next(new AppError("User not found", 404));
         }
 
-        res.json({ user });
+        res.status(200).json({ user });
 
     } catch (err) {
         next(err);

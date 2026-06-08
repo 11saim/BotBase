@@ -1,24 +1,52 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { setAuthToken } from '../lib/auth';
+import { Toaster, toast } from "sonner";
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthToken('dev_session');
-    navigate(from, { replace: true });
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.error || 'Login failed', { position: "top-center" });
+        return;
+      }
+
+      toast.success(data.message || 'Login successful', { position: "top-center" });
+      navigate(from, { replace: true });
+    } catch (error: any) {
+      toast.error(error.message || 'Login failed', { position: "top-center" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex">
+      <Toaster richColors />
       {/* Left Half - Dark */}
       <div className="hidden lg:flex w-[40%] bg-[var(--text-primary)] relative items-center justify-center">
         <div className="absolute inset-0 opacity-[0.04]">
@@ -45,7 +73,7 @@ export function LoginPage() {
             <br />
             always available."
           </p>
-          <p className="text-white/40 text-xs mt-4">— botbase.ai</p>
+          <p className="text-white/40 text-xs mt-4">Bot Base</p>
         </div>
 
         {/* Animated vertical line */}
@@ -66,8 +94,7 @@ export function LoginPage() {
           className="absolute top-6 left-6 flex items-center gap-1"
           style={{ fontWeight: 500, fontSize: '15px' }}
         >
-          <span>botbase</span>
-          <span style={{ color: 'var(--text-secondary)' }}>.ai</span>
+          <span>Bot Base</span>
         </Link>
 
         <div className="w-full max-w-[360px]">
@@ -153,8 +180,9 @@ export function LoginPage() {
                 fontSize: '14px',
                 fontWeight: 500,
               }}
+              disabled={loading}
             >
-              Sign in →
+              {loading ? 'Signing in...' : 'Sign in →'}
             </button>
 
             <div className="relative my-6">

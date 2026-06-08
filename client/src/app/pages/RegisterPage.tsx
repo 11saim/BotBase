@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setAuthToken } from "../lib/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { CloudCog, Eye, EyeOff } from "lucide-react";
+import { Toaster, toast } from "sonner";
 
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handlePasswordChange = (value: string) => {
@@ -25,22 +26,44 @@ export function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (agreedToTerms) {
-      setAuthToken("dev_session");
-      navigate("/dashboard");
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || 'Registration failed', { position: "top-center" });
+        return;
+      }
+
+      toast.success(data.message || 'Registration successful', { position: "top-center" });
+      navigate('/dashboard', { replace: true });
+
+    } catch (error: any) {
+      toast.error(error.message || 'Something went Wrong', { position: "top-center" });
+    } finally {
+      setLoading(false);
     }
   };
 
   const getStrengthColor = () => {
     if (passwordStrength === 1) return "#CC2222";
     if (passwordStrength === 2) return "#FFBD2E";
-    return "#1A6B3C";
+    return "#28a745";
   };
 
   return (
     <div className="min-h-screen flex">
+      <Toaster richColors />
       {/* Left Half - Dark */}
       <div className="hidden lg:flex w-[40%] bg-[var(--text-primary)] relative items-center justify-center">
         <div className="absolute inset-0 opacity-[0.04]">
@@ -68,7 +91,7 @@ export function RegisterPage() {
             <br />
             always available."
           </p>
-          <p className="text-white/40 text-xs mt-4">— botbase.ai</p>
+          <p className="text-white/40 text-xs mt-4">Bot Base</p>
         </div>
 
         {/* Animated vertical line */}
@@ -89,8 +112,7 @@ export function RegisterPage() {
           className="absolute top-6 left-6 flex items-center gap-1"
           style={{ fontWeight: 500, fontSize: "15px" }}
         >
-          <span>botbase</span>
-          <span style={{ color: "var(--text-secondary)" }}>.ai</span>
+          <span>Bot Base</span>
         </Link>
 
         <div className="w-full max-w-[360px]">
@@ -134,8 +156,8 @@ export function RegisterPage() {
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="John Doe"
                 className="w-full h-[36px] px-3 rounded-lg border bg-white transition-all"
                 style={{
@@ -266,7 +288,7 @@ export function RegisterPage() {
 
             <button
               type="submit"
-              disabled={!agreedToTerms}
+              disabled={!agreedToTerms || loading}
               className="w-full h-[36px] rounded-lg text-white transition-all hover:bg-[#2A2A2A] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--text-primary)]"
               style={{
                 background: "var(--text-primary)",
@@ -274,7 +296,7 @@ export function RegisterPage() {
                 fontWeight: 500,
               }}
             >
-              Create account →
+              {loading ? 'Creating account...' : 'Create account →'}
             </button>
 
             <div className="relative my-6">

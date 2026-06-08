@@ -1,12 +1,20 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const errorHandler = require("./middleware/errorHandler");
+const cors = require("cors");
+const errorHandler = require("./middlewares/errorHandler");
+const { protect } = require("./middlewares/auth");
 const app = express();
 
 const startCleanupJob = require("./jobs/MarkEnd");
 
 // Starts cron job to auto-end conversations, that haven't had activity for 35+ mins
 startCleanupJob();
+
+// Enable CORS for our client port (and support credentials/cookies)
+app.use(cors({
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
+}));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -24,12 +32,12 @@ const chatRoutes = require("./routes/chat.routes");
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Protected routes — auth middleware goes here later
-app.use("/api/user", userRoutes);
-app.use("/api/bots", botRoutes);
-app.use("/api/bots/:botId/knowledge", knowledgeRoutes);
-app.use("/api/bots/:botId/conversations", conversationRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+// Protected routes
+app.use("/api/user", protect, userRoutes);
+app.use("/api/bots", protect, botRoutes);
+app.use("/api/bots/:botId/knowledge", protect, knowledgeRoutes);
+app.use("/api/bots/:botId/conversations", protect, conversationRoutes);
+app.use("/api/dashboard", protect, dashboardRoutes);
 
 // ─── Global error handler — must be last ─────────────────────────────────────
 app.use(errorHandler);

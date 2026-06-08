@@ -8,7 +8,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot, BarChart2, MessageSquare } from "lucide-react";
-import { isAuthenticated } from "../../lib/auth";
 import { DashboardBotsProvider, useDashboardBots } from "./DashboardBotsContext";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
 
@@ -284,6 +283,10 @@ function DashboardFrame() {
 }
 
 export function DashboardShell() {
+  const isAuthenticated = async () => {
+    const response = await fetch('http://localhost:5000/api/auth/me')
+    return response.ok;
+  }
   const location = useLocation();
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;

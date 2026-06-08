@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
-const upload = require("../middleware/upload");
+const upload = require("../middlewares/upload");
 const controller = require("../controllers/knowledge.controller");
 
 // GET /api/bots/:botId/knowledge
