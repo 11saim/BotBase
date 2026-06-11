@@ -16,4 +16,7 @@ router.post("/logout", authController.logout);
 // GET /api/auth/me
 router.get("/me", protect, authController.me);
 
+// POST /api/auth/google
+router.post("/google", authController.googleAuth);
+
 module.exports = router;

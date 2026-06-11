@@ -2,8 +2,9 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Zap, Check, X } from "lucide-react";
 import { useDashboardBots } from "./DashboardBotsContext";
-import { clearAuthToken } from "../../lib/auth";
 import PricingSection from "@/app/components/PricingSection";
+import { toast } from "sonner";
+import { invalidateAuth } from "@/hooks/useAuth";
 
 const LIMITS = { messages: 5000, storageMb: 500, bots: 10 };
 
@@ -120,8 +121,14 @@ export function DashboardPlanUsagePage() {
     return { messages, storage, bots: bots.length };
   }, [bots]);
 
-  const signOut = () => {
-    clearAuthToken();
+  const signOut = async () => {
+    const res = await fetch('http://localhost:5000/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    const data = await res.json();
+    invalidateAuth();
+    toast.success(data.message || 'Logout successful', { position: "top-center" });
     navigate("/login", { replace: true });
   };
 

@@ -36,7 +36,6 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/user", protect, userRoutes);
 app.use("/api/bots", protect, botRoutes);
 app.use("/api/bots/:botId/knowledge", protect, knowledgeRoutes);
-app.use("/api/conversations", protect, conversationRoutes);
 app.use("/api/bots/:botId/conversations", protect, conversationRoutes);
 app.use("/api/dashboard", protect, dashboardRoutes);
 

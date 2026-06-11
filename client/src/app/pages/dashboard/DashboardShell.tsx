@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Link,
   NavLink,
@@ -283,14 +283,42 @@ function DashboardFrame() {
 }
 
 export function DashboardShell() {
-  const isAuthenticated = async () => {
-    const response = await fetch('http://localhost:5000/api/auth/me')
-    return response.ok;
-  }
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const location = useLocation();
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/me",
+          {
+            credentials: "include",
+          }
+        );
+
+        setIsAuth(response.ok);
+      } catch (error) {
+        setIsAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isAuth === null) {
+    return <div>Loading...</div>;
   }
+
+  if (!isAuth) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
+
   return (
     <DashboardBotsProvider>
       <DashboardFrame />
