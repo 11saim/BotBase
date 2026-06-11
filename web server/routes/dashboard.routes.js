@@ -11,4 +11,7 @@ router.get("/recent-activity", dashboardController.getRecentActivity);
 // GET /api/dashboard/usage → current period usage + plan limits
 router.get("/usage", dashboardController.getUsage);
 
+// GET /api/dashboard/top-bots → get top performing bots
+router.get("/top-bots", dashboardController.getTopBots);
+
 module.exports = router;
