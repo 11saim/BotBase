@@ -13,3 +13,5 @@ web server/.env
 
 # client
 client/node_modules/
+client/.env
+.env
