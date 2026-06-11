@@ -9,7 +9,22 @@ const { canDo } = require("../utils/plans");
 const getAllBots = async (req, res, next) => {
     try {
         const bots = await Bot.find({ userId: req.userId, status: { $ne: "deleted" } });
-        res.json({ bots });
+
+        // Count conversations per bot
+        const botIds = bots.map(b => b._id);
+        const counts = await Conversation.aggregate([
+            { $match: { botId: { $in: botIds } } },
+            { $group: { _id: "$botId", count: { $sum: 1 } } }
+        ]);
+
+        const countMap = Object.fromEntries(counts.map(c => [c._id.toString(), c.count]));
+
+        const botsWithCounts = bots.map(b => ({
+            ...b.toObject(),
+            conversationCount: countMap[b._id.toString()] || 0
+        }));
+
+        res.json({ bots: botsWithCounts });
     } catch (err) {
         next(err);
     }
