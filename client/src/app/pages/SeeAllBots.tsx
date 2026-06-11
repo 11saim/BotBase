@@ -1,16 +1,37 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MessageSquare, Search } from "lucide-react";
 
+const API = "http://localhost:5000/api";
+
+type WidgetConfig = {
+  position: "bottom-right" | "bottom-left";
+  launcherSize: "small" | "medium" | "large";
+  launcherShape: "circle" | "rounded" | "square";
+  launcherColor: string;
+  tooltipText: string;
+  panelTheme: "light" | "dark";
+  chatFont: "dm-sans" | "inter" | "nunito-sans" | "source-serif" | "georgia" | "system-ui" | "monospace";
+  accentColor: string;
+  welcomeMessage: string;
+  inputPlaceholder: string;
+  showPoweredBy: boolean;
+  pausedMessage: string;
+  fallbackReply: string;
+  responseStyle: "formal" | "friendly" | "concise";
+  language: "en" | "es" | "fr" | "de";
+};
+
 type Bot = {
-  id: string;
+  _id: string;
+  userId: string;
   name: string;
-  emoji: string;
-  status: "active" | "pause";
-  msgs: number;
-  created: string;
-  model: string;
-  avatarColor: string;
+  description: string;
+  botAvatar: string;
+  status: "active" | "paused" | "locked" | "deleted";
+  widgetConfig: WidgetConfig;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const BOTS: Bot[] = [
@@ -21,7 +42,6 @@ const BOTS: Bot[] = [
     status: "active",
     msgs: 0,
     created: "Apr 12, 2025",
-    model: "gpt-4o",
     avatarColor: "bg-emerald-100",
   },
   {
@@ -31,7 +51,6 @@ const BOTS: Bot[] = [
     status: "active",
     msgs: 0,
     created: "Apr 18, 2025",
-    model: "gpt-4o-mini",
     avatarColor: "bg-amber-100",
   },
   {
@@ -41,17 +60,15 @@ const BOTS: Bot[] = [
     status: "active",
     msgs: 142,
     created: "Mar 5, 2025",
-    model: "claude-3-haiku",
     avatarColor: "bg-violet-100",
   },
   {
     id: "bot_b7d20e51-9fa2",
     name: "HR Helper",
     emoji: "👥",
-    status: "pause",
+    status: "paused",
     msgs: 38,
     created: "Feb 20, 2025",
-    model: "gpt-4o",
     avatarColor: "bg-orange-100",
   },
   {
@@ -61,13 +78,25 @@ const BOTS: Bot[] = [
     status: "active",
     msgs: 77,
     created: "Mar 29, 2025",
-    model: "gpt-4o-mini",
     avatarColor: "bg-sky-100",
   },
 ];
 
+const AVATAR_COLORS = [
+  "bg-emerald-100", "bg-amber-100", "bg-violet-100",
+  "bg-orange-100", "bg-sky-100", "bg-rose-100"
+];
+
+// Pick color based on bot name — same bot always gets same color
+const getAvatarColor = (name: string) => {
+  const index = name.charCodeAt(0) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[index];
+};
+
 export default function SeeAllBots() {
   const [query, setQuery] = useState("");
+  const [bots, setBots] = useState<Bot[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const filteredBots = useMemo(() => {
     const q = query.toLowerCase();
@@ -78,12 +107,36 @@ export default function SeeAllBots() {
     );
   }, [query]);
 
+  useEffect(() => {
+    const fetchBots = async () => {
+      try {
+        const botsRes = await fetch(`${API}/bots`, { credentials: "include" });
+
+        const botsData = await botsRes.json();
+
+        setBots(botsData);
+      } catch (err) {
+        console.error("Bots fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBots();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <p className="text-[13px] text-[var(--text-tertiary)]">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full max-w-none">
       <div className="mb-7 flex items-baseline gap-2">
-        <h1 className="text-2xl font-medium text-zinc-900">Bots</h1>
-
-        <span className="text-sm text-zinc-500">/ Your workspace</span>
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">Your All Bots</h1>
       </div>
 
       <div className="relative mb-7">
