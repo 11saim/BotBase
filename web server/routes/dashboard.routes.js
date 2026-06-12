@@ -14,4 +14,7 @@ router.get("/usage", dashboardController.getUsage);
 // GET /api/dashboard/top-bots → get top performing bots
 router.get("/top-bots", dashboardController.getTopBots);
 
+// GET /api/dashboard/analytics?range=7d
+router.get("/analytics", dashboardController.getAnalytics);
+
 module.exports = router;
