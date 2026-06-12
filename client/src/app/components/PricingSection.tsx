@@ -263,10 +263,10 @@ export default function PricingSection({
                     <button
                       disabled={disable}
                       className={`whitespace-nowrap w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${disable
-                          ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
-                          : isCurrent && variant !== "home"
-                            ? "bg-emerald-500 text-white border-emerald-500"
-                            : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
+                        ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
+                        : isCurrent && variant !== "home"
+                          ? "bg-emerald-500 text-white border-emerald-500"
+                          : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
                         }`}
                     >
                       {variant !== "home" && isCurrent

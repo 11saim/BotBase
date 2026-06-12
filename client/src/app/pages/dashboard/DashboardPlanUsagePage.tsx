@@ -1,85 +1,28 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Zap, Check, X } from "lucide-react";
-import { useDashboardBots } from "./DashboardBotsContext";
+import { Zap } from "lucide-react";
 import PricingSection from "@/app/components/PricingSection";
 import { toast } from "sonner";
 import { invalidateAuth } from "@/hooks/useAuth";
 
-const LIMITS = { messages: 5000, storageMb: 500, bots: 10 };
+const API = "http://localhost:5000/api";
 
-const plans = [
-  {
-    key: "pro",
-    label: "Pro",
-    pill: "Current",
-    pillStyle: "bg-neutral-100 text-neutral-500",
-    price: "$29",
-    period: "/mo",
-    desc: "Perfect for individuals and small projects.",
-    features: [
-      { text: "5,000 messages / mo", included: true },
-      { text: "10 bots", included: true },
-      { text: "500 MB storage", included: true },
-      { text: "Priority support", included: false },
-      { text: "Custom domains", included: false },
-    ],
-    current: true,
-    featured: false,
-    btnLabel: "Your current plan",
-    btnStyle:
-      "w-full py-2 rounded-lg text-[13px] font-medium border border-neutral-200 bg-neutral-100 text-neutral-400 cursor-default",
-  },
-  {
-    key: "business",
-    label: "Business",
-    pill: "Most popular",
-    pillStyle: "bg-blue-50 text-blue-700",
-    price: "$79",
-    period: "/mo",
-    desc: "For growing teams that need more capacity and control.",
-    features: [
-      { text: "20,000 messages / mo", included: true },
-      { text: "50 bots", included: true },
-      { text: "5 GB storage", included: true },
-      { text: "Priority support", included: true },
-      { text: "Custom domains", included: false },
-    ],
-    current: false,
-    featured: true,
-    btnLabel: "Upgrade to Business",
-    btnStyle:
-      "w-full py-2 rounded-lg text-[13px] font-medium bg-black text-white hover:opacity-85 transition-opacity",
-  },
-  {
-    key: "enterprise",
-    label: "Enterprise",
-    pill: "Enterprise",
-    pillStyle: "bg-neutral-100 text-neutral-500",
-    price: "Custom",
-    period: " pricing",
-    desc: "Unlimited scale, SSO, SLAs, and a dedicated success team.",
-    features: [
-      { text: "Unlimited messages", included: true },
-      { text: "Unlimited bots", included: true },
-      { text: "Unlimited storage", included: true },
-      { text: "Priority support", included: true },
-      { text: "Custom domains + SSO", included: true },
-    ],
-    current: false,
-    featured: false,
-    btnLabel: "Contact sales",
-    btnStyle:
-      "w-full py-2 rounded-lg text-[13px] font-medium border border-neutral-200 bg-neutral-50 text-neutral-600 hover:bg-neutral-100 transition-colors",
-  },
-];
+const PLAN_LABELS: Record<string, "Free" | "Starter" | "Pro" | "Agency"> = {
+  free: "Free",
+  starter: "Starter",
+  pro: "Pro",
+  agency: "Agency",
+};
+
+interface UsageData {
+  plan: string;
+  usage: { messagesUsed: number; botsCreated: number; sourcesUploaded: number };
+  limits: { messagesPerMonth: number; bots: number; sources: number };
+  period: { start: string; end: string | null };
+}
 
 function StatCard({
-  label,
-  value,
-  sub,
-  pct,
-  warn,
+  label, value, sub, pct, warn,
 }: {
   label: string;
   value: React.ReactNode;
@@ -89,12 +32,8 @@ function StatCard({
 }) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-        {label}
-      </p>
-      <p className="mt-2 font-mono text-3xl font-medium tracking-tight text-neutral-900">
-        {value}
-      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
+      <p className="mt-2 font-mono text-3xl font-medium tracking-tight text-neutral-900">{value}</p>
       <p className="mt-1 text-xs text-neutral-400">{sub}</p>
       <div className="mt-4 h-1 overflow-hidden rounded-full bg-neutral-100">
         <div
@@ -102,9 +41,7 @@ function StatCard({
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p
-        className={`mt-1.5 font-mono text-[11px] ${warn ? "text-red-500" : "text-neutral-400"}`}
-      >
+      <p className={`mt-1.5 font-mono text-[11px] ${warn ? "text-red-500" : "text-neutral-400"}`}>
         {pct}% used{warn ? " — running low" : ""}
       </p>
     </div>
@@ -112,42 +49,55 @@ function StatCard({
 }
 
 export function DashboardPlanUsagePage() {
-  const { bots } = useDashboardBots();
   const navigate = useNavigate();
+  const [data, setData] = useState<UsageData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const totals = useMemo(() => {
-    const messages = bots.reduce((a, b) => a + b.messagesMonth, 0);
-    const storage = bots.reduce((a, b) => a + b.storageMb, 0);
-    return { messages, storage, bots: bots.length };
-  }, [bots]);
+  useEffect(() => {
+    const fetchUsage = async () => {
+      try {
+        const res = await fetch(`${API}/dashboard/usage`, { credentials: "include" });
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error("Usage fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsage();
+  }, []);
 
   const signOut = async () => {
-    const res = await fetch('http://localhost:5000/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-    const data = await res.json();
+    const res = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+    const json = await res.json();
     invalidateAuth();
-    toast.success(data.message || 'Logout successful', { position: "top-center" });
+    toast.success(json.message || "Logout successful", { position: "top-center" });
     navigate("/login", { replace: true });
   };
 
-  const msgPct = Math.min(
-    100,
-    Math.round((totals.messages / LIMITS.messages) * 100),
-  );
-  const botPct = Math.min(100, Math.round((totals.bots / LIMITS.bots) * 100));
-  const storPct = Math.min(
-    100,
-    Math.round((totals.storage / LIMITS.storageMb) * 100),
-  );
+  // Calculate percentages — handle -1 (unlimited) as 0%
+  const pct = (used: number, limit: number) =>
+    limit === -1 ? 0 : Math.min(100, Math.round((used / limit) * 100));
+
+  const msgPct = pct(data?.usage.messagesUsed ?? 0, data?.limits.messagesPerMonth ?? 1);
+  const botPct = pct(data?.usage.botsCreated ?? 0, data?.limits.bots ?? 1);
+  const srcPct = pct(data?.usage.sourcesUploaded ?? 0, data?.limits.sources ?? 1);
+
+  // Renewal date — periodEnd if paid plan, null if free
+  const renewalDate = data?.period.end
+    ? new Date(data.period.end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+    : null;
+
+  const planLabel: "Free" | "Starter" | "Pro" | "Agency" = PLAN_LABELS[data?.plan ?? "free"] ?? "Free";
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-5xl space-y-8">
-        {/* ── Hero ── */}
+
+        {/* Hero */}
         <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white px-8 py-10 sm:px-10 sm:py-12">
-          {/* subtle grid bg */}
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{
@@ -157,98 +107,95 @@ export function DashboardPlanUsagePage() {
           />
           <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-                Workspace
-              </p>
-              <h1 className="mt-2 text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl">
-                Plan &amp; usage
-              </h1>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Workspace</p>
+              <h1 className="mt-2 text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl">Plan &amp; usage</h1>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
                 Monitor how your workspace compares to your current plan limits.
                 All counters reset on your monthly billing date.
               </p>
             </div>
+            {/* Dynamic plan badge */}
             <div className="inline-flex items-center gap-2 self-start rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm font-medium text-neutral-700 lg:self-auto">
               <Zap size={14} className="text-neutral-400" />
-              Pro plan
+              {loading ? "Loading..." : `${planLabel} plan`}
             </div>
           </div>
         </div>
 
-        {/* ── Usage stats ── */}
+        {/* Usage stats */}
         <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-            This month
-          </p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <StatCard
-              label="Messages"
-              value={totals.messages.toLocaleString()}
-              sub={`of ${LIMITS.messages.toLocaleString()} / month`}
-              pct={msgPct}
-            />
-            <StatCard
-              label="Bots"
-              value={totals.bots}
-              sub={`of ${LIMITS.bots} included`}
-              pct={botPct}
-            />
-            <StatCard
-              label="Storage"
-              value={
-                <>
-                  {Math.round(totals.storage * 10) / 10}
-                  <span className="text-lg font-normal text-neutral-400">
-                    {" "}
-                    MB
-                  </span>
-                </>
-              }
-              sub={`of ${LIMITS.storageMb} MB pooled`}
-              pct={storPct}
-              warn={storPct >= 80}
-            />
-          </div>
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">This month</p>
+          {loading ? (
+            <p className="text-[13px] text-neutral-400">Loading...</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <StatCard
+                label="Messages"
+                value={(data?.usage.messagesUsed ?? 0).toLocaleString()}
+                sub={data?.limits.messagesPerMonth === -1
+                  ? "Unlimited"
+                  : `of ${(data?.limits.messagesPerMonth ?? 0).toLocaleString()} / month`}
+                pct={msgPct}
+                warn={msgPct >= 80}
+              />
+              <StatCard
+                label="Bots"
+                value={data?.usage.botsCreated ?? 0}
+                sub={data?.limits.bots === -1
+                  ? "Unlimited"
+                  : `of ${data?.limits.bots ?? 0} included`}
+                pct={botPct}
+                warn={botPct >= 80}
+              />
+              <StatCard
+                label="Sources"
+                value={data?.usage.sourcesUploaded ?? 0}
+                sub={data?.limits.sources === -1
+                  ? "Unlimited"
+                  : `of ${data?.limits.sources ?? 0} included`}
+                pct={srcPct}
+                warn={srcPct >= 80}
+              />
+            </div>
+          )}
         </div>
 
-        {/* ── Upgrade plans ── */}
+        {/* Pricing plans */}
         <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-            Upgrade your plan
-          </p>
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Upgrade your plan</p>
           <div className="rounded-3xl border border-neutral-200 bg-white px-1 py-5 md:p-5">
-            <PricingSection variant="plan&usage" currentPlan="Pro" />
+            <PricingSection variant="plan&usage" currentPlan={planLabel} />
           </div>
         </div>
 
-        {/* ── Bottom row ── */}
+        {/* Bottom row */}
         <div className="grid gap-3 sm:grid-cols-2">
+
+          {/* Billing */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-              Billing
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Billing</p>
             <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">
-              Next renewal
+              {renewalDate ? "Next renewal" : "Plan"}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-              Your Pro plan renews on{" "}
-              <span className="font-medium text-neutral-800">
-                June 16, 2026
-              </span>
-              . You won't be charged if you downgrade before that date.
+              {renewalDate ? (
+                <>
+                  Your {planLabel} plan renews on{" "}
+                  <span className="font-medium text-neutral-800">{renewalDate}</span>.
+                  You won't be charged if you downgrade before that date.
+                </>
+              ) : (
+                <>You are on the <span className="font-medium text-neutral-800">Free plan</span>. Upgrade anytime to unlock more features.</>
+              )}
             </p>
           </div>
 
+          {/* Sign out */}
           <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-              Session
-            </p>
-            <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">
-              This device
-            </h3>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Session</p>
+            <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">This device</h3>
             <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-              Sign out when you are done on a shared computer to keep your
-              workspace secure.
+              Sign out when you are done on a shared computer to keep your workspace secure.
             </p>
             <button
               type="button"
@@ -259,6 +206,7 @@ export function DashboardPlanUsagePage() {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
