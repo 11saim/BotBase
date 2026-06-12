@@ -40,7 +40,6 @@ export function DashboardAnalyticsPage() {
 
   // Normalize bar heights relative to max for conversations over time
   const maxCount = Math.max(...(data?.conversationsOverTime?.map(d => d.count) ?? [1]), 1);
-  const timeLabels = range === "7d" ? ["W1", "W2", "W3", "W4"] : data?.conversationsOverTime?.map(d => d.label) || [];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full max-w-none">
