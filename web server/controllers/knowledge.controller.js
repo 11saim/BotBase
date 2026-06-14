@@ -6,7 +6,9 @@ const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
 const { canDo } = require("../utils/plans");
 const fs = require("fs");
-const FormData = require("form-data");
+const { Readable } = require("stream");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const PYTHON_SERVER = process.env.PYTHON_SERVER_URL || "http://localhost:3001";
 
@@ -26,8 +28,11 @@ const getAllSources = async (req, res, next) => {
 
 // POST /api/bots/:botId/knowledge/pdf
 const uploadPDF = async (req, res, next) => {
+    let source = null;
     try {
-        if (!req.file) return next(new AppError("PDF file is required", 400));
+        if (!req.file) {
+            return next(new AppError("PDF file is required", 400));
+        }
 
         const { botId } = req.params;
 
@@ -43,8 +48,7 @@ const uploadPDF = async (req, res, next) => {
             return next(new AppError("Source upload limit reached for your plan", 403));
         }
 
-        // Create source first to get _id — Python needs it as sourceId
-        const source = await KnowledgeSource.create({
+        source = await KnowledgeSource.create({
             botId,
             userId: req.userId,
             name: req.file.originalname,
@@ -58,16 +62,20 @@ const uploadPDF = async (req, res, next) => {
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
 
-        // Forward file to Python with sourceId
-        const form = new FormData();
-        form.append("file", fs.createReadStream(req.file.path), req.file.originalname);
+        // Forward file to Python
+        const { Blob } = await import("buffer");
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const blob = new Blob([fileBuffer], { type: req.file.mimetype });
+
+        const form = new FormData(); // native — no import
+        form.append("file", blob, req.file.originalname);
         form.append("botId", botId);
         form.append("sourceId", source._id.toString());
 
         const pythonRes = await fetch(`${PYTHON_SERVER}/api/ingest/file`, {
             method: "POST",
             body: form,
-            headers: form.getHeaders(),
+            // no headers — fetch sets Content-Type + boundary automatically
         });
 
         if (!pythonRes.ok) {
@@ -77,47 +85,69 @@ const uploadPDF = async (req, res, next) => {
             return res.end();
         }
 
-        // Stream Python progress to frontend
-        for await (const chunk of pythonRes.body) {
+        const nodeStream = Readable.fromWeb(pythonRes.body);
+
+        nodeStream.on("data", async (chunk) => {
             const lines = chunk.toString().split("\n").filter(l => l.startsWith("data:"));
 
             for (const line of lines) {
-                const data = JSON.parse(line.replace("data: ", ""));
+                try {
+                    const data = JSON.parse(line.replace("data: ", ""));
+                    res.write(`data: ${JSON.stringify(data)}\n\n`);
 
-                res.write(`data: ${JSON.stringify(data)}\n\n`);
+                    if (data.error) {
+                        await KnowledgeSource.findByIdAndDelete(source._id);
+                        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                        res.end();
+                        return;
+                    }
 
-                if (data.error) {
-                    // Processing failed — delete the doc
-                    await KnowledgeSource.findByIdAndDelete(source._id);
-                    fs.unlinkSync(req.file.path);
-                    return res.end();
-                }
+                    if (data.done) {
+                        await KnowledgeSource.findByIdAndUpdate(source._id, {
+                            status: "active",
+                            chunkCount: data.chunkCount,
+                            faissPath: `storage/faiss/${botId}.index`,
+                        });
 
-                if (data.done) {
-                    // Processing succeeded — update source to active
-                    await KnowledgeSource.findByIdAndUpdate(source._id, {
-                        status: "active",
-                        chunkCount: data.chunkCount,
-                        faissPath: `storage/faiss/${botId}.index`,
-                    });
+                        await Usage.increment(req.userId, "sourcesUploaded");
 
-                    await Usage.increment(req.userId, "sourcesUploaded");
+                        await ActivityLog.log({
+                            userId: req.userId,
+                            botId: bot._id,
+                            eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
+                            title: `'${source.name}' added to ${bot.name}`,
+                        });
 
-                    await ActivityLog.log({
-                        userId: req.userId,
-                        botId: bot._id,
-                        eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
-                        title: `'${source.name}' added to ${bot.name}`,
-                    });
-
-                    return res.end();
+                        res.end();
+                        return;
+                    }
+                } catch (e) {
+                    console.error("SSE parse error:", e);
+                    res.write(`data: ${JSON.stringify({ error: true, message: e.message })}\n\n`);
+                    res.end();
                 }
             }
-        }
+        });
+
+        nodeStream.on("end", () => {
+            if (!res.writableEnded) res.end();
+        });
+
+        nodeStream.on("error", (err) => {
+            console.error("Stream error:", err);
+            if (!res.writableEnded) {
+                res.write(`data: ${JSON.stringify({ error: true, message: err.message })}\n\n`);
+                res.end();
+            }
+        });
 
     } catch (err) {
-        if (source?._id) await KnowledgeSource.findByIdAndDelete(source._id);
-        if (req.file) fs.unlinkSync(req.file.path);
+        if (source?._id) {
+            await KnowledgeSource.findByIdAndDelete(source._id);
+        }
+        if (req.file?.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
         next(err);
     }
 };

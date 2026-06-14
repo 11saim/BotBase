@@ -76,6 +76,7 @@ async def ingest_file(
 
         except Exception as e:
             yield sse({"message": str(e), "error": True})
+            print("error while uploading pdf", e)
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)

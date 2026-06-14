@@ -175,6 +175,8 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             body: form,
           });
 
+          console.log("res", res);
+
           setChunks(c => c.map(x =>
             x.id === chunk.id ? { ...x, status: res.ok ? "ready" : "failed" } : x
           ));
@@ -200,6 +202,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       setStep(3); // move to deploy step to show embed snippet
 
     } catch (err: any) {
+      console.log("error", err);
       setFinishLog(`Error: ${err.message}`);
     } finally {
       setFinishing(false);
