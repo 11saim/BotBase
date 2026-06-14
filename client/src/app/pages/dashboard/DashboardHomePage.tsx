@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Activity, MessageSquare, Bot, AlertTriangle, Trophy, MessagesSquare, Zap } from "lucide-react";
-import { useDashboardBots } from "./DashboardBotsContext";
 
 const API = "http://localhost:5000/api";
 

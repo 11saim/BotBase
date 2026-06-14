@@ -116,6 +116,7 @@ const uploadPDF = async (req, res, next) => {
         }
 
     } catch (err) {
+        if (source?._id) await KnowledgeSource.findByIdAndDelete(source._id);
         if (req.file) fs.unlinkSync(req.file.path);
         next(err);
     }
@@ -204,6 +205,7 @@ const uploadText = async (req, res, next) => {
         }
 
     } catch (err) {
+        if (source?._id) await KnowledgeSource.findByIdAndDelete(source._id);
         next(err);
     }
 };
