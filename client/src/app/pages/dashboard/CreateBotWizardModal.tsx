@@ -29,8 +29,8 @@ const LANGS = [
 
 // ─── Pending knowledge item (held in state, not yet uploaded) ─────────────────
 type PendingChunk =
-  | { id: string; type: "file"; name: string; file: File; status: "pending" | "uploading" | "ready" | "failed" }
-  | { id: string; type: "text"; name: string; text: string; status: "pending" | "uploading" | "ready" | "failed" };
+  | { id: string; type: "file"; name: string; file: File; status: "pending" | "uploading" | "ready" | "failed"; message?: string }
+  | { id: string; type: "text"; name: string; text: string; status: "pending" | "uploading" | "ready" | "failed"; message?: string };
 
 // ─── Map frontend appearance → backend widgetConfig ───────────────────────────
 function toWidgetConfig(a: BotAppearance) {
@@ -158,16 +158,36 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       const botId = botData.bot._id;
       setCreatedBotId(botId);
 
-      // 2. Upload each knowledge source (fire and don't block navigation)
-      for (const chunk of chunks) {
+      // helper to read SSE stream
+      const readSSEStream = async (res: Response): Promise<{ ok: boolean; message?: string }> => {
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const lines = decoder.decode(value).split("\n").filter(l => l.startsWith("data:"));
+          for (const line of lines) {
+            try {
+              const data = JSON.parse(line.replace("data: ", ""));
+              if (data.error) return { ok: false, message: data.message || "Failed" };
+              if (data.done) return { ok: true, message: data.message };
+            } catch { }
+          }
+        }
+        return { ok: false, message: "No response from server" };
+      };
+
+      // 2. Upload each knowledge source sequentially
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
         setFinishLog(`Uploading '${chunk.name}'...`);
+        setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading", message: undefined } : x));
 
         if (chunk.type === "file") {
           const form = new FormData();
           form.append("file", chunk.file, chunk.name);
-
-          // Update status to uploading
-          setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
 
           const res = await fetch(`${API}/bots/${botId}/knowledge/pdf`, {
             method: "POST",
@@ -175,16 +195,31 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             body: form,
           });
 
-          console.log("res", res);
+          if (!res.ok) {
+            const json = await res.json().catch(() => ({}));
+            const message = json.message || "Upload failed";
 
+            if (res.status === 403) {
+              // mark current and all remaining as failed
+              setChunks(c => c.map(x =>
+                x.id === chunk.id || chunks.slice(i).find(r => r.id === x.id)
+                  ? { ...x, status: "failed", message }
+                  : x
+              ));
+              break;
+            }
+
+            setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "failed", message } : x));
+            continue;
+          }
+
+          const result = await readSSEStream(res);
           setChunks(c => c.map(x =>
-            x.id === chunk.id ? { ...x, status: res.ok ? "ready" : "failed" } : x
+            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed", message: result.message } : x
           ));
         }
 
         if (chunk.type === "text") {
-          setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
-
           const res = await fetch(`${API}/bots/${botId}/knowledge/text`, {
             method: "POST",
             credentials: "include",
@@ -192,17 +227,36 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             body: JSON.stringify({ text: chunk.text, name: chunk.name }),
           });
 
+          if (!res.ok) {
+            const json = await res.json().catch(() => ({}));
+            const message = json.message || "Upload failed";
+
+            if (res.status === 403) {
+              // mark current and all remaining as failed
+              setChunks(c => c.map(x =>
+                chunks.slice(i).find(r => r.id === x.id)
+                  ? { ...x, status: "failed", message }
+                  : x
+              ));
+              break;
+            }
+
+            setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "failed", message } : x));
+            continue;
+          }
+
+          const result = await readSSEStream(res);
           setChunks(c => c.map(x =>
-            x.id === chunk.id ? { ...x, status: res.ok ? "ready" : "failed" } : x
+            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed", message: result.message } : x
           ));
         }
       }
 
       setFinishLog("Done!");
-      setStep(3); // move to deploy step to show embed snippet
+      setStep(3);
 
     } catch (err: any) {
-      console.log("error", err);
+      console.log("Error: ", err);
       setFinishLog(`Error: ${err.message}`);
     } finally {
       setFinishing(false);
@@ -492,8 +546,8 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     <ul className="space-y-1">
                       {chunks.map(c => (
                         <li key={c.id} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
-                          <span className={`w-2 h-2 rounded-full ${c.status === "ready" ? "bg-green-500" : c.status === "failed" ? "bg-red-500" : "bg-yellow-400"}`} />
-                          {c.name} — {c.status}
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${c.status === "ready" ? "bg-green-500" : c.status === "failed" ? "bg-red-500" : "bg-yellow-400"}`} />
+                          <span>{c.name} — <b style={{ textTransform: "capitalize" }}>{c.status}</b></span>
                         </li>
                       ))}
                     </ul>

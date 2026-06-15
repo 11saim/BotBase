@@ -21,18 +21,24 @@ const usageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ─── Static: get usage doc for a user ────────────────────────────────────────
-usageSchema.statics.getUsage = async function (userId) {
-  return this.findOne({ userId });
-};
+// Usage.js - add this static method
+usageSchema.statics.incrementIfAllowed = async function (userId, field, limit) {
+  if (limit === -1) {
+    // unlimited — just increment
+    const result = await this.findOneAndUpdate(
+      { userId },
+      { $inc: { [field]: 1 } },
+      { new: true }
+    );
+    return result !== null;
+  }
 
-// ─── Static: increment a counter field ───────────────────────────────────────
-usageSchema.statics.increment = async function (userId, field, amount = 1) {
-  return this.findOneAndUpdate(
-    { userId },
-    { $inc: { [field]: amount } },
+  const result = await this.findOneAndUpdate(
+    { userId, [field]: { $lt: limit } },
+    { $inc: { [field]: 1 } },
     { new: true }
   );
+  return result !== null;
 };
 
 // ─── Static: start a new period (only resets messages) ───────────────────────
@@ -44,6 +50,20 @@ usageSchema.statics.startNewPeriod = async function (userId, periodStart, period
       periodEnd,
       messagesUsed: 0,
     },
+    { new: true }
+  );
+};
+
+// get current usage doc
+usageSchema.statics.getUsage = async function (userId) {
+  return this.findOne({ userId });
+};
+
+// simple increment — use only where race conditions don't matter
+usageSchema.statics.increment = async function (userId, field) {
+  return this.findOneAndUpdate(
+    { userId },
+    { $inc: { [field]: 1 } },
     { new: true }
   );
 };

@@ -162,12 +162,19 @@ const usagePercent = (planId, limitKey, currentUsage) => {
   return Math.round((currentUsage / limit) * 100);
 };
 
+const getPlanLimit = (planId, limitKey) => {
+  const limit = getLimits(planId)[limitKey];
+  if (limit === undefined) throw new Error(`Unknown limit key: ${limitKey}`);
+  return limit;
+};
+
 module.exports = {
   PLANS,
   getPlan,
   getLimits,
   getFeatures,
   canDo,
+  getPlanLimit,
   hasFeature,
   usagePercent,
 };
