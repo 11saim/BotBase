@@ -110,7 +110,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"], "text/plain": [".txt"] },
+    accept: { "application/pdf": [".pdf"] },
     multiple: false,
   });
 
@@ -391,7 +391,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   >
                     <input {...getInputProps()} />
                     <FileText className="mx-auto mb-2 opacity-50" size={28} />
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or TXT, or click to browse</p>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or click to browse</p>
                   </div>
                 )}
                 {kbTab === "text" && (

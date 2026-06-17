@@ -4,6 +4,7 @@ const ActivityLog = require("../models/ActivityLog");
 const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
 const { canDo } = require("../utils/plans");
+const Conversation = require("../models/Conversation");
 
 // GET /api/bots
 const getAllBots = async (req, res, next) => {
