@@ -35,7 +35,6 @@ export default function SeeAllBots() {
       try {
         const res = await fetch(`${API}/bots`, { credentials: "include" });
         const data = await res.json();
-        console.log(data.bots);
         setBots(data.bots || []);
       } catch (err) {
         console.error("Bots fetch error:", err);
