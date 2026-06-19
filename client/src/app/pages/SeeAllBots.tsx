@@ -105,7 +105,7 @@ export default function SeeAllBots() {
             >
               <div className="mb-4 flex items-start gap-3">
                 <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl ${getAvatarColor(bot.name)}`}>
-                  {bot.botAvatar.startsWith("http")
+                  {bot.botAvatar.startsWith("data")
                     ? <img src={bot.botAvatar} className="h-8 w-8 rounded-lg object-cover" />
                     : bot.botAvatar
                   }

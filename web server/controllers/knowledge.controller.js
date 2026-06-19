@@ -4,11 +4,8 @@ const Usage = require("../models/Usage");
 const ActivityLog = require("../models/ActivityLog");
 const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
-const { getPlanLimit } = require("../utils/Plans");
+const { canDo } = require("../utils/plans");
 const fs = require("fs");
-const { Readable } = require("stream");
-const dotenv = require("dotenv");
-dotenv.config();
 
 const PYTHON_SERVER = process.env.PYTHON_SERVER_URL || "http://localhost:3001";
 
@@ -28,12 +25,8 @@ const getAllSources = async (req, res, next) => {
 
 // POST /api/bots/:botId/knowledge/pdf
 const uploadPDF = async (req, res, next) => {
-    let source = null;
-    let usageIncremented = false;
     try {
-        if (!req.file) {
-            return next(new AppError("PDF file is required", 400));
-        }
+        if (!req.file) return next(new AppError("PDF file is required", 400));
 
         const { botId } = req.params;
 
@@ -43,15 +36,14 @@ const uploadPDF = async (req, res, next) => {
             return next(new AppError("Bot not found", 404));
         }
 
-        const limit = getPlanLimit(req.user.plan, "fileUploadsPerBot");
-        const allowed = await Usage.incrementIfAllowed(req.userId, "sourcesUploaded", limit);
-        if (!allowed) {
+        const usage = await Usage.getUsage(req.userId);
+        if (!canDo(req.user.plan, "fileUploadsPerBot", usage.sourcesUploaded)) {
             fs.unlinkSync(req.file.path);
             return next(new AppError("Source upload limit reached for your plan", 403));
         }
-        usageIncremented = true;
 
-        source = await KnowledgeSource.create({
+        // Create source first to get _id — Python needs it as sourceId
+        const source = await KnowledgeSource.create({
             botId,
             userId: req.userId,
             name: req.file.originalname,
@@ -65,98 +57,73 @@ const uploadPDF = async (req, res, next) => {
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
 
-        // Forward file to Python
-        const { Blob } = await import("buffer");
+        // Forward file to Python with sourceId — use native FormData/Blob,
+        // NOT the 'form-data' npm package, which corrupts multipart boundaries
+        // when used with Node's built-in fetch (undici).
         const fileBuffer = fs.readFileSync(req.file.path);
-        const blob = new Blob([fileBuffer], { type: req.file.mimetype });
-
         const form = new FormData();
-        form.append("file", blob, req.file.originalname);
+        form.append("file", new Blob([fileBuffer]), req.file.originalname);
         form.append("botId", botId);
         form.append("sourceId", source._id.toString());
 
         const pythonRes = await fetch(`${PYTHON_SERVER}/api/ingest/file`, {
             method: "POST",
-            body: form,
+            body: form, // fetch sets the correct multipart boundary header automatically
         });
 
         if (!pythonRes.ok) {
             await KnowledgeSource.findByIdAndDelete(source._id);
-            if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-            await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
-            res.write(`data: ${JSON.stringify({ error: true, message: "Ingest service unavailable" })}\n\n`);
+            fs.unlinkSync(req.file.path);
+            res.write(`data: ${JSON.stringify({ error: "Ingest service unavailable" })}\n\n`);
             return res.end();
         }
 
-        const nodeStream = Readable.fromWeb(pythonRes.body);
-
-        nodeStream.on("data", async (chunk) => {
+        // Stream Python progress to frontend
+        for await (const chunk of pythonRes.body) {
             const lines = chunk.toString().split("\n").filter(l => l.startsWith("data:"));
 
             for (const line of lines) {
-                try {
-                    const data = JSON.parse(line.replace("data: ", ""));
-                    res.write(`data: ${JSON.stringify(data)}\n\n`);
+                const data = JSON.parse(line.replace("data: ", ""));
 
-                    if (data.error) {
-                        await KnowledgeSource.findByIdAndDelete(source._id);
-                        await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
-                        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                        if (!res.writableEnded) res.end();
-                        return;
-                    }
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
 
-                    if (data.done) {
-                        await KnowledgeSource.findByIdAndUpdate(source._id, {
-                            status: "active",
-                            chunkCount: data.chunkCount,
-                            faissPath: `storage/faiss/${botId}.index`,
-                        });
+                if (data.error) {
+                    // Processing failed — delete the doc
+                    await KnowledgeSource.findByIdAndDelete(source._id);
+                    fs.unlinkSync(req.file.path);
+                    return res.end();
+                }
 
-                        await ActivityLog.log({
-                            userId: req.userId,
-                            botId: bot._id,
-                            eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
-                            title: `'${source.name}' added to ${bot.name}`,
-                        });
+                if (data.done) {
+                    // Processing succeeded — update source to active
+                    await KnowledgeSource.findByIdAndUpdate(source._id, {
+                        status: "active",
+                        chunkCount: data.chunkCount,
+                        faissPath: `storage/faiss/${botId}.index`,
+                    });
 
-                        if (!res.writableEnded) res.end();
-                        return;
-                    }
-                } catch (e) {
-                    console.error("SSE parse error:", e);
-                    if (!res.writableEnded) {
-                        res.write(`data: ${JSON.stringify({ error: true, message: e.message })}\n\n`);
-                        res.end();
-                    }
+                    await Usage.increment(req.userId, "sourcesUploaded");
+
+                    await ActivityLog.log({
+                        userId: req.userId,
+                        botId: bot._id,
+                        eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
+                        title: `'${source.name}' added to ${bot.name}`,
+                    });
+
+                    return res.end();
                 }
             }
-        });
-
-        nodeStream.on("end", () => {
-            if (!res.writableEnded) res.end();
-        });
-
-        nodeStream.on("error", (err) => {
-            console.error("Stream error:", err);
-            if (!res.writableEnded) {
-                res.write(`data: ${JSON.stringify({ error: true, message: err.message })}\n\n`);
-                res.end();
-            }
-        });
+        }
 
     } catch (err) {
-        if (source?._id) await KnowledgeSource.findByIdAndDelete(source._id);
-        if (usageIncremented) await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
-        if (req.file?.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        if (req.file) fs.unlinkSync(req.file.path);
         next(err);
     }
 };
 
 // POST /api/bots/:botId/knowledge/text
 const uploadText = async (req, res, next) => {
-    let source = null;
-    let usageIncremented = false;
     try {
         const { botId } = req.params;
         const { text, name } = req.body;
@@ -166,14 +133,13 @@ const uploadText = async (req, res, next) => {
         const bot = await Bot.findOne({ _id: botId, userId: req.userId });
         if (!bot) return next(new AppError("Bot not found", 404));
 
-        const limit = getPlanLimit(req.user.plan, "fileUploadsPerBot");
-        const allowed = await Usage.incrementIfAllowed(req.userId, "sourcesUploaded", limit);
-        if (!allowed) {
+        const usage = await Usage.getUsage(req.userId);
+        if (!canDo(req.user.plan, "fileUploadsPerBot", usage.sourcesUploaded)) {
             return next(new AppError("Source upload limit reached for your plan", 403));
         }
-        usageIncremented = true;
 
-        source = await KnowledgeSource.create({
+        // Create source first to get _id
+        const source = await KnowledgeSource.create({
             botId,
             userId: req.userId,
             name: name || "Pasted text",
@@ -200,70 +166,45 @@ const uploadText = async (req, res, next) => {
 
         if (!pythonRes.ok) {
             await KnowledgeSource.findByIdAndDelete(source._id);
-            await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
-            res.write(`data: ${JSON.stringify({ error: true, message: "Ingest service unavailable" })}\n\n`);
+            res.write(`data: ${JSON.stringify({ error: "Ingest service unavailable" })}\n\n`);
             return res.end();
         }
 
-        const nodeStream = Readable.fromWeb(pythonRes.body);
-
-        nodeStream.on("data", async (chunk) => {
+        for await (const chunk of pythonRes.body) {
             const lines = chunk.toString().split("\n").filter(l => l.startsWith("data:"));
 
             for (const line of lines) {
-                try {
-                    const data = JSON.parse(line.replace("data: ", ""));
-                    res.write(`data: ${JSON.stringify(data)}\n\n`);
+                const data = JSON.parse(line.replace("data: ", ""));
 
-                    if (data.error) {
-                        await KnowledgeSource.findByIdAndDelete(source._id);
-                        await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
-                        if (!res.writableEnded) res.end();
-                        return;
-                    }
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
 
-                    if (data.done) {
-                        await KnowledgeSource.findByIdAndUpdate(source._id, {
-                            status: "active",
-                            chunkCount: data.chunkCount,
-                            faissPath: `storage/faiss/${botId}.index`,
-                        });
+                if (data.error) {
+                    await KnowledgeSource.findByIdAndDelete(source._id);
+                    return res.end();
+                }
 
-                        await ActivityLog.log({
-                            userId: req.userId,
-                            botId: bot._id,
-                            eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
-                            title: `'${source.name}' added to ${bot.name}`,
-                        });
+                if (data.done) {
+                    await KnowledgeSource.findByIdAndUpdate(source._id, {
+                        status: "active",
+                        chunkCount: data.chunkCount,
+                        faissPath: `storage/faiss/${botId}.index`,
+                    });
 
-                        if (!res.writableEnded) res.end();
-                        return;
-                    }
-                } catch (e) {
-                    console.error("SSE parse error:", e);
-                    if (!res.writableEnded) {
-                        res.write(`data: ${JSON.stringify({ error: true, message: e.message })}\n\n`);
-                        res.end();
-                    }
+                    await Usage.increment(req.userId, "sourcesUploaded");
+
+                    await ActivityLog.log({
+                        userId: req.userId,
+                        botId: bot._id,
+                        eventType: ACTIVITY_EVENTS.SOURCE_UPLOADED,
+                        title: `'${source.name}' added to ${bot.name}`,
+                    });
+
+                    return res.end();
                 }
             }
-        });
-
-        nodeStream.on("end", () => {
-            if (!res.writableEnded) res.end();
-        });
-
-        nodeStream.on("error", (err) => {
-            console.error("Stream error:", err);
-            if (!res.writableEnded) {
-                res.write(`data: ${JSON.stringify({ error: true, message: err.message })}\n\n`);
-                res.end();
-            }
-        });
+        }
 
     } catch (err) {
-        if (source?._id) await KnowledgeSource.findByIdAndDelete(source._id);
-        if (usageIncremented) await Usage.findOneAndUpdate({ userId: req.userId }, { $inc: { sourcesUploaded: -1 } });
         next(err);
     }
 };
@@ -299,6 +240,18 @@ const deleteSource = async (req, res, next) => {
             { new: true }
         );
         if (!source) return next(new AppError("Source not found", 404));
+
+        // Decrease usage counter since this source no longer counts against the plan
+        await Usage.increment(req.userId, "sourcesUploaded", -1);
+
+        const bot = await Bot.findById(req.params.botId).select("name");
+
+        await ActivityLog.log({
+            userId: req.userId,
+            botId: req.params.botId,
+            eventType: ACTIVITY_EVENTS.SOURCE_DELETED,
+            title: `'${source.name}' removed from ${bot?.name || "bot"}`,
+        });
 
         res.json({ message: "Source deleted" });
     } catch (err) {

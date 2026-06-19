@@ -162,7 +162,7 @@ export function DashboardHomePage() {
           </div>
 
           {/* Top Bots */}
-          <div className="rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+          <div className="relative rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
             <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
               <Trophy size={16} />
               <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
@@ -186,7 +186,7 @@ export function DashboardHomePage() {
                 </div>
               ))}
             </div>
-            <div className="p-4 flex justify-end">
+            <div className="absolute bottom-0 right-0 m-2 md:m-4 flex justify-end">
               <Link to="/dashboard/analytics" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
                 View all analytics &rarr;
               </Link>

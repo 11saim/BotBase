@@ -148,7 +148,7 @@ export function DashboardBotDetailPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl" style={{ background: "var(--bg-secondary)" }}>
-              {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+              {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
             </div>
             <div>
               <h1 className="text-xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>{bot.name}</h1>
@@ -564,7 +564,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
           <div className="px-4 py-3 text-white" style={{ background: cfg.accentColor }}>
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15 text-lg">
-                {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+                {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{bot.name}</p>
@@ -593,7 +593,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
             }}
             title={cfg.tooltipText}
           >
-            {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
+            {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
           </div>
         </div>
       </aside>
