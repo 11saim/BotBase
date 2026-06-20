@@ -158,22 +158,34 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       const botId = botData.bot._id;
       setCreatedBotId(botId);
 
-      // helper to read SSE stream
+      // helper to read SSE stream with proper buffering
       const readSSEStream = async (res: Response): Promise<{ ok: boolean; message?: string }> => {
         const reader = res.body!.getReader();
         const decoder = new TextDecoder();
+        let buffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const lines = decoder.decode(value).split("\n").filter(l => l.startsWith("data:"));
-          for (const line of lines) {
-            try {
-              const data = JSON.parse(line.replace("data: ", ""));
-              if (data.error) return { ok: false, message: data.message || "Failed" };
-              if (data.done) return { ok: true, message: data.message };
-            } catch { }
+          buffer += decoder.decode(value, { stream: true });
+
+          // SSE events are delimited by double newlines
+          let boundary: number;
+          while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+            const rawEvent = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+
+            const lines = rawEvent.split("\n").filter(l => l.startsWith("data:"));
+            for (const line of lines) {
+              try {
+                const data = JSON.parse(line.replace(/^data:\s*/, ""));
+                if (data.error) return { ok: false, message: data.message || "Failed" };
+                if (data.done) return { ok: true, message: data.message };
+                // Update the log with progress messages
+                if (data.message) setFinishLog(data.message);
+              } catch { }
+            }
           }
         }
         return { ok: false, message: "No response from server" };

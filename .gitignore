@@ -10,6 +10,7 @@ ai server/services/__pycache__/
 # web server
 web server/node_modules/
 web server/.env
+web server/uploads/
 
 # client
 client/node_modules/

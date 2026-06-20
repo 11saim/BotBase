@@ -59,11 +59,11 @@ usageSchema.statics.getUsage = async function (userId) {
   return this.findOne({ userId });
 };
 
-// simple increment — use only where race conditions don't matter
-usageSchema.statics.increment = async function (userId, field) {
+// simple increment/decrement — use only where race conditions don't matter
+usageSchema.statics.increment = async function (userId, field, amount = 1) {
   return this.findOneAndUpdate(
     { userId },
-    { $inc: { [field]: 1 } },
+    { $inc: { [field]: amount } },
     { new: true }
   );
 };
