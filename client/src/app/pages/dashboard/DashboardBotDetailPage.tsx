@@ -9,6 +9,7 @@ import {
 } from "../../components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
+import { toast } from "sonner";
 
 const API = "http://localhost:5000/api";
 const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Settings"] as const;
@@ -79,7 +80,7 @@ export function DashboardBotDetailPage() {
       setSources(srcData.sources || []);
       setConversations(convData.conversations || []);
     } catch (err) {
-      console.error("Bot detail fetch error:", err);
+      toast.error("Error fetching bot details.Please try again after some time.")
     } finally {
       setLoading(false);
     }

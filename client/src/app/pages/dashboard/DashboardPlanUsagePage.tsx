@@ -60,7 +60,7 @@ export function DashboardPlanUsagePage() {
         const json = await res.json();
         setData(json);
       } catch (err) {
-        console.error("Usage fetch error:", err);
+        toast.error("Error fetching usage.Please try again after some time.")
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ export function DashboardPlanUsagePage() {
     const res = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
     const json = await res.json();
     invalidateAuth();
-    toast.success(json.message || "Logout successful", { position: "top-center" });
+    toast.success(json.message || "Logout successful");
     navigate("/login", { replace: true });
   };
 

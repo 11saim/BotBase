@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare } from "lucide-react";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
+import { toast } from "sonner";
 
 const API = "http://localhost:5000/api";
 
@@ -87,7 +88,7 @@ function DashboardFrame() {
         setUsage(usageRes.ok ? usageData : null);
         setUser(meRes.ok ? meData.user : null);
       } catch (err) {
-        console.error("Dashboard shell fetch error:", err);
+        toast.error("Error fetching Dashboard Data.Please try again after some time.")
       } finally {
         setLoading(false);
       }

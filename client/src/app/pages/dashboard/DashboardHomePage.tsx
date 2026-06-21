@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Activity, MessageSquare, Bot, AlertTriangle, Trophy, MessagesSquare, Zap } from "lucide-react";
+import { toast } from "sonner";
 
 const API = "http://localhost:5000/api";
 
@@ -96,7 +97,7 @@ export function DashboardHomePage() {
         setTopBots(topBotsData.topBots || []);
         setConversations((convsData.conversations || []).slice(0, 8));
       } catch (err) {
-        console.error("Dashboard fetch error:", err);
+        toast.error("Error Fetching Dashboard Data.Please try again after some time.")
       } finally {
         setLoading(false);
       }

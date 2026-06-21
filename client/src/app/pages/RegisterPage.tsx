@@ -45,15 +45,15 @@ export function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.error || 'Registration failed', { position: "top-center" });
+        toast.error(data.error || 'Registration failed');
         return;
       }
       invalidateAuth();
 
-      toast.success(data.message || 'Registration successful', { position: "top-center" });
+      toast.success(data.message || 'Registration successful');
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      toast.error(error.message || 'Something went Wrong', { position: "top-center" });
+      toast.error(error.message || 'Something went Wrong');
     } finally {
       setLoading(false);
     }
@@ -334,20 +334,20 @@ export function RegisterPage() {
                     const data = await res.json();
 
                     if (!res.ok) {
-                      toast.error(data.error || "Google login failed", { position: "top-center" });
+                      toast.error(data.error || "Google login failed");
                       return;
                     }
 
-                    invalidateAuth(); // 👈 clear cache so useAuth re-fetches
-                    toast.success("Login successful", { position: "top-center" });
+                    invalidateAuth();
+                    toast.success("Login successful");
                     navigate(from, { replace: true });
 
                   } catch (err) {
-                    toast.error("Something went wrong", { position: "top-center" });
+                    toast.error("Something went wrong");
                   }
                 }}
                 onError={() => {
-                  toast.error("Google login failed", { position: "top-center" });
+                  toast.error("Google login failed");
                 }}
               />
             </div>

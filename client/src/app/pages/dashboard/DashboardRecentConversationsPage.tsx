@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
 type Conversation = {
   bot: string;
@@ -43,7 +44,7 @@ export function DashboardRecentConversationsPage() {
         setRows(data.conversations || []);
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          console.error("Failed to fetch conversations:", err);
+          toast.error("Error fetching conversations.Please try again after some time.")
         }
       } finally {
         setLoading(false);

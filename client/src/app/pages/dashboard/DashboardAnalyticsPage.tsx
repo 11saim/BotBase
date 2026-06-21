@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const API = "http://localhost:5000/api";
 
@@ -29,7 +30,7 @@ export function DashboardAnalyticsPage() {
         const json = await res.json();
         setData(json);
       } catch (err) {
-        console.error("Analytics fetch error:", err);
+        toast.error("Error Fetching Analytics.Please try again after some time.")
       } finally {
         setLoading(false);
       }

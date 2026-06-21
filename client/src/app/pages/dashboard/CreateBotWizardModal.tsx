@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
+import { toast } from "sonner";
 
 const API = "http://localhost:5000/api";
 
@@ -153,9 +154,15 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       });
 
       const botData = await botRes.json();
-      if (!botRes.ok) throw new Error(botData.error || "Failed to create bot");
+
+      if (!botRes.ok) {
+        toast.error(botData?.error || "Failed to create bot");
+        setFinishing(false);
+        return;
+      }
 
       const botId = botData.bot._id;
+      toast.success("Bot created! Uploading knowledge sources...");
       setCreatedBotId(botId);
 
       // helper to read SSE stream with proper buffering
@@ -268,7 +275,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       setStep(3);
 
     } catch (err: any) {
-      console.log("Error: ", err);
+      toast.error(err.message || "Something went wrong");
       setFinishLog(`Error: ${err.message}`);
     } finally {
       setFinishing(false);

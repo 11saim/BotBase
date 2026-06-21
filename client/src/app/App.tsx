@@ -6,6 +6,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
+import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GlobalEffects } from "./components/GlobalEffects";
 import { NewLandingPage } from "./pages/NewLandingPage";
@@ -41,6 +42,26 @@ export default function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <BrowserRouter>
+        <Toaster
+          position="top-center"
+          closeButton
+          duration={3500}
+          toastOptions={{
+            unstyled: true,
+            classNames: {
+              toast:
+                "relative flex items-center gap-3 w-full h-15 rounded-md px-4 py-3.5 pr-10 shadow-[0_4px_16px_rgba(0,0,0,0.18)] border",
+              title: "text-[13px] font-medium leading-snug",
+              description: "text-[12px] opacity-80",
+              closeButton:
+                "!absolute !right-2 !top-1/2 !w-6 !h-6 [&_svg]:!w-4 [&_svg]:!h-4 !-translate-y-1/2 !left-auto !m-0 rounded-md border-0 bg-transparent text-current opacity-70 hover:opacity-100",
+              success: "!bg-emerald-700 !text-white !border-emerald-800",
+              error: "!bg-red-700 !text-white !border-red-800",
+              warning: "!bg-amber-700 !text-white !border-amber-800",
+              info: "!bg-slate-700 !text-white !border-slate-800",
+            },
+          }}
+        />
         <GlobalEffects />
         <Routes>
           <Route path="/" element={<PublicOnlyRoute><NewLandingPage /></PublicOnlyRoute>} />

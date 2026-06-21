@@ -19,9 +19,6 @@ function debugLog(...args) {
     console.log(...args);
 }
 
-// ─── Helper: read all SSE events from a fetch Response and call `onEvent` for each ──
-// Uses .getReader() which is universally reliable (unlike for-await on ReadableStream
-// which can silently hang in some Node.js + undici versions).
 async function consumeSSE(fetchResponse, onEvent) {
     debugLog("consumeSSE: Starting stream consumption...");
     if (!fetchResponse.body) {
@@ -158,7 +155,7 @@ const uploadPDF = async (req, res, next) => {
         debugLog("uploadPDF: sending request to Python server at:", `${PYTHON_SERVER}/api/ingest/file`);
         const pythonRes = await fetch(`${PYTHON_SERVER}/api/ingest/file`, {
             method: "POST",
-            body: form, // fetch sets the correct multipart boundary header automatically
+            body: form,
         });
 
         debugLog("uploadPDF: Python server responded with status:", pythonRes.status);
@@ -216,7 +213,7 @@ const uploadPDF = async (req, res, next) => {
         if (req.file) {
             try {
                 fs.unlinkSync(req.file.path);
-            } catch (e) {}
+            } catch (e) { }
         }
         next(err);
     }
