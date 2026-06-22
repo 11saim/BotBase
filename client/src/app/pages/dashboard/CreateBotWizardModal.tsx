@@ -30,8 +30,8 @@ const LANGS = [
 
 // ─── Pending knowledge item (held in state, not yet uploaded) ─────────────────
 type PendingChunk =
-  | { id: string; type: "file"; name: string; file: File; status: "pending" | "uploading" | "ready" | "failed"; message?: string }
-  | { id: string; type: "text"; name: string; text: string; status: "pending" | "uploading" | "ready" | "failed"; message?: string };
+  | { id: string; type: "file"; name: string; file: File; status: "pending" | "uploading" | "ready" | "failed" }
+  | { id: string; type: "text"; name: string; text: string; status: "pending" | "uploading" | "ready" | "failed" };
 
 // ─── Map frontend appearance → backend widgetConfig ───────────────────────────
 function toWidgetConfig(a: BotAppearance) {
@@ -111,7 +111,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"] },
+    accept: { "application/pdf": [".pdf"], "text/plain": [".txt"] },
     multiple: false,
   });
 
@@ -120,6 +120,36 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
     const id = `tmp_${crypto.randomUUID().slice(0, 8)}`;
     setChunks(c => [...c, { id, type: "text", name: "Pasted text", text: pasteText, status: "pending" }]);
     setPasteText("");
+  };
+  const drainStream = async (res: Response): Promise<{ ok: boolean; message?: string }> => {
+    const reader = res.body?.getReader();
+    if (!reader) return { ok: false, message: "No response from server" };
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      let boundary: number;
+      while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+        const rawEvent = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+
+        const lines = rawEvent.split("\n").filter(l => l.startsWith("data:"));
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line.replace(/^data:\s*/, ""));
+            if (data.error) return { ok: false, message: data.error || data.message || "Failed" };
+            if (data.done) return { ok: true, message: data.message };
+            if (data.message) setFinishLog(data.message);
+          } catch { }
+        }
+      }
+    }
+    return { ok: false, message: "Connection closed unexpectedly" };
   };
 
   const removeChunk = (id: string) => setChunks(c => c.filter(x => x.id !== id));
@@ -154,59 +184,21 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       });
 
       const botData = await botRes.json();
-
-      if (!botRes.ok) {
-        toast.error(botData?.error || "Failed to create bot");
-        setFinishing(false);
-        return;
-      }
+      if (!botRes.ok) throw new Error(botData.error || "Failed to create bot");
 
       const botId = botData.bot._id;
-      toast.success("Bot created! Uploading knowledge sources...");
       setCreatedBotId(botId);
 
-      // helper to read SSE stream with proper buffering
-      const readSSEStream = async (res: Response): Promise<{ ok: boolean; message?: string }> => {
-        const reader = res.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-
-          // SSE events are delimited by double newlines
-          let boundary: number;
-          while ((boundary = buffer.indexOf("\n\n")) !== -1) {
-            const rawEvent = buffer.slice(0, boundary);
-            buffer = buffer.slice(boundary + 2);
-
-            const lines = rawEvent.split("\n").filter(l => l.startsWith("data:"));
-            for (const line of lines) {
-              try {
-                const data = JSON.parse(line.replace(/^data:\s*/, ""));
-                if (data.error) return { ok: false, message: data.message || "Failed" };
-                if (data.done) return { ok: true, message: data.message };
-                // Update the log with progress messages
-                if (data.message) setFinishLog(data.message);
-              } catch { }
-            }
-          }
-        }
-        return { ok: false, message: "No response from server" };
-      };
-
-      // 2. Upload each knowledge source sequentially
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
+      // 2. Upload each knowledge source (fire and don't block navigation)
+      for (const chunk of chunks) {
         setFinishLog(`Uploading '${chunk.name}'...`);
-        setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading", message: undefined } : x));
 
         if (chunk.type === "file") {
           const form = new FormData();
           form.append("file", chunk.file, chunk.name);
+
+          // Update status to uploading
+          setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
 
           const res = await fetch(`${API}/bots/${botId}/knowledge/pdf`, {
             method: "POST",
@@ -214,31 +206,23 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             body: form,
           });
 
-          if (!res.ok) {
-            const json = await res.json().catch(() => ({}));
-            const message = json.message || "Upload failed";
-
-            if (res.status === 403) {
-              // mark current and all remaining as failed
-              setChunks(c => c.map(x =>
-                x.id === chunk.id || chunks.slice(i).find(r => r.id === x.id)
-                  ? { ...x, status: "failed", message }
-                  : x
-              ));
-              break;
-            }
-
-            setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "failed", message } : x));
-            continue;
+          const result = await drainStream(res);
+          if (result.ok) {
+            toast.success("Some Sources are uploaded successfully");
+            setFinishLog("Done!");
+          } else {
+            toast.error(`Some Sources are failed to upload: ${result.message}`);
+            setFinishLog(result.message || "Upload failed");
           }
 
-          const result = await readSSEStream(res);
           setChunks(c => c.map(x =>
-            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed", message: result.message } : x
+            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed" } : x
           ));
         }
 
         if (chunk.type === "text") {
+          setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
+
           const res = await fetch(`${API}/bots/${botId}/knowledge/text`, {
             method: "POST",
             credentials: "include",
@@ -246,27 +230,17 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
             body: JSON.stringify({ text: chunk.text, name: chunk.name }),
           });
 
-          if (!res.ok) {
-            const json = await res.json().catch(() => ({}));
-            const message = json.message || "Upload failed";
-
-            if (res.status === 403) {
-              // mark current and all remaining as failed
-              setChunks(c => c.map(x =>
-                chunks.slice(i).find(r => r.id === x.id)
-                  ? { ...x, status: "failed", message }
-                  : x
-              ));
-              break;
-            }
-
-            setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "failed", message } : x));
-            continue;
+          const result = await drainStream(res);
+          if (result.ok) {
+            toast.success("Some Sources are uploaded successfully");
+            setFinishLog("Done!");
+          } else {
+            toast.error(`Some Sources are failed to upload: ${result.message}`);
+            setFinishLog(result.message || "Upload failed");
           }
 
-          const result = await readSSEStream(res);
           setChunks(c => c.map(x =>
-            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed", message: result.message } : x
+            x.id === chunk.id ? { ...x, status: result.ok ? "ready" : "failed" } : x
           ));
         }
       }
@@ -275,7 +249,6 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       setStep(3);
 
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
       setFinishLog(`Error: ${err.message}`);
     } finally {
       setFinishing(false);
@@ -410,7 +383,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   >
                     <input {...getInputProps()} />
                     <FileText className="mx-auto mb-2 opacity-50" size={28} />
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or click to browse</p>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or TXT, or click to browse</p>
                   </div>
                 )}
                 {kbTab === "text" && (
@@ -565,8 +538,8 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     <ul className="space-y-1">
                       {chunks.map(c => (
                         <li key={c.id} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${c.status === "ready" ? "bg-green-500" : c.status === "failed" ? "bg-red-500" : "bg-yellow-400"}`} />
-                          <span>{c.name} — <b style={{ textTransform: "capitalize" }}>{c.status}</b></span>
+                          <span className={`w-2 h-2 rounded-full ${c.status === "ready" ? "bg-green-500" : c.status === "failed" ? "bg-red-500" : "bg-yellow-400"}`} />
+                          {c.name} — {c.status}
                         </li>
                       ))}
                     </ul>
@@ -589,8 +562,13 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
               )}
               {step === 2 && (
                 <button type="button" disabled={finishing} onClick={finish} className="rounded-xl px-6 py-2.5 text-sm font-medium text-white disabled:opacity-40" style={{ background: "var(--text-primary)" }}>
-                  {finishing ? (finishLog || "Creating...") : "Create Bot"}
+                  {finishing ? "Creating bot..." : "Create Bot"}
                 </button>
+              )}
+              {step === 2 && finishing && finishLog && (
+                <p className="w-full text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
+                  {finishLog}
+                </p>
               )}
               {step === 3 && (
                 <button type="button" onClick={openBot} className="rounded-xl px-6 py-2.5 text-sm font-medium text-white" style={{ background: "var(--text-primary)" }}>

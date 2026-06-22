@@ -8,8 +8,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
-import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
 import { toast } from "sonner";
+import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
 
 const API = "http://localhost:5000/api";
 const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Settings"] as const;
@@ -80,7 +80,7 @@ export function DashboardBotDetailPage() {
       setSources(srcData.sources || []);
       setConversations(convData.conversations || []);
     } catch (err) {
-      toast.error("Error fetching bot details.Please try again after some time.")
+      console.error("Bot detail fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -149,7 +149,7 @@ export function DashboardBotDetailPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl" style={{ background: "var(--bg-secondary)" }}>
-              {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+              {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
             </div>
             <div>
               <h1 className="text-xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>{bot.name}</h1>
@@ -290,22 +290,37 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState("");
 
-  const drainStream = async (res: Response) => {
+  // Returns { ok, message } instead of nothing — lets callers know whether
+  // the upload actually succeeded so they can show the right toast.
+  const drainStream = async (res: Response): Promise<{ ok: boolean; message?: string }> => {
     const reader = res.body?.getReader();
-    if (!reader) return;
+    if (!reader) return { ok: false, message: "No response from server" };
     const decoder = new TextDecoder();
-    let result = await reader.read();
-    while (!result.done) {
-      const text = decoder.decode(result.value);
-      const lines = text.split("\n").filter(l => l.startsWith("data:"));
-      for (const line of lines) {
-        try {
-          const data = JSON.parse(line.replace("data: ", ""));
-          if (data.message) setLog(data.message);
-        } catch { }
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      let boundary: number;
+      while ((boundary = buffer.indexOf("\n\n")) !== -1) {
+        const rawEvent = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+
+        const lines = rawEvent.split("\n").filter(l => l.startsWith("data:"));
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line.replace(/^data:\s*/, ""));
+            if (data.error) return { ok: false, message: data.error || data.message || "Failed" };
+            if (data.done) return { ok: true, message: data.message };
+            if (data.message) setLog(data.message);
+          } catch { }
+        }
       }
-      result = await reader.read();
     }
+    return { ok: false, message: "Connection closed unexpectedly" };
   };
 
   const onDrop = useCallback(async (accepted: File[]) => {
@@ -317,12 +332,29 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
       const form = new FormData();
       form.append("file", file, file.name);
       const res = await fetch(`${API}/bots/${botId}/knowledge/pdf`, { method: "POST", credentials: "include", body: form });
-      await drainStream(res);
-      onRefresh();
-    } catch {
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        const message = json.error || json.message || "Upload failed";
+        toast.error(`'${file.name}' failed to upload: ${message}`);
+        setLog(message);
+        return; // backend already deleted the stuck doc, refresh in finally
+      }
+
+      const result = await drainStream(res);
+      if (result.ok) {
+        toast.success(`'${file.name}' uploaded successfully`);
+        setLog("Done!");
+      } else {
+        toast.error(`'${file.name}' failed to upload: ${result.message}`);
+        setLog(result.message || "Upload failed");
+      }
+    } catch (err: any) {
+      toast.error(`'${file.name}' failed to upload: AI service may be offline`);
       setLog("Upload failed — AI service may be offline");
     } finally {
       setBusy(false);
+      onRefresh(); // always refresh so failed/stuck docs disappear from the list
     }
   }, [botId, onRefresh]);
 
@@ -340,13 +372,30 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: pasteText, name: "Pasted text" }),
       });
-      await drainStream(res);
-      setPasteText("");
-      onRefresh();
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        const message = json.error || json.message || "Upload failed";
+        toast.error(`Text source failed to upload: ${message}`);
+        setLog(message);
+        return;
+      }
+
+      const result = await drainStream(res);
+      if (result.ok) {
+        toast.success("Text source uploaded successfully");
+        setLog("Done!");
+        setPasteText("");
+      } else {
+        toast.error(`Text source failed to upload: ${result.message}`);
+        setLog(result.message || "Upload failed");
+      }
     } catch {
+      toast.error("Text source failed to upload: AI service may be offline");
       setLog("Upload failed — AI service may be offline");
     } finally {
       setBusy(false);
+      onRefresh();
     }
   };
 
@@ -565,7 +614,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
           <div className="px-4 py-3 text-white" style={{ background: cfg.accentColor }}>
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15 text-lg">
-                {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+                {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{bot.name}</p>
@@ -594,7 +643,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
             }}
             title={cfg.tooltipText}
           >
-            {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
+            {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
           </div>
         </div>
       </aside>
