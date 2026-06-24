@@ -94,6 +94,7 @@ const sendMessage = async (req, res, next) => {
         let fullReply = "";
 
         for await (const chunk of ragResponse.body) {
+            console.log("Chunk : " + chunk);
             const lines = chunk.toString().split("\n").filter(l => l.startsWith("data:"));
 
             for (const line of lines) {

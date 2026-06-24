@@ -12,7 +12,7 @@ startCleanupJob();
 
 // Enable CORS for our client port (and support credentials/cookies)
 app.use(cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
 }));
 
@@ -27,10 +27,12 @@ const knowledgeRoutes = require("./routes/knowledge.routes");
 const conversationRoutes = require("./routes/conversation.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const chatRoutes = require("./routes/chat.routes");
+const publicRoutes = require("./routes/public.route");
 
 // Public routes
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/bots", publicRoutes);
 
 // Protected routes
 app.use("/api/user", protect, userRoutes);
