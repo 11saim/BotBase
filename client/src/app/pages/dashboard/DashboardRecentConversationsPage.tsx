@@ -3,10 +3,21 @@ import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 type Conversation = {
-  bot: string;
-  preview: string;
-  timestamp: string;
-  resolved: boolean;
+  _id: string;
+  botId: {
+    _id: string;
+    name: string;
+  };
+  sessionId: string;
+  label: string;
+  isResolved: boolean;
+  resolutionReason: string | null;
+  messageCount: number;
+  lastMessageAt: string;
+  endedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };
 
 const API = "http://localhost:5000/api/";
@@ -32,19 +43,18 @@ export function DashboardRecentConversationsPage() {
     const fetchConversations = async () => {
       try {
         setLoading(true);
-        // ... existing fetch logic remains unchanged ...
-
 
         const res = await fetch(
           `${API}conversations?botId=${botId}&status=${status}&period=${period}`,
-          { credentials: "include", signal: controller.signal }
+          { credentials: "include" }
         );
 
         const data = await res.json();
+        console.log(data)
         setRows(data.conversations || []);
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          toast.error("Error fetching conversations.Please try again after some time.")
+          toast.error("Error fetching conversations. Please try again after some time.")
         }
       } finally {
         setLoading(false);
@@ -99,14 +109,14 @@ export function DashboardRecentConversationsPage() {
           {/* Status Filter Dropdown - Custom */}
           <div className="relative inline-block ml-2" ref={statusRef}>
             <button type="button" onClick={() => { setShowStatusOptions(!showStatusOptions); setShowBotOptions(false); }} className="w-full flex items-center justify-between px-3 py-1.5 border border-black/10 rounded-lg bg-[var(--bg-primary)] text-[13px] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] outline-none transition-colors">
-              <span className="truncate max-w-[8rem]">{status === "all" ? "All Status" : status === "resolved" ? "Resolved" : status === "unresolved" ? "Unanswered" : status}</span>
+              <span className="truncate max-w-[8rem]">{status === "all" ? "All Status" : status === "resolved" ? "Resolved" : status === "unresolved" ? "Unresolved" : status}</span>
               <ChevronDown size={14} className="ml-2 text-[var(--text-tertiary)]" />
             </button>
             {showStatusOptions && (
               <ul className="absolute left-0 mt-1 min-w-[8rem] w-auto bg-[var(--bg-primary)] border border-black/10 rounded-md shadow-lg max-h-60 overflow-y-auto z-10 transition-opacity duration-150 ease-out opacity-100">
                 <li onClick={() => { setStatus("all"); setShowStatusOptions(false); }} className="px-3 py-2 cursor-pointer hover:bg-[var(--bg-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">All Status</li>
                 <li onClick={() => { setStatus("resolved"); setShowStatusOptions(false); }} className="px-3 py-2 cursor-pointer hover:bg-[var(--bg-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">Resolved</li>
-                <li onClick={() => { setStatus("unresolved"); setShowStatusOptions(false); }} className="px-3 py-2 cursor-pointer hover:bg-[var(--bg-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">Unanswered</li>
+                <li onClick={() => { setStatus("unresolved"); setShowStatusOptions(false); }} className="px-3 py-2 cursor-pointer hover:bg-[var(--bg-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">Unresolved</li>
               </ul>
             )}
           </div>
@@ -137,28 +147,28 @@ export function DashboardRecentConversationsPage() {
             <p className="text-gray-500">No Conversations Found</p>
           </div>
         ) : (
-          rows.map((row, i) => (
+          rows.map((row) => (
             <div
-              key={i}
+              key={row._id}
               className="flex flex-col sm:flex-row sm:items-center gap-2 py-4 border-b"
             >
               <span className="text-[11px] px-2 py-0.5 rounded bg-[#EEEDFE] text-[#534AB7]">
-                {row.bot}
+                {row.botId?.name || "Unknown Bot"}
               </span>
 
               <div className="flex-1">
-                <p className="text-[13px] truncate">{row.preview}</p>
+                <p className="text-[13px] truncate">{row.label || "Untitled Conversation"}</p>
                 <p className="text-[11px] text-gray-500 sm:hidden">
-                  {row.timestamp}
+                  {new Date(row.lastMessageAt).toLocaleString()}
                 </p>
               </div>
 
               <div className="hidden sm:block w-[140px] text-right text-[12px] text-gray-500">
-                {row.timestamp}
+                {new Date(row.lastMessageAt).toLocaleString()}
               </div>
 
               <div className="text-[11px]">
-                {row.resolved ? "Resolved" : "Unanswered"}
+                {row.isResolved ? "Resolved" : "Unresolved"}
               </div>
             </div>
           ))

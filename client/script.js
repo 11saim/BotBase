@@ -159,6 +159,36 @@
         return div.innerHTML;
     }
 
+    function inlineMarkdown(text) {
+        return text
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(/`(.+?)`/g, "<code>$1</code>");
+    }
+
+    function renderMarkdown(raw) {
+        const escaped = escapeHtml(raw);
+        const lines = escaped.split("\n");
+        let html = "";
+        let inList = false;
+
+        for (const rawLine of lines) {
+            const line = rawLine.trim();
+            const bulletMatch = line.match(/^[-*]\s+(.*)/);
+            const numberedMatch = line.match(/^\d+\.\s+(.*)/);
+
+            if (bulletMatch || numberedMatch) {
+                if (!inList) { html += "<ul>"; inList = true; }
+                html += `<li>${inlineMarkdown(bulletMatch ? bulletMatch[1] : numberedMatch[1])}</li>`;
+            } else {
+                if (inList) { html += "</ul>"; inList = false; }
+                html += line === "" ? "<br/>" : `<p>${inlineMarkdown(line)}</p>`;
+            }
+        }
+        if (inList) html += "</ul>";
+        return html;
+    }
+
     function buildWidget(bot, initialState) {
         const cfg = (bot && bot.widgetConfig) || {};
         const botName = (bot && bot.name) || "Assistant";
@@ -245,6 +275,13 @@
       .bb-header .bb-title { font-weight: 600; font-size: 14px; }
       .bb-header .bb-close { margin-left: auto; cursor: pointer; opacity: 0.85; background: none; border: none; color: #fff; font-size: 18px; line-height: 1; }
       .bb-header .bb-close:hover { opacity: 1; }
+
+      .bb-msg.bot p { margin: 0 0 6px 0; }
+      .bb-msg.bot p:last-child { margin-bottom: 0; }
+      .bb-msg.bot ul { margin: 4px 0 6px 18px; padding: 0; }
+      .bb-msg.bot li { margin-bottom: 2px; }
+      .bb-msg.bot code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 4px; font-size: 12.5px; }
+      .bb-msg.bot strong { font-weight: 600; }
 
       .bb-messages {
         flex: 1; overflow-y: auto; padding: 14px;
@@ -390,7 +427,7 @@
                         removeTyping();
                         botMsgEl = appendMessage("", "bot");
                     }
-                    botMsgEl.textContent = fullText;
+                    botMsgEl.innerHTML = renderMarkdown(fullText);
                     messagesEl.scrollTop = messagesEl.scrollHeight;
                 },
                 onDone: () => {

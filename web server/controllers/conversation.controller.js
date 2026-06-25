@@ -13,18 +13,21 @@ const getAllConversations = async (req, res, next) => {
 
         const query = {};
 
-        // Only return classified conversations
-        query.isResolved = { $ne: null };
-
         // Bot filter
         query.botId = botId && botId !== "all"
             ? botId
             : { $in: userBotIds };
 
-        // Status filter
-        if (status === "resolved") query.isResolved = true;
-        if (status === "unresolved") query.isResolved = false;
-        // status=all → keep { $ne: null } already set above
+        switch (status) {
+            case "resolved":
+                query.isResolved = true;
+                break;
+            case "unresolved":
+                query.isResolved = null;
+                break;
+            default:
+                break;
+        }
 
         // Period filter
         const periodMap = { today: 1, "7d": 7, "30d": 30 };
@@ -38,7 +41,6 @@ const getAllConversations = async (req, res, next) => {
         const conversations = await Conversation.find(query)
             .sort({ lastMessageAt: -1 })
             .populate("botId", "name");
-
         res.json({ conversations });
     } catch (err) {
         next(err);
