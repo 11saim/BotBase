@@ -69,6 +69,7 @@ const sendMessage = async (req, res, next) => {
         res.setHeader("Content-Type", "text/event-stream");
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
+        res.flushHeaders();
 
         // Call Python RAG server
         const ragResponse = await fetch(`${process.env.PYTHON_SERVER_URL}/api/chat/`, {
@@ -91,14 +92,32 @@ const sendMessage = async (req, res, next) => {
         }
 
         // Stream tokens from Python → widget
+        // Stream tokens from Python → widget
         let fullReply = "";
+        const reader = ragResponse.body.getReader();
+        const decoder = require("util").TextDecoder ? new (require("util").TextDecoder)() : new TextDecoder();
+        let buffer = "";
 
-        for await (const chunk of ragResponse.body) {
-            console.log("Chunk : " + chunk);
-            const lines = chunk.toString().split("\n").filter(l => l.startsWith("data:"));
+        while (true) {
+            const { value, done: streamDone } = await reader.read();
+            if (streamDone) break;
 
-            for (const line of lines) {
-                const data = JSON.parse(line.replace("data: ", ""));
+            buffer += decoder.decode(value, { stream: true });
+
+            // Split on the SSE event delimiter, keep any incomplete trailing chunk in buffer
+            const events = buffer.split("\n\n");
+            buffer = events.pop();
+
+            for (const evt of events) {
+                const line = evt.trim();
+                if (!line.startsWith("data:")) continue;
+
+                let data;
+                try {
+                    data = JSON.parse(line.slice(5).trim());
+                } catch {
+                    continue;
+                }
 
                 if (data.error) {
                     res.write(`data: ${JSON.stringify({ error: data.error })}\n\n`);
@@ -112,20 +131,17 @@ const sendMessage = async (req, res, next) => {
                 }
 
                 if (data.done) {
-                    // Save full assistant reply
                     await Message.create({ conversationId: conversation._id, role: "assistant", content: fullReply });
                     await Conversation.findByIdAndUpdate(conversation._id, { $inc: { messageCount: 1 } });
-
-                    // Increment usage
                     await Usage.increment(bot.userId, "messagesUsed");
 
-                    // Check milestones
                     const updatedUsage = await Usage.getUsage(bot.userId);
                     if (updatedUsage.messagesUsed === 100) await ActivityLog.log({ userId: bot.userId, botId: bot._id, eventType: ACTIVITY_EVENTS.BOT_MESSAGES_100, title: `${bot.name} hit 100 messages` });
                     if (updatedUsage.messagesUsed === 1000) await ActivityLog.log({ userId: bot.userId, botId: bot._id, eventType: ACTIVITY_EVENTS.BOT_MESSAGES_1000, title: `${bot.name} hit 1,000 messages` });
 
                     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
                     res.end();
+                    return;
                 }
             }
         }
