@@ -184,7 +184,10 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       });
 
       const botData = await botRes.json();
-      if (!botRes.ok) throw new Error(botData.error || "Failed to create bot");
+      if (!botRes.ok) {
+        toast.error(botData.error || "Failed to create bot");
+        return;
+      }
 
       const botId = botData.bot._id;
       setCreatedBotId(botId);
@@ -249,7 +252,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
       setStep(3);
 
     } catch (err: any) {
-      setFinishLog(`Error: ${err.message}`);
+      toast.error(err.message);
     } finally {
       setFinishing(false);
     }

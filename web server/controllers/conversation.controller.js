@@ -23,9 +23,10 @@ const getAllConversations = async (req, res, next) => {
                 query.isResolved = true;
                 break;
             case "unresolved":
-                query.isResolved = null;
+                query.isResolved = false;
                 break;
             default:
+                query.isResolved = { "$ne": null };
                 break;
         }
 
