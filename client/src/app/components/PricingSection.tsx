@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, Fragment } from "react";
+import { toast } from "sonner";
 
 interface TableRow {
   label: string;
@@ -24,33 +25,22 @@ const tableSections: TableSection[] = [
   {
     category: "Limits",
     rows: [
-      { label: "Bots", values: ["1", "3", "10", "Unlimited"], proIndex: 2 },
+      { label: "Bots", values: ["1", "3", "10", "15"], proIndex: 2 },
       {
         label: "Messages / month",
         values: ["100", "2,000", "10,000", "50,000"],
         proIndex: 2,
       },
       {
-        label: "File uploads / bot",
-        values: ["1", "5", "20", "Unlimited"],
+        label: "Source uploads",
+        values: ["1", "5", "15", "30"],
         proIndex: 2,
       },
-      { label: "Team members", values: ["1", "1", "3", "10"], proIndex: 2 },
     ],
   },
   {
     category: "Features",
     rows: [
-      {
-        label: "Lead collection",
-        values: [false, true, true, true],
-        proIndex: 2,
-      },
-      {
-        label: "Custom Q&A overrides",
-        values: [false, true, true, true],
-        proIndex: 2,
-      },
       {
         label: "Unanswered question gaps",
         values: [false, true, true, true],
@@ -69,27 +59,11 @@ const tableSections: TableSection[] = [
     ],
   },
   {
-    category: "Analytics",
+    category: "Prices",
     rows: [
       {
-        label: "Analytics level",
-        values: ["Basic", "Basic", "Full", "Full"],
-        proIndex: 2,
-      },
-    ],
-  },
-  {
-    category: "Advanced",
-    rows: [
-      { label: "API access", values: [false, false, true, true], proIndex: 2 },
-      {
-        label: "White-label widget",
-        values: [false, false, false, true],
-        proIndex: 2,
-      },
-      {
-        label: "Team collaboration",
-        values: [false, false, true, true],
+        label: "Prices",
+        values: ["Free", "$10/mo", "$30/mo", "$150/mo"],
         proIndex: 2,
       },
     ],
@@ -120,6 +94,12 @@ function Cell({ value, isPro }: { value: string | boolean; isPro: boolean }) {
   );
 }
 
+const PRICE_IDS = {
+  Starter: "price_1TmXjfDJ6uKm9It9H5RFsUWs",
+  Pro: "price_1TmXkbDJ6uKm9It9eAkgt0lc",
+  Agency: "price_1TmXlBDJ6uKm9It96ta0OiNg",
+};
+
 export default function PricingSection({
   variant = "home",
   currentPlan = "Free",
@@ -143,6 +123,33 @@ export default function PricingSection({
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  const handleCheckout = async (plan: string) => {
+    if (plan === "Free") return;
+
+    try {
+      const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
+
+      const res = await fetch(
+        `http://localhost:5000/api/stripe/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ priceId }),
+          credentials: "include",
+        })
+
+      const data = await res.json();
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to start checkout."
+      );
+    }
+  };
 
   return (
     <section id="pricing" className="max-w-5xl mx-auto px-4 pt-2">
@@ -262,6 +269,7 @@ export default function PricingSection({
                   <td key={col} className="px-5 py-4 text-center">
                     <button
                       disabled={disable}
+                      onClick={() => handleCheckout(col)}
                       className={`whitespace-nowrap w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${disable
                         ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
                         : isCurrent && variant !== "home"

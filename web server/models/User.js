@@ -56,6 +56,20 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    stripeCustomerId: {
+      type: String,
+      default: null,
+    },
+
+    stripeSubscriptionId: {
+      type: String,
+      default: null,
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ["active", "inactive", "canceled"],
+      default: "inactive",
+    },
   },
   { timestamps: true }
 );

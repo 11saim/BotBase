@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -16,7 +17,15 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.json());
+app.use(
+    express.json({
+        verify: (req, res, buf) => {
+            if (req.originalUrl === "/api/stripe/webhook") {
+                req.rawBody = buf;
+            }
+        },
+    })
+);
 app.use(cookieParser());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
@@ -28,6 +37,9 @@ const conversationRoutes = require("./routes/conversation.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const chatRoutes = require("./routes/chat.routes");
 const publicRoutes = require("./routes/public.route");
+const stripeRoutes = require("./routes/stripe.routes");
+
+app.use("/api/stripe", stripeRoutes);
 
 // Public routes
 app.use("/api/auth", authRoutes);
