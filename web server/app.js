@@ -18,14 +18,11 @@ app.use(cors({
 }));
 
 app.use(
-    express.json({
-        verify: (req, res, buf) => {
-            if (req.originalUrl === "/api/stripe/webhook") {
-                req.rawBody = buf;
-            }
-        },
-    })
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json" })
 );
+
+app.use(express.json());
 app.use(cookieParser());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────

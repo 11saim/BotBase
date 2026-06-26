@@ -63,7 +63,7 @@ const tableSections: TableSection[] = [
     rows: [
       {
         label: "Prices",
-        values: ["Free", "$10/mo", "$30/mo", "$150/mo"],
+        values: ["Free", "$15/mo", "$30/mo", "$150/mo"],
         proIndex: 2,
       },
     ],
@@ -137,7 +137,7 @@ export default function PricingSection({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ priceId }),
+          body: JSON.stringify({ priceId, plan }),
           credentials: "include",
         })
 
