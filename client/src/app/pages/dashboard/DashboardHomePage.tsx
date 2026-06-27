@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Activity, MessageSquare, Bot, AlertTriangle, Trophy, MessagesSquare, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { PaymentSuccessModal } from "../../components/PaymentSuccessModal";
 
 const API = "http://localhost:5000/api";
 
@@ -70,6 +71,36 @@ export function DashboardHomePage() {
   const [conversations, setConversations] = useState<RecentConversation[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    if (!sessionId) return;
+
+    // Clean the URL immediately so it doesn't re-trigger
+    searchParams.delete("session_id");
+    setSearchParams(searchParams, { replace: true });
+
+    // Verify the session with the backend
+    const verifyPayment = async () => {
+      try {
+        const res = await fetch(
+          `${API}/stripe/verify-session/${sessionId}`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        if (data.success) {
+          setShowPaymentSuccess(true);
+        }
+      } catch {
+        // Silently fail — don't show the modal for fake/invalid sessions
+      }
+    };
+
+    verifyPayment();
+  }, []);
+
   const BOT_COLORS = ["#8b5cf6", "#0d9488", "#d97706", "#e11d48", "#2563eb"];
 
   useEffect(() => {
@@ -115,6 +146,11 @@ export function DashboardHomePage() {
   }
 
   return (
+    <>
+    <PaymentSuccessModal
+      open={showPaymentSuccess}
+      onClose={() => setShowPaymentSuccess(false)}
+    />
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
 
@@ -237,6 +273,7 @@ export function DashboardHomePage() {
 
       </div>
     </div>
+    </>
   );
 }
 

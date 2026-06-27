@@ -10,4 +10,6 @@ router.post("/portal", protect, stripeControllers.createPortalSession);
 
 router.post("/webhook", stripeControllers.webhookHandler);
 
+router.get("/verify-session/:sessionId", protect, stripeControllers.verifyCheckoutSession);
+
 module.exports = router;

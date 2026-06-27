@@ -1,5 +1,6 @@
 const stripe = require("../lib/stripe");
 const User = require("../models/User");
+const Usage = require("../models/Usage");
 
 const createCheckoutSession = async (req, res) => {
     try {
@@ -51,7 +52,7 @@ const createCheckoutSession = async (req, res) => {
                 },
             ],
 
-            success_url: `${process.env.CLIENT_URL}/dashboard?payment=success`,
+            success_url: `${process.env.CLIENT_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
 
             cancel_url: `${process.env.CLIENT_URL}/pricing`,
 
@@ -115,6 +116,12 @@ const webhookHandler = async (req, res) => {
                     { new: true }
                 );
 
+                // Update period end in Usage doc
+                await Usage.findOneAndUpdate(
+                    { userId: session.metadata.userId },
+                    { periodEnd: new Date(periodEnd * 1000) }
+                );
+
                 break;
             }
 
@@ -127,7 +134,7 @@ const webhookHandler = async (req, res) => {
                 const periodEnd =
                     subscription.items.data[0].current_period_end;
 
-                await User.findOneAndUpdate(
+                const updatedUser = await User.findOneAndUpdate(
                     {
                         stripeSubscriptionId: subscription.id,
                     },
@@ -138,8 +145,17 @@ const webhookHandler = async (req, res) => {
                                 : "inactive",
 
                         planExpiresAt: new Date(periodEnd * 1000),
-                    }
+                    },
+                    { new: true }
                 );
+
+                // Update period end in Usage doc
+                if (updatedUser) {
+                    await Usage.findOneAndUpdate(
+                        { userId: updatedUser._id },
+                        { periodEnd: new Date(periodEnd * 1000) }
+                    );
+                }
 
                 break;
             }
@@ -150,7 +166,7 @@ const webhookHandler = async (req, res) => {
             case "customer.subscription.deleted": {
                 const subscription = event.data.object;
 
-                await User.findOneAndUpdate(
+                const deletedUser = await User.findOneAndUpdate(
                     {
                         stripeSubscriptionId: subscription.id,
                     },
@@ -161,6 +177,14 @@ const webhookHandler = async (req, res) => {
                         planExpiresAt: null,
                     }
                 );
+
+                // Clear period end in Usage doc
+                if (deletedUser) {
+                    await Usage.findOneAndUpdate(
+                        { userId: deletedUser._id },
+                        { periodEnd: null }
+                    );
+                }
 
                 break;
             }
@@ -177,8 +201,28 @@ const webhookHandler = async (req, res) => {
     }
 };
 
+const verifyCheckoutSession = async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        if (
+            session.payment_status === "paid" &&
+            session.metadata.userId === req.user.id
+        ) {
+            return res.json({ success: true, plan: session.metadata.plan });
+        }
+
+        return res.json({ success: false });
+    } catch (error) {
+        return res.json({ success: false });
+    }
+};
+
 module.exports = {
     createCheckoutSession,
     createPortalSession,
-    webhookHandler
+    webhookHandler,
+    verifyCheckoutSession
 }

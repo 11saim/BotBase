@@ -59,6 +59,7 @@ export function DashboardPlanUsagePage() {
         const res = await fetch(`${API}/dashboard/usage`, { credentials: "include" });
         const json = await res.json();
         setData(json);
+        console.log(json);
       } catch (err) {
         toast.error("Error fetching usage.Please try again after some time.")
       } finally {

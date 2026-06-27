@@ -1,102 +1,77 @@
-// core/plans.js
-// Single source of truth for all plan limits and features.
-// User model stores only the plan name (e.g. "free").
-// Everything else is derived from here.
-
 const PLANS = {
   free: {
     id: "free",
     label: "Free",
+    price: 0,
+    priceLabel: "Free",
 
     limits: {
       bots: 1,
       messagesPerMonth: 100,
-      fileUploadsPerBot: 1,
-      teamMembers: 1,
+      totalSources: 1,
     },
 
     features: {
-      leadCollection: false,
-      customQAOverrides: false,
       unansweredQuestionGaps: false,
       chatbotCustomization: true,
       trainingHistory: true,
-      analyticsLevel: "basic",  // "basic" | "full"
-      apiAccess: false,
-      whiteLabelWidget: false,
-      teamCollaboration: false,
     },
   },
 
   starter: {
     id: "starter",
     label: "Starter",
+    price: 15,
+    priceLabel: "$15/mo",
 
     limits: {
       bots: 3,
       messagesPerMonth: 2000,
-      fileUploadsPerBot: 5,
-      teamMembers: 1,
+      totalSources: 5,
     },
 
     features: {
-      leadCollection: true,
-      customQAOverrides: true,
       unansweredQuestionGaps: true,
       chatbotCustomization: true,
       trainingHistory: true,
-      analyticsLevel: "basic",
-      apiAccess: false,
-      whiteLabelWidget: false,
-      teamCollaboration: false,
     },
   },
 
   pro: {
     id: "pro",
     label: "Pro",
+    price: 30,
+    priceLabel: "$30/mo",
 
     limits: {
       bots: 10,
       messagesPerMonth: 10000,
-      fileUploadsPerBot: 20,
-      teamMembers: 3,
+      totalSources: 15,
     },
 
     features: {
-      leadCollection: true,
-      customQAOverrides: true,
       unansweredQuestionGaps: true,
       chatbotCustomization: true,
       trainingHistory: true,
-      analyticsLevel: "full",
-      apiAccess: true,
-      whiteLabelWidget: false,
-      teamCollaboration: true,
     },
   },
 
   agency: {
     id: "agency",
     label: "Agency",
+    price: 150,
+    priceLabel: "$150/mo",
 
     limits: {
-      bots: -1,    // -1 = unlimited
+      bots: 15,
       messagesPerMonth: 50000,
-      fileUploadsPerBot: -1,
-      teamMembers: 10,
+      totalSources: 30,
     },
 
     features: {
-      leadCollection: true,
-      customQAOverrides: true,
       unansweredQuestionGaps: true,
       chatbotCustomization: true,
       trainingHistory: true,
-      analyticsLevel: "full",
-      apiAccess: true,
-      whiteLabelWidget: true,
-      teamCollaboration: true,
     },
   },
 };
@@ -121,17 +96,17 @@ const getLimits = (planId) => getPlan(planId).limits;
 
 /**
  * Get just the features for a plan.
- * Usage: const { apiAccess } = getFeatures(user.plan);
+ * Usage: const { unansweredQuestionGaps } = getFeatures(user.plan);
  */
 const getFeatures = (planId) => getPlan(planId).features;
 
 /**
  * Check if a usage value is within the plan limit.
  * Handles -1 as unlimited.
- * Usage: canDo(user.plan, "bots", currentBotCount)
+ * Usage: canDo(user.plan, "totalSources", currentUsage)
  *
  * @param {string} planId
- * @param {string} limitKey  - key from limits object e.g. "bots"
+ * @param {string} limitKey  - key from limits object e.g. "bots", "totalSources"
  * @param {number} currentUsage
  */
 const canDo = (planId, limitKey, currentUsage) => {
@@ -142,10 +117,10 @@ const canDo = (planId, limitKey, currentUsage) => {
 
 /**
  * Check if a plan has access to a specific feature.
- * Usage: hasFeature(user.plan, "apiAccess")
+ * Usage: hasFeature(user.plan, "unansweredQuestionGaps")
  *
  * @param {string} planId
- * @param {string} featureKey - key from features object e.g. "apiAccess"
+ * @param {string} featureKey - key from features object
  */
 const hasFeature = (planId, featureKey) => {
   return getFeatures(planId)[featureKey] === true;

@@ -66,7 +66,7 @@ const getUsage = async (req, res, next) => {
             limits: {
                 messagesPerMonth: limits.messagesPerMonth,
                 bots: limits.bots,
-                sources: limits.sources,
+                sources: limits.totalSources,
             },
             period: {
                 start: usage.periodStart,

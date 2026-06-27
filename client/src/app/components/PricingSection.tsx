@@ -263,7 +263,10 @@ export default function PricingSection({
 
               {columns.map((col) => {
                 const isCurrent = col === currentPlan;
-                const disable = variant !== "home" && isCurrent;
+                const colIndex = columns.indexOf(col);
+                const currentIndex = columns.indexOf(currentPlan);
+                const isBelowOrCurrent = colIndex <= currentIndex;
+                const disable = variant !== "home" && isBelowOrCurrent;
 
                 return (
                   <td key={col} className="px-5 py-4 text-center">
@@ -272,9 +275,7 @@ export default function PricingSection({
                       onClick={() => handleCheckout(col)}
                       className={`whitespace-nowrap w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${disable
                         ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
-                        : isCurrent && variant !== "home"
-                          ? "bg-emerald-500 text-white border-emerald-500"
-                          : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
+                        : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
                         }`}
                     >
                       {variant !== "home" && isCurrent
