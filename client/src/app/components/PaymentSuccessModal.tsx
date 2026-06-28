@@ -12,18 +12,10 @@ export function PaymentSuccessModal({ open, onClose }: PaymentSuccessModalProps)
 
   useEffect(() => {
     if (open) {
-      // Small delay so the DOM mounts first, then animate
       requestAnimationFrame(() => {
         setAnimateIn(true);
         setShowConfetti(true);
       });
-
-      // Auto-close after 6 seconds
-      const timer = setTimeout(() => {
-        handleClose();
-      }, 6000);
-
-      return () => clearTimeout(timer);
     } else {
       setAnimateIn(false);
       setShowConfetti(false);
@@ -189,19 +181,16 @@ export function PaymentSuccessModal({ open, onClose }: PaymentSuccessModalProps)
             <h2 className="text-[20px] font-semibold text-neutral-900 tracking-tight mb-2">
               Payment Successful!
             </h2>
-            <p className="text-[13px] text-neutral-500 leading-relaxed mb-6">
+            <p className="text-[13px] text-neutral-500 leading-relaxed mb-4">
               Your subscription is now active. Enjoy your upgraded plan with all the premium features unlocked.
             </p>
 
-            {/* Progress bar */}
-            <div className="w-full h-[3px] bg-neutral-100 rounded-full overflow-hidden mb-6">
-              <div
-                className="h-full bg-emerald-500 rounded-full"
-                style={{
-                  width: animateIn ? "100%" : "0%",
-                  transition: "width 5.5s linear 0.5s",
-                }}
-              />
+            {/* Demo notice */}
+            <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 mb-6 text-left">
+              <p className="text-[12px] font-semibold text-amber-700 mb-1">Demo Project Notice</p>
+              <p className="text-[11px] text-amber-600 leading-relaxed">
+                This is a demo project, not a real service. No actual payment was processed and you are still on the <span className="font-semibold">Free plan</span>. Your plan has not been upgraded.
+              </p>
             </div>
 
             <button

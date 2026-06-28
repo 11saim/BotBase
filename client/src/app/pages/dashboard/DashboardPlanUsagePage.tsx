@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Zap } from "lucide-react";
 import PricingSection from "@/app/components/PricingSection";
+import DemoDisclaimerModal from "@/app/components/DemoDisclaimerModal";
 import { toast } from "sonner";
 import { invalidateAuth } from "@/hooks/useAuth";
 
@@ -50,8 +51,22 @@ function StatCard({
 
 export function DashboardPlanUsagePage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    const plan = searchParams.get("plan");
+    if (!plan) return;
+
+    searchParams.delete("plan");
+    setSearchParams(searchParams, { replace: true });
+
+    setSelectedPlan(plan);
+    setDemoModalOpen(true);
+  }, []);
 
   useEffect(() => {
     const fetchUsage = async () => {
@@ -93,7 +108,48 @@ export function DashboardPlanUsagePage() {
 
   const planLabel: "Free" | "Starter" | "Pro" | "Agency" = PLAN_LABELS[data?.plan ?? "free"] ?? "Free";
 
+  const PRICE_IDS: Record<string, string> = {
+    Starter: "price_1TmXjfDJ6uKm9It9H5RFsUWs",
+    Pro: "price_1TmXkbDJ6uKm9It9eAkgt0lc",
+    Agency: "price_1TmXlBDJ6uKm9It96ta0OiNg",
+  };
+
+  const handleCheckout = async (plan: string) => {
+    try {
+      const priceId = PRICE_IDS[plan];
+      const res = await fetch(`${API}/stripe/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId, plan }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      window.location.href = data.url;
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to start checkout.");
+    }
+  };
+
+  const handleModalConfirm = () => {
+    setDemoModalOpen(false);
+    if (selectedPlan) {
+      handleCheckout(selectedPlan);
+    }
+    setSelectedPlan(null);
+  };
+
+  const handleModalClose = () => {
+    setDemoModalOpen(false);
+    setSelectedPlan(null);
+  };
+
   return (
+    <>
+    <DemoDisclaimerModal
+      open={demoModalOpen}
+      onClose={handleModalClose}
+      onConfirm={handleModalConfirm}
+    />
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-5xl space-y-8">
 
@@ -210,5 +266,6 @@ export function DashboardPlanUsagePage() {
 
       </div>
     </div>
+    </>
   );
 }

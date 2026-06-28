@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import DemoDisclaimerModal from "./DemoDisclaimerModal";
 
 interface TableRow {
   label: string;
@@ -105,7 +107,10 @@ export default function PricingSection({
   currentPlan = "Free",
 }: PricingSectionProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   const hideHeading = variant !== "home";
 
@@ -149,6 +154,32 @@ export default function PricingSection({
         error?.response?.data?.message || "Failed to start checkout."
       );
     }
+  };
+
+  const handlePlanClick = (plan: string) => {
+    if (variant === "home") {
+      if (plan === "Free") {
+        navigate("/login", { state: { from: "/dashboard" } });
+      } else {
+        navigate("/login", { state: { from: `/dashboard/usage?plan=${plan}` } });
+      }
+      return;
+    }
+    setSelectedPlan(plan);
+    setDemoModalOpen(true);
+  };
+
+  const handleModalConfirm = () => {
+    setDemoModalOpen(false);
+    if (selectedPlan) {
+      handleCheckout(selectedPlan);
+    }
+    setSelectedPlan(null);
+  };
+
+  const handleModalClose = () => {
+    setDemoModalOpen(false);
+    setSelectedPlan(null);
   };
 
   return (
@@ -272,7 +303,7 @@ export default function PricingSection({
                   <td key={col} className="px-5 py-4 text-center">
                     <button
                       disabled={disable}
-                      onClick={() => handleCheckout(col)}
+                      onClick={() => handlePlanClick(col)}
                       className={`whitespace-nowrap w-full sm:w-auto text-[12px] font-semibold px-4 py-2 rounded-sm border transition ${disable
                         ? "bg-neutral-200 text-neutral-400 border-neutral-200 cursor-not-allowed"
                         : "bg-transparent text-neutral-700 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950"
@@ -289,6 +320,12 @@ export default function PricingSection({
           </tfoot>
         </table>
       </div>
+
+      <DemoDisclaimerModal
+        open={demoModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleModalConfirm}
+      />
     </section>
   );
 }

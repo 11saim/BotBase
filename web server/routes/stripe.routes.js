@@ -1,15 +1,10 @@
 const express = require("express");
 const stripeControllers = require("../controllers/stripe.controller.js")
-const { protect } = require("../middlewares/auth.js")
 const router = express.Router();
 
 
-router.post("/checkout", protect, stripeControllers.createCheckoutSession);
+router.post("/checkout", stripeControllers.createCheckoutSession);
 
-router.post("/portal", protect, stripeControllers.createPortalSession);
-
-router.post("/webhook", stripeControllers.webhookHandler);
-
-router.get("/verify-session/:sessionId", protect, stripeControllers.verifyCheckoutSession);
+router.get("/verify-session/:sessionId", stripeControllers.verifyCheckoutSession);
 
 module.exports = router;

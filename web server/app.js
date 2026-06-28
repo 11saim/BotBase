@@ -17,11 +17,6 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(
-    "/api/stripe/webhook",
-    express.raw({ type: "application/json" })
-);
-
 app.use(express.json());
 app.use(cookieParser());
 
@@ -36,7 +31,6 @@ const chatRoutes = require("./routes/chat.routes");
 const publicRoutes = require("./routes/public.route");
 const stripeRoutes = require("./routes/stripe.routes");
 
-app.use("/api/stripe", stripeRoutes);
 
 // Public routes
 app.use("/api/auth", authRoutes);
@@ -50,6 +44,7 @@ app.use("/api/bots/:botId/knowledge", protect, knowledgeRoutes);
 app.use("/api/conversations", protect, conversationRoutes);
 app.use("/api/bots/:botId/conversations", protect, conversationRoutes);
 app.use("/api/dashboard", protect, dashboardRoutes);
+app.use("/api/stripe", protect, stripeRoutes);
 
 // ─── Global error handler — must be last ─────────────────────────────────────
 app.use(errorHandler);
