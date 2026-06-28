@@ -38,16 +38,13 @@ export interface BotAppearance {
   widgetSize: "sm" | "md" | "lg";
   widgetBg: string;
   widgetTooltip: string;
-  chatTheme: "light" | "dark" | "auto";
+  chatTheme: "light" | "dark";
   primaryColor: string;
   fontId: BotFontId;
   welcomeMessage: string;
   inputPlaceholder: string;
-  poweredBy: boolean;
   fallbackMessage: string;
   pausedMessage: string;
-  responseStyle: ResponseStyle;
-  language: string;
 }
 
 export interface LeadEntry {
@@ -100,17 +97,14 @@ export const defaultAppearance = (): BotAppearance => ({
   widgetSize: "md",
   widgetBg: "#0A0A0A",
   widgetTooltip: "Chat with us!",
-  chatTheme: "auto",
+  chatTheme: "light",
   primaryColor: "#0A0A0A",
   fontId: "dm-sans",
   welcomeMessage: "Hi! How can we help today?",
   inputPlaceholder: "Ask anything…",
-  poweredBy: true,
   fallbackMessage: "I do not have enough information to answer that yet.",
   pausedMessage:
     "This assistant is temporarily paused. Please try again later.",
-  responseStyle: "friendly",
-  language: "en",
 });
 
 function coerceFontId(v: unknown): BotFontId {

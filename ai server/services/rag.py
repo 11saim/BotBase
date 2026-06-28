@@ -44,14 +44,11 @@ def rag_answer(
         return
 
     context       = "\n\n---\n\n".join(context_chunks)
-    style         = STYLE_MAP.get(settings.get("responseStyle", "friendly"), STYLE_MAP["friendly"])
-    language      = settings.get("language", "en")
 
-    system_prompt = f"""You are an AI assistant. {style}
+    system_prompt = f"""You are an AI assistant.
 Answer questions ONLY based on the context below.
 If the answer is not in the context, say exactly: "{fallback}"
 Do not make up information. Answer naturally.
-Respond in language code: {language}
 
 CONTEXT:
 {context}"""

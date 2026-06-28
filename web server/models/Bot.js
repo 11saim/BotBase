@@ -11,8 +11,8 @@ const widgetConfigSchema = new mongoose.Schema(
 
     // Panel
     panelTheme: { type: String, enum: ["light", "dark"], default: "light" },
-    chatFont: { type: String, enum: ["dm-sans", "inter", "nunito-sans", "source-serif", "georgia", "system-ui", "monospace"], default: "dm-sans" },
-    accentColor: { type: String, default: "#4F46E5" }, // header & buttons
+    chatFont: { type: String, enum: ["dm-sans", "inter", "nunito", "source-serif", "georgia", "system-ui", "mono"], default: "dm-sans" },
+    accentColor: { type: String, default: "#4F46E5" },
 
     // Chat
     welcomeMessage: { type: String, default: "Hi! How can I help you today?" },

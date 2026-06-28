@@ -19,7 +19,7 @@ const getAllBots = async (req, res, next) => {
 // POST /api/bots
 const createBot = async (req, res, next) => {
     try {
-        const { name, description } = req.body;
+        const { name, description, botAvatar, widgetConfig } = req.body;
 
         if (!name) return next(new AppError("Bot name is required", 400));
 
@@ -29,7 +29,7 @@ const createBot = async (req, res, next) => {
             return next(new AppError("Bot limit reached for your plan", 403));
         }
 
-        const bot = await Bot.create({ userId: req.userId, name, description });
+        const bot = await Bot.create({ userId: req.userId, name, description, botAvatar, widgetConfig });
 
         await Usage.increment(req.userId, "botsCreated");
 

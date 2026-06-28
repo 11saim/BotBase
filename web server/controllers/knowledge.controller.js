@@ -76,7 +76,7 @@ const uploadPDF = async (req, res, next) => {
         }
 
         const usage = await Usage.getUsage(req.userId);
-        if (!canDo(req.user.plan, "fileUploadsPerBot", usage.sourcesUploaded)) {
+        if (!canDo(req.user.plan, "totalSources", usage.sourcesUploaded)) {
             fs.unlinkSync(req.file.path);
             return next(new AppError("Source upload limit reached for your plan", 403));
         }
@@ -186,7 +186,7 @@ const uploadText = async (req, res, next) => {
         if (!bot) return next(new AppError("Bot not found", 404));
 
         const usage = await Usage.getUsage(req.userId);
-        if (!canDo(req.user.plan, "fileUploadsPerBot", usage.sourcesUploaded)) {
+        if (!canDo(req.user.plan, "totalSources", usage.sourcesUploaded)) {
             return next(new AppError("Source upload limit reached for your plan", 403));
         }
 

@@ -28,6 +28,7 @@ export function DashboardAnalyticsPage() {
       try {
         const res = await fetch(`${API}/dashboard/analytics?range=${range}`, { credentials: "include" });
         const json = await res.json();
+        console.log(json);
         setData(json);
       } catch (err) {
         toast.error("Error Fetching Analytics.Please try again after some time.")

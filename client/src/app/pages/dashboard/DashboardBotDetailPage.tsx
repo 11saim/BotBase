@@ -571,35 +571,12 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
               <input className="mt-1.5 w-full rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--border-default)" }} value={cfg.inputPlaceholder} onChange={(e) => setCfg({ ...cfg, inputPlaceholder: e.target.value })} />
             </DetailField>
           </div>
-          <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm" style={{ borderColor: "var(--border-default)", color: "var(--text-secondary)" }}>
-            <input type="checkbox" className="h-4 w-4" checked={cfg.showPoweredBy} onChange={(e) => setCfg({ ...cfg, showPoweredBy: e.target.checked })} />
-            Show "Powered by BotBase"
-          </label>
           <div className="mt-6 grid gap-4 border-t pt-6 sm:grid-cols-2" style={{ borderColor: "var(--border-default)" }}>
             <DetailField label="Fallback reply">
               <textarea rows={2} className="mt-1.5 w-full rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--border-default)" }} value={cfg.fallbackReply} onChange={(e) => setCfg({ ...cfg, fallbackReply: e.target.value })} />
             </DetailField>
             <DetailField label="Paused message">
               <textarea rows={2} className="mt-1.5 w-full rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--border-default)" }} value={cfg.pausedMessage} onChange={(e) => setCfg({ ...cfg, pausedMessage: e.target.value })} />
-            </DetailField>
-          </div>
-          <div className="mt-5">
-            <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Response style</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {(["formal", "friendly", "concise"] as const).map((r) => (
-                <button key={r} type="button" onClick={() => setCfg({ ...cfg, responseStyle: r })}
-                  className="rounded-xl px-4 py-2 text-sm font-medium capitalize transition-all"
-                  style={{ background: cfg.responseStyle === r ? "var(--text-primary)" : "var(--bg-secondary)", color: cfg.responseStyle === r ? "white" : "var(--text-secondary)", border: "1px solid var(--border-default)" }}>
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 max-w-xs">
-            <DetailField label="Language">
-              <select className="mt-1.5 w-full rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--border-default)" }} value={cfg.language} onChange={(e) => setCfg({ ...cfg, language: e.target.value })}>
-                <option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option><option value="de">German</option>
-              </select>
             </DetailField>
           </div>
           <button type="button" disabled={saving} className="mt-6 rounded-xl px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: "var(--text-primary)" }} onClick={save}>

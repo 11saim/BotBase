@@ -81,6 +81,7 @@ const sendMessage = async (req, res, next) => {
                 botSettings: {
                     language: bot.widgetConfig.language,
                     responseStyle: bot.widgetConfig.responseStyle,
+                    fallbackReply: bot.widgetConfig.fallbackReply,
                 },
             }),
         });

@@ -111,7 +111,7 @@ const getFeatures = (planId) => getPlan(planId).features;
  */
 const canDo = (planId, limitKey, currentUsage) => {
   const limit = getLimits(planId)[limitKey];
-  if (limit === -1) return true;        // unlimited
+  if (limit === -1) return true;
   return currentUsage < limit;
 };
 

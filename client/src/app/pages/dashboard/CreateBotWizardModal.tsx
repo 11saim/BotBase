@@ -462,7 +462,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Chat panel</p>
                   <h2 className="mt-1 text-lg font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>Look &amp; copy</h2>
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                    <LabeledSelect label="Panel theme" value={appearance.chatTheme} onChange={v => setAppearance(a => ({ ...a, chatTheme: v as any }))} options={[{ v: "light", l: "Light" }, { v: "dark", l: "Dark" }, { v: "auto", l: "Auto" }]} />
+                    <LabeledSelect label="Panel theme" value={appearance.chatTheme} onChange={v => setAppearance(a => ({ ...a, chatTheme: v as any }))} options={[{ v: "light", l: "Light" }, { v: "dark", l: "Dark" }]} />
                     <div>
                       <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Chat font</p>
                       <select className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm" value={appearance.fontId} onChange={e => setAppearance(a => ({ ...a, fontId: e.target.value as BotFontId }))}>
@@ -484,10 +484,6 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                       <input className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm" value={appearance.inputPlaceholder} onChange={e => setAppearance(a => ({ ...a, inputPlaceholder: e.target.value }))} />
                     </Field>
                   </div>
-                  <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>
-                    <input type="checkbox" className="h-4 w-4 rounded border-[var(--border-default)]" checked={appearance.poweredBy} onChange={e => setAppearance(a => ({ ...a, poweredBy: e.target.checked }))} />
-                    Show "Powered by BotBase" in widget
-                  </label>
                   <div className="mt-6 grid gap-4 border-t border-[var(--border-default)] pt-6 sm:grid-cols-2">
                     <Field label="Fallback reply">
                       <textarea rows={2} className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm" value={appearance.fallbackMessage} onChange={e => setAppearance(a => ({ ...a, fallbackMessage: e.target.value }))} />
@@ -495,29 +491,6 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                     <Field label="Paused message">
                       <textarea rows={2} className="mt-1.5 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm" value={appearance.pausedMessage} onChange={e => setAppearance(a => ({ ...a, pausedMessage: e.target.value }))} />
                     </Field>
-                  </div>
-                  <div className="mt-5">
-                    <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Response style</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {(["formal", "friendly", "concise"] as const).map(r => (
-                        <button key={r} type="button" onClick={() => setAppearance(a => ({ ...a, responseStyle: r }))}
-                          className="rounded-xl px-4 py-2 text-sm font-medium capitalize transition-all"
-                          style={{
-                            background: appearance.responseStyle === r ? "var(--text-primary)" : "var(--bg-primary)",
-                            color: appearance.responseStyle === r ? "white" : "var(--text-secondary)",
-                            border: "1px solid var(--border-default)",
-                          }}
-                        >
-                          {r}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mt-4 max-w-xs">
-                    <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Language</p>
-                    <select className="mt-2 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm" value={appearance.language} onChange={e => setAppearance(a => ({ ...a, language: e.target.value }))}>
-                      {LANGS.map(l => <option key={l.v} value={l.v}>{l.l}</option>)}
-                    </select>
                   </div>
                 </div>
               </div>
