@@ -189,7 +189,7 @@
         return html;
     }
 
-    function buildWidget(bot, initialState) {
+    function buildWidget(bot) {
         const cfg = (bot && bot.widgetConfig) || {};
         const botName = (bot && bot.name) || "Assistant";
         const avatar = (bot && bot.botAvatar) || "\ud83e\udd16";
@@ -359,10 +359,34 @@
         const sendBtn = win.querySelector("#bb-send");
         const closeBtn = win.querySelector(".bb-close");
 
-        const sessionId = getOrCreateSessionId();
+        let sessionId = null;
+        let sessionStarted = false;
         let isSending = false;
         let pingTimer = null;
-        let hasOpenedOnce = false;
+
+        function getExistingSessionId() {
+            try {
+                return localStorage.getItem(SESSION_STORAGE_KEY);
+            } catch {
+                return null;
+            }
+        }
+
+        function clearSession() {
+            try {
+                localStorage.removeItem(SESSION_STORAGE_KEY);
+            } catch { }
+            sessionId = null;
+            sessionStarted = false;
+            if (pingTimer) {
+                clearInterval(pingTimer);
+                pingTimer = null;
+            }
+        }
+
+        function clearMessages() {
+            messagesEl.innerHTML = "";
+        }
 
         function appendMessage(text, role) {
             const el = document.createElement("div");
@@ -393,23 +417,38 @@
             sendBtn.disabled = disabled;
         }
 
-        function renderInitialState() {
-            if (initialState && initialState.paused) {
-                appendMessage(initialState.message || "This bot is currently unavailable.", "system");
-                disableInput(true);
-                return;
+        async function renderInitialState() {
+            clearMessages();
+            const existingSid = getExistingSessionId();
+
+            if (existingSid) {
+                try {
+                    const result = await startConversation(BOT_ID, existingSid);
+                    if (result && Array.isArray(result.messages) && result.messages.length > 0) {
+                        // Session is active — restore conversation history
+                        sessionId = existingSid;
+                        sessionStarted = true;
+                        if (!pingTimer) {
+                            pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
+                        }
+                        result.messages.forEach((m) => appendMessage(m.content, m.role === "user" ? "user" : "bot"));
+                        return;
+                    }
+                } catch (err) {
+                    console.error("[BotBase Widget] Failed to check existing session:", err);
+                }
+                // Session ended or error — clear it and show welcome
+                clearSession();
             }
-            if (initialState && Array.isArray(initialState.messages) && initialState.messages.length > 0) {
-                initialState.messages.forEach((m) => appendMessage(m.content, m.role === "user" ? "user" : "bot"));
-            } else if (initialState && initialState.welcomeMessage) {
-                appendMessage(initialState.welcomeMessage, "bot");
+
+            if (cfg.welcomeMessage) {
+                appendMessage(cfg.welcomeMessage, "bot");
             }
         }
 
         async function sendMessage(text) {
             const trimmed = (text || "").trim();
             if (!trimmed || isSending) return;
-            if (initialState && initialState.paused) return;
 
             isSending = true;
             disableInput(true);
@@ -418,6 +457,23 @@
             appendMessage(trimmed, "user");
             showTyping();
             let botMsgEl = null;
+
+            // Create session and start conversation on first message
+            if (!sessionStarted) {
+                try {
+                    sessionId = getOrCreateSessionId();
+                    await startConversation(BOT_ID, sessionId);
+                    sessionStarted = true;
+                    pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
+                } catch (err) {
+                    console.error("[BotBase Widget] Failed to start conversation:", err);
+                    removeTyping();
+                    appendMessage(fallbackReply, "bot");
+                    isSending = false;
+                    disableInput(false);
+                    return;
+                }
+            }
 
             await sendMessageStream({
                 sessionId,
@@ -456,11 +512,7 @@
             tooltip.classList.add("hidden");
             if (win.classList.contains("open")) {
                 inputEl.focus();
-                if (!hasOpenedOnce) {
-                    hasOpenedOnce = true;
-                    renderInitialState();
-                    pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
-                }
+                renderInitialState();
             }
         });
         closeBtn.addEventListener("click", () => win.classList.remove("open"));
@@ -476,9 +528,7 @@
     // 5. Boot
     // ---------------------------------------------------------------------
     async function init() {
-        const sessionId = getOrCreateSessionId();
         let bot = null;
-        let initialState = null;
 
         try {
             bot = await fetchBotConfig(BOT_ID);
@@ -486,13 +536,7 @@
             console.error("[BotBase Widget] Failed to load bot config:", err);
         }
 
-        try {
-            initialState = await startConversation(BOT_ID, sessionId);
-        } catch (err) {
-            console.error("[BotBase Widget] Failed to start conversation:", err);
-        }
-
-        buildWidget(bot || {}, initialState || {});
+        buildWidget(bot || {});
     }
 
     if (document.readyState === "loading") {

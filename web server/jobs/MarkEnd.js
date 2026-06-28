@@ -71,6 +71,7 @@ const processEndedConversations = async (endedIds) => {
 // ─── Cleanup job — runs every 5 mins ────────────────────────────────────────
 const startCleanupJob = () => {
     cron.schedule("*/5 * * * *", async () => {
+        console.log("🧹 Running MarkEnd job...");
         const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
 
         // Find stale conversations before ending them so we have their ids
