@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { HexColorPicker } from "react-colorful";
-import { FileText, Link2 } from "lucide-react";
+import { FileText, Link2, Copy, Check } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
 
 const API = "http://localhost:5000/api";
-const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Settings"] as const;
+const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Embed", "Settings"] as const;
 
 interface WidgetConfig {
   position: string; launcherSize: string; launcherShape: string; launcherColor: string;
@@ -139,9 +139,9 @@ export function DashboardBotDetailPage() {
         <Link to="/dashboard/bots" className="mt-4 inline-block text-sm underline" style={{ color: "var(--text-primary)" }}>
           Back to all bots
         </Link>
-      </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="min-h-full" style={{ fontFamily: "var(--font-ui)" }}>
@@ -187,7 +187,8 @@ export function DashboardBotDetailPage() {
         {tab === 1 && <ConversationsTab conversations={conversations} />}
         {tab === 2 && <KnowledgeTab botId={bot._id} sources={sources} onRefresh={fetchBot} />}
         {tab === 3 && <AppearanceEditor bot={bot} onSaved={(updated) => setBot(updated)} />}
-        {tab === 4 && (
+        {tab === 4 && <EmbedTab botId={bot._id} />}
+        {tab === 5 && (
           <BotSettingsTab
             bot={bot} rename={rename} setRename={setRename}
             renameDesc={renameDesc} setRenameDesc={setRenameDesc}
@@ -658,6 +659,52 @@ function BotSettingsTab({
         <button type="button" className="w-full rounded-xl border py-3 text-sm font-medium text-red-600 border-red-600" onClick={onDeleteOpen}>
           Delete bot
         </button>
+      </div>
+    </div>
+  );
+}
+
+function EmbedTab({ botId }: { botId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const embedScript = `<script\n  src="http://localhost:5174/script.js"\n  data-bot-id="${botId}"\n  async\n></script>`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(embedScript);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mx-auto max-w-xl space-y-6">
+      <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ borderColor: "var(--border-default)", background: "var(--bg-primary)" }}>
+        <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Embed Script</h3>
+        <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+          Copy this snippet and paste it into your website's HTML, right before the closing <code className="rounded bg-black/5 px-1 py-0.5 text-[11px]">&lt;/body&gt;</code> tag.
+        </p>
+
+        <div className="mt-4 relative rounded-xl border" style={{ borderColor: "var(--border-default)" }}>
+          <pre className="overflow-x-auto p-4 text-[12px] leading-relaxed" style={{ color: "var(--text-primary)", fontFamily: "monospace", background: "var(--bg-secondary)" }}>
+            {embedScript}
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-all"
+            style={{
+              borderColor: "var(--border-default)",
+              background: "var(--bg-primary)",
+              color: copied ? "#16A34A" : "var(--text-secondary)",
+            }}
+          >
+            {copied ? <Check size={12} /> : <Copy size={12} />}
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
+
+        <div className="mt-4 rounded-xl border p-4" style={{ borderColor: "var(--border-default)", background: "var(--bg-secondary)" }}>
+          <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Bot ID</p>
+          <p className="mt-1 font-mono text-[13px]" style={{ color: "var(--text-primary)" }}>{botId}</p>
+        </div>
       </div>
     </div>
   );

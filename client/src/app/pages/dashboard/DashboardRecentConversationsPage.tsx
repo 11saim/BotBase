@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
+
+type Message = {
+  _id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+};
 
 type Conversation = {
   _id: string;
@@ -36,6 +43,30 @@ export function DashboardRecentConversationsPage() {
 
   const [rows, setRows] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [msgLoading, setMsgLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const openConversation = async (conv: Conversation) => {
+    setSelectedConv(conv);
+    setMessages([]);
+    setMsgLoading(true);
+    try {
+      const res = await fetch(`${API}conversations/${conv._id}`, { credentials: "include" });
+      const data = await res.json();
+      setMessages(data.messages || []);
+    } catch {
+      toast.error("Failed to load messages.");
+    } finally {
+      setMsgLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -150,7 +181,8 @@ export function DashboardRecentConversationsPage() {
           rows.map((row) => (
             <div
               key={row._id}
-              className="flex flex-col sm:flex-row sm:items-center gap-2 py-4 border-b"
+              onClick={() => openConversation(row)}
+              className="flex flex-col sm:flex-row sm:items-center gap-2 py-4 border-b cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors -mx-2 px-2 rounded-lg"
             >
               <span className="text-[11px] px-2 py-0.5 rounded bg-[#EEEDFE] text-[#534AB7]">
                 {row.botId?.name || "Unknown Bot"}
@@ -174,6 +206,58 @@ export function DashboardRecentConversationsPage() {
           ))
         )}
       </div>
+
+      {/* Conversation Modal */}
+      {selectedConv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setSelectedConv(null)}>
+          <div
+            className="bg-[var(--bg-primary)] rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--border-default)" }}>
+              <div>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{selectedConv.label || "Untitled Conversation"}</p>
+                <p className="text-[11px] text-[var(--text-secondary)]">{selectedConv.botId?.name || "Unknown Bot"}</p>
+              </div>
+              <button onClick={() => setSelectedConv(null)} className="rounded-lg p-1 hover:bg-[var(--bg-secondary)] transition-colors">
+                <X size={18} className="text-[var(--text-secondary)]" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3" style={{ minHeight: "200px" }}>
+              {msgLoading ? (
+                <div className="text-center text-[13px] text-[var(--text-secondary)] py-8">Loading messages...</div>
+              ) : messages.length === 0 ? (
+                <div className="text-center text-[13px] text-[var(--text-secondary)] py-8">No messages found.</div>
+              ) : (
+                messages.map((msg) => (
+                  <div key={msg._id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-[#534AB7] text-white rounded-br-md"
+                          : "bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-bl-md"
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="px-5 py-3 border-t flex items-center justify-between" style={{ borderColor: "var(--border-default)" }}>
+              <span className="text-[11px] text-[var(--text-tertiary)]">
+                {messages.length} message{messages.length !== 1 ? "s" : ""}
+              </span>
+              <span className="text-[11px] text-[var(--text-tertiary)]">
+                {new Date(selectedConv.createdAt).toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

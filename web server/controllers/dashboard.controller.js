@@ -162,14 +162,12 @@ const getAnalytics = async (req, res, next) => {
                 { $group: { _id: null, avg: { $avg: "$messageCount" } } },
             ]),
 
-            // Conversations over time — group by day (7d) or week (30d/90d)
+            // Conversations over time — always group by day
             Conversation.aggregate([
                 { $match: { botId: { $in: userBotIds }, createdAt: { $gte: rangeStart } } },
                 {
                     $group: {
-                        _id: days <= 7
-                            ? { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }
-                            : { $dateToString: { format: "%Y-W%V", date: "$createdAt" } },
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
                         count: { $sum: 1 },
                     },
                 },
