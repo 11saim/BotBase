@@ -23,7 +23,7 @@
     const PUBLIC_BOT_CONFIG_PATH = (botId) => `/api/bots/config/${botId}`;
 
     const SESSION_STORAGE_KEY = `botbase_session_${BOT_ID}`;
-    const PING_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const PING_INTERVAL_MS = 3 * 60 * 1000; // 3 minutes
 
     // ---------------------------------------------------------------------
     // 2. Session persistence
@@ -63,6 +63,16 @@
             body: JSON.stringify({ botId, sessionId }),
         });
         if (!res.ok) throw new Error(`Failed to start conversation (${res.status})`);
+        return res.json();
+    }
+
+    async function checkSession(botId, sessionId) {
+        const res = await fetch(`${API_BASE}/api/chat/check-session`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ botId, sessionId }),
+        });
+        if (!res.ok) throw new Error(`Failed to check session (${res.status})`);
         return res.json();
     }
 
@@ -419,30 +429,26 @@
 
         async function renderInitialState() {
             clearMessages();
+
+            if (cfg.welcomeMessage) {
+                appendMessage(cfg.welcomeMessage, "bot");
+            }
+
             const existingSid = getExistingSessionId();
 
             if (existingSid) {
                 try {
-                    const result = await startConversation(BOT_ID, existingSid);
-                    if (result && Array.isArray(result.messages) && result.messages.length > 0) {
-                        // Session is active — restore conversation history
+                    const result = await checkSession(BOT_ID, existingSid);
+                    if (result.active && Array.isArray(result.messages) && result.messages.length > 0) {
                         sessionId = existingSid;
                         sessionStarted = true;
-                        if (!pingTimer) {
-                            pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
-                        }
                         result.messages.forEach((m) => appendMessage(m.content, m.role === "user" ? "user" : "bot"));
                         return;
                     }
                 } catch (err) {
-                    console.error("[BotBase Widget] Failed to check existing session:", err);
+                    console.error("[BotBase Widget] Failed to check session:", err);
                 }
-                // Session ended or error — clear it and show welcome
                 clearSession();
-            }
-
-            if (cfg.welcomeMessage) {
-                appendMessage(cfg.welcomeMessage, "bot");
             }
         }
 
@@ -464,7 +470,7 @@
                     sessionId = getOrCreateSessionId();
                     await startConversation(BOT_ID, sessionId);
                     sessionStarted = true;
-                    pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
+                    startPing();
                 } catch (err) {
                     console.error("[BotBase Widget] Failed to start conversation:", err);
                     removeTyping();
@@ -507,15 +513,36 @@
             });
         }
 
+        function stopPing() {
+            if (pingTimer) {
+                clearInterval(pingTimer);
+                pingTimer = null;
+            }
+        }
+
+        function startPing() {
+            stopPing();
+            if (sessionStarted && sessionId) {
+                pingTimer = setInterval(() => sendPing(sessionId), PING_INTERVAL_MS);
+            }
+        }
+
         bubble.addEventListener("click", () => {
             win.classList.toggle("open");
             tooltip.classList.add("hidden");
             if (win.classList.contains("open")) {
                 inputEl.focus();
-                renderInitialState();
+                renderInitialState().then(() => {
+                    if (sessionStarted) startPing();
+                });
+            } else {
+                stopPing();
             }
         });
-        closeBtn.addEventListener("click", () => win.classList.remove("open"));
+        closeBtn.addEventListener("click", () => {
+            win.classList.remove("open");
+            stopPing();
+        });
         sendBtn.addEventListener("click", () => sendMessage(inputEl.value));
         inputEl.addEventListener("keydown", (e) => {
             if (e.key === "Enter") sendMessage(inputEl.value);

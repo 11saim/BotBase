@@ -169,4 +169,25 @@ const ping = async (req, res, next) => {
     }
 };
 
-module.exports = { startConversation, sendMessage, ping };
+// POST /api/chat/check-session — check if a session is active without creating one
+const checkSession = async (req, res, next) => {
+    try {
+        const { botId, sessionId } = req.body;
+
+        if (!botId || !sessionId) {
+            return next(new AppError("botId and sessionId are required", 400));
+        }
+
+        const conversation = await Conversation.findOne({ sessionId, endedAt: null });
+        if (!conversation) {
+            return res.json({ active: false });
+        }
+
+        const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: 1 });
+        res.json({ active: true, conversation, messages });
+    } catch (err) {
+        next(err);
+    }
+};
+
+module.exports = { startConversation, checkSession, sendMessage, ping };

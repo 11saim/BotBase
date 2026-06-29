@@ -147,132 +147,132 @@ export function DashboardHomePage() {
 
   return (
     <>
-    <PaymentSuccessModal
-      open={showPaymentSuccess}
-      onClose={() => setShowPaymentSuccess(false)}
-    />
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <PaymentSuccessModal
+        open={showPaymentSuccess}
+        onClose={() => setShowPaymentSuccess(false)}
+      />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-6xl space-y-6">
 
-        {/* Welcome */}
-        <div style={{ marginBottom: "18px" }}>
-          <h1 className="text-[16px] font-medium text-[var(--text-primary)]">{greetingName()}</h1>
-          <p className="text-[12px] text-[var(--text-tertiary)] mt-1">Here's what's happening across your bots today</p>
-        </div>
+          {/* Welcome */}
+          <div style={{ marginBottom: "18px" }}>
+            <h1 className="text-[16px] font-medium text-[var(--text-primary)]">{greetingName()}</h1>
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-1">Here's what's happening across your bots today</p>
+          </div>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard title="Total Bots" value={String(stats?.totalBots ?? 0)} delta="Active bots" isPositive={true} />
-          <StatCard title="Conversations Today" value={String(stats?.conversationsToday ?? 0)} delta="Since midnight" isPositive={true} />
-          <StatCard title="Resolution Rate" value={`${stats?.resolutionRate ?? 0}%`} delta="Of all classified conversations" isPositive={true} />
-          <StatCard title="Messages This Month" value={String(stats?.messagesUsed ?? 0)} delta="Toward your plan limit" isPositive={true} />
-        </div>
+          {/* Stat Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard title="Total Bots" value={String(stats?.totalBots ?? 0)} delta="Active bots" isPositive={true} />
+            <StatCard title="Conversations Today" value={String(stats?.conversationsToday ?? 0)} delta="Since midnight" isPositive={true} />
+            <StatCard title="Resolution Rate" value={`${stats?.resolutionRate ?? 0}%`} delta="Of all classified conversations" isPositive={true} />
+            <StatCard title="Messages This Month" value={String(stats?.messagesUsed ?? 0)} delta="Toward your plan limit" isPositive={true} />
+          </div>
 
-        {/* Middle Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Middle Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          {/* Recent Activity */}
-          <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
-            <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
-              <Activity size={16} />
-              <h3 className="text-[14px] font-semibold tracking-tight">Recent activity</h3>
-            </div>
-            <div className="flex flex-col divide-y divide-[var(--border-tertiary)]">
-              {activity.length === 0 && (
-                <p className="text-[12px] text-[var(--text-tertiary)] py-4 text-center">No activity yet</p>
-              )}
-              {activity.map((item) => {
-                const { Icon, bg, color } = getActivityStyle(item.eventType);
-                return (
-                  <div key={item._id} className="flex items-center gap-3 py-3">
-                    <div className="w-[26px] h-[26px] rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color }}>
-                      <Icon size={14} />
+            {/* Recent Activity */}
+            <div className="rounded-2xl border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+              <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
+                <Activity size={16} />
+                <h3 className="text-[14px] font-semibold tracking-tight">Recent activity</h3>
+              </div>
+              <div className="flex flex-col divide-y divide-[var(--border-tertiary)]">
+                {activity.length === 0 && (
+                  <p className="text-[12px] text-[var(--text-tertiary)] py-4 text-center">No activity yet</p>
+                )}
+                {activity.map((item) => {
+                  const { Icon, bg, color } = getActivityStyle(item.eventType);
+                  return (
+                    <div key={item._id} className="flex items-center gap-3 py-3">
+                      <div className="w-[26px] h-[26px] rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color }}>
+                        <Icon size={14} />
+                      </div>
+                      <div>
+                        <p className="text-[12px] text-[var(--text-primary)]">{item.title}</p>
+                        <p className="text-[11px] text-[var(--text-tertiary)]">{timeAgo(item.createdAt)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[12px] text-[var(--text-primary)]">{item.title}</p>
-                      <p className="text-[11px] text-[var(--text-tertiary)]">{timeAgo(item.createdAt)}</p>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Top Bots */}
+            <div className="relative rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+              <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
+                <Trophy size={16} />
+                <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
+              </div>
+              <div className="flex flex-col divide-y divide-[var(--border-tertiary)]">
+                {topBots.length === 0 && (
+                  <p className="text-[12px] text-[var(--text-tertiary)] py-4 text-center">No conversations yet</p>
+                )}
+                {topBots.map((bot, i) => (
+                  <div key={bot.id} className="flex items-center gap-3 py-3">
+                    <div className="w-[28px] h-[28px] rounded-md flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ backgroundColor: BOT_COLORS[i % BOT_COLORS.length] }}>
+                      {bot.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="w-24 shrink-0">
+                      <p className="text-[12px] font-medium text-[var(--text-primary)] truncate">{bot.name}</p>
+                      <p className="text-[11px] text-[var(--text-secondary)]">{bot.count} convs</p>
+                    </div>
+                    <div className="flex-1 h-[6px] bg-[#f0f0f0] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${bot.value}%`, backgroundColor: BOT_COLORS[i % BOT_COLORS.length] }} />
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
+              <div className="p-4 flex justify-end">
+                <Link to="/dashboard/analytics" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+                  View all analytics &rarr;
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Top Bots */}
-          <div className="relative rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
-            <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
-              <Trophy size={16} />
-              <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
+          {/* Recent Conversations */}
+          <div className="w-full rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)] flex flex-col overflow-hidden">
+            <div className="p-6 pb-2">
+              <div className="flex items-center gap-2 text-[var(--text-primary)]">
+                <MessagesSquare size={16} />
+                <h3 className="text-[14px] font-semibold tracking-tight">Recent conversations</h3>
+              </div>
             </div>
-            <div className="flex flex-col divide-y divide-[var(--border-tertiary)]">
-              {topBots.length === 0 && (
-                <p className="text-[12px] text-[var(--text-tertiary)] py-4 text-center">No conversations yet</p>
+            <div className="flex-1 flex flex-col divide-y divide-[var(--border-tertiary)]">
+              {conversations.length === 0 && (
+                <p className="text-[12px] text-[var(--text-tertiary)] p-6 text-center">No conversations today</p>
               )}
-              {topBots.map((bot, i) => (
-                <div key={bot.id} className="flex items-center gap-3 py-3">
-                  <div className="w-[28px] h-[28px] rounded-md flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ backgroundColor: BOT_COLORS[i % BOT_COLORS.length] }}>
-                    {bot.name.substring(0, 2).toUpperCase()}
+              {conversations.map((item, i) => (
+                <div key={item._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 p-4 hover:bg-[var(--bg-secondary)] transition-colors">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className="shrink-0 text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EEEDFE", color: "#534AB7" }}>
+                      {item.botId?.name}
+                    </span>
+                    <span className="text-[12px] text-[var(--text-primary)] truncate">
+                      {item.label || "Conversation"}
+                    </span>
                   </div>
-                  <div className="w-24 shrink-0">
-                    <p className="text-[12px] font-medium text-[var(--text-primary)] truncate">{bot.name}</p>
-                    <p className="text-[11px] text-[var(--text-secondary)]">{bot.count} convs</p>
-                  </div>
-                  <div className="flex-1 h-[6px] bg-[#f0f0f0] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${bot.value}%`, backgroundColor: BOT_COLORS[i % BOT_COLORS.length] }} />
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                    <span className="text-[11px] text-[var(--text-tertiary)] w-16 text-right">
+                      {timeAgo(item.lastMessageAt)}
+                    </span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full w-20 text-center" style={item.isResolved ? { backgroundColor: "#EAF3DE", color: "#3B6D11" } : { backgroundColor: "#FCEBEB", color: "#A32D2D" }}>
+                      {item.isResolved ? "Resolved" : "Unresolved"}
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="absolute bottom-0 right-0 m-2 md:m-4 flex justify-end">
-              <Link to="/dashboard/analytics" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
-                View all analytics &rarr;
+            <div className="p-4 flex justify-end">
+              <Link to="/dashboard/recent-conversations" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+                View all conversations &rarr;
               </Link>
             </div>
           </div>
-        </div>
 
-        {/* Recent Conversations */}
-        <div className="w-full rounded-2xl border shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)] flex flex-col overflow-hidden">
-          <div className="p-6 pb-2">
-            <div className="flex items-center gap-2 text-[var(--text-primary)]">
-              <MessagesSquare size={16} />
-              <h3 className="text-[14px] font-semibold tracking-tight">Recent conversations</h3>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col divide-y divide-[var(--border-tertiary)]">
-            {conversations.length === 0 && (
-              <p className="text-[12px] text-[var(--text-tertiary)] p-6 text-center">No conversations today</p>
-            )}
-            {conversations.map((item, i) => (
-              <div key={item._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 p-4 hover:bg-[var(--bg-secondary)] transition-colors" style={{ borderWidth: i === 0 ? 0 : "0.5px" }}>
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <span className="shrink-0 text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EEEDFE", color: "#534AB7" }}>
-                    {item.botId?.name}
-                  </span>
-                  <span className="text-[12px] text-[var(--text-primary)] truncate">
-                    {item.label || "Conversation"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
-                  <span className="text-[11px] text-[var(--text-tertiary)] w-16 text-right">
-                    {timeAgo(item.lastMessageAt)}
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full w-20 text-center" style={item.isResolved ? { backgroundColor: "#EAF3DE", color: "#3B6D11" } : { backgroundColor: "#FCEBEB", color: "#A32D2D" }}>
-                    {item.isResolved ? "Resolved" : "Unresolved"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="p-4 flex justify-end">
-            <Link to="/dashboard/recent-conversations" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
-              View all conversations &rarr;
-            </Link>
-          </div>
         </div>
-
       </div>
-    </div>
     </>
   );
 }

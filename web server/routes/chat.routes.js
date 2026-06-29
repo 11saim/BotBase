@@ -7,6 +7,9 @@ const chatController = require("../controllers/chat.controller");
 // POST /api/chat/start → start or resume a conversation
 router.post("/start", chatController.startConversation);
 
+// POST /api/chat/check-session → check if session is active (no creation)
+router.post("/check-session", chatController.checkSession);
+
 // POST /api/chat/message → send a message, stream response via SSE
 router.post("/message", chatController.sendMessage);
 
