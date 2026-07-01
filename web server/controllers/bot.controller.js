@@ -4,7 +4,7 @@ const Usage = require("../models/Usage");
 const ActivityLog = require("../models/ActivityLog");
 const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
-const { canDo } = require("../utils/plans");
+const { canDo } = require("../utils/Plans");
 
 // GET /api/bots
 const getAllBots = async (req, res, next) => {

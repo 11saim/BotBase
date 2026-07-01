@@ -4,7 +4,7 @@ const Usage = require("../models/Usage");
 const ActivityLog = require("../models/ActivityLog");
 const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
-const { canDo } = require("../utils/plans");
+const { canDo } = require("../utils/Plans");
 const fs = require("fs");
 
 const PYTHON_SERVER = process.env.PYTHON_SERVER_URL || "http://localhost:3001";

@@ -3,7 +3,7 @@ const Conversation = require("../models/Conversation");
 const ActivityLog = require("../models/ActivityLog");
 const Usage = require("../models/Usage");
 const User = require("../models/User");
-const { getLimits } = require("../utils/plans");
+const { getLimits } = require("../utils/Plans");
 
 // GET /api/dashboard/stats
 const getStats = async (req, res, next) => {

@@ -3,7 +3,6 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 import os
 
 from routes.ingest import router as ingest_router
@@ -14,25 +13,29 @@ app = FastAPI(title="BotBase API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Change this to your frontend URL in production
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(ingest_router, prefix="/api/ingest")
-app.include_router(chat_router,   prefix="/api/chat")
+app.include_router(chat_router, prefix="/api/chat")
 
-@app.on_event("startup")
-async def startup():
-    print("\n⏳ Loading embedding model (first run downloads ~130MB)...")
-    load_model()
-    print("✓ Embedding model ready (ONNX, low memory)")
-    print("✓ ChromaDB ready (local, no setup needed)")
-    print(f"✓ Server running at http://localhost:{os.getenv('PORT', 3001)}\n")
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "message": "BotBase Python server is running"}
+    return {
+        "status": "ok",
+        "message": "BotBase Python server is running"
+    }
+
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=int(os.getenv("PORT", 3001)), reload=True)
+    import uvicorn
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 3001)),
+        reload=False,   # Production
+    )
