@@ -58,9 +58,9 @@ function toWidgetConfig(a: BotAppearance) {
   };
 }
 
-type Props = { open: boolean; onOpenChange: (open: boolean) => void };
+type Props = { open: boolean; onOpenChange: (open: boolean) => void; onBotCreated?: () => void };
 
-export function CreateBotWizardModal({ open, onOpenChange }: Props) {
+export function CreateBotWizardModal({ open, onOpenChange, onBotCreated }: Props) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
 
@@ -111,7 +111,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"], "text/plain": [".txt"] },
+    accept: { "application/pdf": [".pdf"] },
     multiple: false,
   });
 
@@ -191,6 +191,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
 
       const botId = botData.bot._id;
       setCreatedBotId(botId);
+      onBotCreated?.();
 
       // 2. Upload each knowledge source (fire and don't block navigation)
       for (const chunk of chunks) {
@@ -386,7 +387,7 @@ export function CreateBotWizardModal({ open, onOpenChange }: Props) {
                   >
                     <input {...getInputProps()} />
                     <FileText className="mx-auto mb-2 opacity-50" size={28} />
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or TXT, or click to browse</p>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Drop PDF or click to browse</p>
                   </div>
                 )}
                 {kbTab === "text" && (

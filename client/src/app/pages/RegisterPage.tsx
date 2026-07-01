@@ -113,9 +113,10 @@ export function RegisterPage() {
       <div className="flex-1 bg-white flex items-center justify-center px-6 relative">
         <Link
           to="/"
-          className="absolute top-6 left-6 flex items-center gap-1"
+          className="absolute top-6 left-6 flex items-center gap-2"
           style={{ fontWeight: 500, fontSize: "15px" }}
         >
+          <img src="/logo.png" alt="BotBase" className="h-6 w-6 rounded object-contain" />
           <span>Bot Base</span>
         </Link>
 

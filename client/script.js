@@ -202,8 +202,7 @@
     function buildWidget(bot) {
         const cfg = (bot && bot.widgetConfig) || {};
         const botName = (bot && bot.name) || "Assistant";
-        const avatar = (bot && bot.botAvatar) || "\ud83e\udd16";
-        const isAvatarUrl = typeof avatar === "string" && /^https?:\/\//.test(avatar);
+        const avatar = (bot && bot.botAvatar);
 
         const launcherColor = cfg.launcherColor || "#4F46E5";
         const accentColor = cfg.accentColor || "#4F46E5";
@@ -336,9 +335,7 @@
         const bubble = document.createElement("button");
         bubble.className = "bb-bubble";
         bubble.setAttribute("aria-label", "Open chat");
-        bubble.innerHTML = isAvatarUrl
-            ? `<img src="${avatar}" alt="${escapeHtml(botName)}" />`
-            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`;
+        bubble.innerHTML = avatar.startsWith("data") ? `<img src="${avatar}" alt="${escapeHtml(botName)}" />` : `<p>${avatar}</p>`;
 
         bubbleWrap.appendChild(tooltip);
         bubbleWrap.appendChild(bubble);
@@ -347,7 +344,7 @@
         win.className = "bb-window";
         win.innerHTML = `
       <div class="bb-header">
-        <div class="bb-avatar">${isAvatarUrl ? `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />` : escapeHtml(avatar)}</div>
+        <div class="bb-avatar">${avatar.startsWith("data") ? `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />` : escapeHtml(avatar)}</div>
         <div class="bb-title">${escapeHtml(botName)}</div>
         <button class="bb-close" aria-label="Close chat">&times;</button>
       </div>

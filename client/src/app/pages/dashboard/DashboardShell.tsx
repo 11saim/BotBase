@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
   Navigate,
@@ -6,9 +6,10 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare } from "lucide-react";
+import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare, LogOut } from "lucide-react";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
 import { toast } from "sonner";
+import { invalidateAuth } from "../../../hooks/useAuth";
 
 const API = "http://localhost:5000/api";
 
@@ -63,12 +64,22 @@ function DashboardFrame() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const createOpen = searchParams.get("create") === "1";
   const isHome = location.pathname === "/dashboard" || location.pathname === "/dashboard/";
   const isBotWorkspace = Boolean(location.pathname.match(/\/dashboard\/bots\/[^/]+$/));
+
+  const fetchBots = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/bots`, { credentials: "include" });
+      const data = await res.json();
+      setBots(data.bots || []);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -96,6 +107,29 @@ function DashboardFrame() {
 
     fetchAll();
   }, []);
+
+  // Refetch bots on route change so sidebar stays current
+  useEffect(() => {
+    fetchBots();
+  }, [location.pathname, fetchBots]);
+
+  // Close profile menu on outside click
+  useEffect(() => {
+    if (!profileOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [profileOpen]);
+
+  const handleSignOut = async () => {
+    try {
+      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+    } catch {}
+    invalidateAuth();
+    window.location.href = "/login";
+  };
 
   const setCreateWizardOpen = (open: boolean) => {
     setSearchParams((prev) => {
@@ -145,10 +179,7 @@ function DashboardFrame() {
 
         <div className="px-3.5 pt-5">
           <div className="flex items-center gap-2">
-            <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] text-[12px] font-black tracking-tighter text-white" style={{ background: "var(--text-primary)" }}>
-              B
-              <div className="absolute inset-0 rounded-[7px] ring-1 ring-inset ring-white/20" />
-            </div>
+            <img src="/logo.png" alt="BotBase" className="h-7 w-7 shrink-0 rounded-[7px] object-contain" />
             <div className="flex gap-[3px]">
               <span className="text-[22px] font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>Bot</span>
               <span className="text-[22px] font-bold tracking-tight" style={{ color: "var(--text-tertiary)" }}>Base</span>
@@ -238,23 +269,44 @@ function DashboardFrame() {
           </div>
 
           {/* Profile */}
-          <button className="mt-3 flex w-full items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-[#f5f5f2]">
-            <div className="relative">
-              {user?.avatar ? (
-                <img src={user?.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-[11px] font-bold text-white">
-                  {getInitials(user?.fullName)}
-                </div>
-              )}
-              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-white bg-green-500" />
-            </div>
-            <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-[13px] font-semibold text-black">{user?.fullName || "Loading..."}</p>
-              <p className="truncate text-[11px] text-neutral-400">{user?.email || ""}</p>
-            </div>
-            <MoreHorizontal size={16} className="text-neutral-400" />
-          </button>
+          <div className="relative mt-3" ref={profileRef}>
+            <button
+              type="button"
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex w-full items-center gap-3 rounded-xl border border-black/5 bg-[#f7f7f5] px-3 py-2.5 transition hover:bg-[#efefec]"
+            >
+              <div className="relative shrink-0">
+                {user?.avatar ? (
+                  <img src={user?.avatar} alt="" className="h-9 w-9 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-[12px] font-bold text-white">
+                    {getInitials(user?.fullName)}
+                  </div>
+                )}
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-green-500" />
+              </div>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate text-[13px] font-semibold text-black">{user?.fullName || "Loading..."}</p>
+                <p className="truncate text-[11px] text-neutral-400">{user?.email || ""}</p>
+              </div>
+              <svg className={`h-4 w-4 shrink-0 text-neutral-400 transition-transform ${profileOpen ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            {profileOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-black/10 bg-white p-1.5 shadow-xl z-50">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-red-600 transition hover:bg-red-50"
+                >
+                  <LogOut size={15} />
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
 
@@ -274,29 +326,11 @@ function DashboardFrame() {
         </main>
       </div>
 
-      <CreateBotWizardModal open={createOpen} onOpenChange={setCreateWizardOpen} />
+      <CreateBotWizardModal open={createOpen} onOpenChange={setCreateWizardOpen} onBotCreated={fetchBots} />
     </div>
   );
 }
 
 export function DashboardShell() {
-  const [isAuth, setIsAuth] = useState<boolean | null>(null);
-  const location = useLocation();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(`${API}/auth/me`, { credentials: "include" });
-        setIsAuth(response.ok);
-      } catch {
-        setIsAuth(false);
-      }
-    };
-    checkAuth();
-  }, []);
-
-  if (isAuth === null) return <div>Loading...</div>;
-  if (!isAuth) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-
   return <DashboardFrame />;
 }

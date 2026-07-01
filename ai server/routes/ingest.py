@@ -24,10 +24,10 @@ async def ingest_file(
     sourceId: str        = Form(""),
     botName:  str        = Form(""),
 ):
-    allowed = [".pdf", ".txt"]
+    allowed = [".pdf"]
     ext     = os.path.splitext(file.filename)[1].lower()
     if ext not in allowed:
-        raise HTTPException(400, "Only PDF and TXT files are supported")
+        raise HTTPException(400, "Only PDF files are supported")
 
     if not botId:
         raise HTTPException(400, "botId is required")

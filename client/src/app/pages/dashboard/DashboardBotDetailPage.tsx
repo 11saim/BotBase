@@ -139,9 +139,9 @@ export function DashboardBotDetailPage() {
         <Link to="/dashboard/bots" className="mt-4 inline-block text-sm underline" style={{ color: "var(--text-primary)" }}>
           Back to all bots
         </Link>
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full" style={{ fontFamily: "var(--font-ui)" }}>
@@ -149,18 +149,29 @@ export function DashboardBotDetailPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl" style={{ background: "var(--bg-secondary)" }}>
-              {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+              {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
             </div>
             <div>
               <h1 className="text-xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>{bot.name}</h1>
-              <button
-                className="inline-block rounded-full px-2.5 py-0.5 text-[12px] font-semibold uppercase"
-                style={{ background: bot.status === "active" ? "#F0FDF4" : "#FFFBEB", color: bot.status === "active" ? "#16A34A" : "#B45309" }}
-                onClick={toggleStatus}
-                disabled={bot.status === "locked"}
-              >
-                {bot.status === "active" ? "Active" : bot.status === "paused" ? "Paused" : bot.status}
-              </button>
+              <div className="mt-1 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleStatus}
+                  disabled={bot.status === "locked"}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    bot.status === "active" ? "bg-[#16A34A]" : "bg-gray-300"
+                  } ${bot.status === "locked" ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out ${
+                      bot.status === "active" ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+                <span className="text-[12px] font-medium" style={{ color: bot.status === "active" ? "#16A34A" : "#B45309" }}>
+                  {bot.status === "active" ? "Active" : bot.status === "paused" ? "Paused" : bot.status}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -592,7 +603,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
           <div className="px-4 py-3 text-white" style={{ background: cfg.accentColor }}>
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15 text-lg">
-                {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
+                {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-full w-full object-cover" /> : bot.botAvatar}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{bot.name}</p>
@@ -621,7 +632,7 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
             }}
             title={cfg.tooltipText}
           >
-            {bot.botAvatar.startsWith("http") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
+            {bot.botAvatar.startsWith("data") ? <img src={bot.botAvatar} alt="" className="h-[55%] w-[55%] object-contain" /> : bot.botAvatar}
           </div>
         </div>
       </aside>
@@ -667,7 +678,7 @@ function BotSettingsTab({
 function EmbedTab({ botId }: { botId: string }) {
   const [copied, setCopied] = useState(false);
 
-  const embedScript = `<script\n  src="http://localhost:5174/script.js"\n  data-bot-id="${botId}"\n  async\n></script>`;
+  const embedScript = `<script\n  src="http://localhost:5173/script.js"\n  data-bot-id="${botId}"\n  async\n></script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedScript);

@@ -59,9 +59,7 @@ export function NewLandingPage() {
           >
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0A0A0A] to-[#2A2A2A] flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                <Sparkles size={16} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="BotBase" className="w-8 h-8 rounded-lg object-contain transform group-hover:scale-110 transition-transform" />
               <span className="font-semibold text-lg">
                 Bot Base
               </span>
@@ -195,20 +193,6 @@ export function NewLandingPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/10 shadow-lg mb-8"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span className="text-sm font-medium">
-              Trusted by 10,000+ teams worldwide
-            </span>
-          </motion.div>
 
           {/* Headline */}
           <motion.h1
@@ -230,7 +214,7 @@ export function NewLandingPage() {
             transition={{ delay: 0.2 }}
             className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto px-4"
           >
-            Upload a PDF, paste a URL, or write text. Get a fully-trained
+            Upload a PDF, or write text. Get a fully-trained
             chatbot widget in 60 seconds. No coding required.
           </motion.p>
 
@@ -282,9 +266,9 @@ export function NewLandingPage() {
                 },
                 {
                   icon: Globe,
-                  title: "Multi-language",
-                  desc: "Serve customers naturally in 95+ languages.",
-                  badge: "Global",
+                  title: "Customization",
+                  desc: "Customize your bot’s appearance, personality, and knowledge base to match your brand.",
+                  badge: "Custom",
                 },
               ].map((feature, i) => (
                 <motion.div
@@ -337,7 +321,7 @@ export function NewLandingPage() {
               {
                 num: "01",
                 title: "Upload Content",
-                desc: "Drop your PDF, paste a URL, or write text directly",
+                desc: "Drop your PDF, or write text directly",
               },
               {
                 num: "02",
@@ -409,9 +393,6 @@ export function NewLandingPage() {
             <br />
             AI Chatbot?
           </h2>
-          <p className="text-xl text-gray-400 mb-10">
-            Join 10,000+ teams using botbase.ai
-          </p>
           <Link
             to="/register"
             className="inline-flex items-center gap-3 px-10 py-5 bg-white text-black rounded-2xl text-lg font-semibold hover:scale-105 transition-transform shadow-2xl"
@@ -424,15 +405,13 @@ export function NewLandingPage() {
           </p>
         </div>
         {/* Footer */}
-        <footer className="bg-transparent text-white px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+        <footer className="relative z-10 bg-transparent text-white px-4 sm:px-6 lg:px-8 pt-16 pb-10">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12">
               <div className="lg:col-span-5">
                 <Link to="/" className="inline-flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-gray-300 text-black flex items-center justify-center">
-                    <Sparkles size={16} />
-                  </div>
-                  <span className="font-semibold text-lg">botbase.ai</span>
+                  <img src="/logo.png" alt="BotBase" className="w-8 h-8 rounded-lg object-contain" />
+                  <span className="font-semibold text-lg">Bot Base</span>
                 </Link>
                 <p className="text-gray-400 max-w-md">
                   Build and ship AI chatbots from your docs in minutes. Fast
@@ -490,18 +469,18 @@ export function NewLandingPage() {
                       Company
                     </h4>
                     <div className="space-y-2 text-sm text-gray-400">
-                      <a
-                        href="#"
+                      <Link
+                        to="/about"
                         className="block hover:text-white transition-colors"
                       >
                         About
-                      </a>
-                      <a
-                        href="#"
+                      </Link>
+                      <Link
+                        to="/contact"
                         className="block hover:text-white transition-colors"
                       >
                         Contact
-                      </a>
+                      </Link>
                     </div>
                   </div>
 
@@ -529,7 +508,7 @@ export function NewLandingPage() {
             </div>
 
             <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-gray-500">
-              <p>© 2026 botbase.ai. All rights reserved.</p>
+              <p>© 2026 Bot Base. All rights reserved.</p>
               <p>Built for speed, clarity, and conversion.</p>
             </div>
           </div>

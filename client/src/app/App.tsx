@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
   useParams,
+  useLocation,
 } from "react-router-dom";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -12,6 +13,8 @@ import { GlobalEffects } from "./components/GlobalEffects";
 import { NewLandingPage } from "./pages/NewLandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { AboutPage } from "./pages/AboutPage";
+import { ContactPage } from "./pages/ContactPage";
 import SeeAllBots from "./pages/SeeAllBots";
 import { DashboardShell } from "./pages/dashboard/DashboardShell";
 import { DashboardHomePage } from "./pages/dashboard/DashboardHomePage";
@@ -29,6 +32,19 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    const onPop = () => setKey((k) => k + 1);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    setKey((k) => k + 1);
+  }, [location.key]);
+
   if (loading) return null;
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 }
@@ -65,6 +81,8 @@ export default function App() {
         <GlobalEffects />
         <Routes>
           <Route path="/" element={<PublicOnlyRoute><NewLandingPage /></PublicOnlyRoute>} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
           <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
           <Route path="/forgot-password" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />

@@ -15,22 +15,28 @@ let cache: AuthState | null = null;
 
 export function useAuth() {
   const [state, setState] = useState<AuthState>(
-    cache ?? { user: null, loading: true },
+    { user: null, loading: true },
   );
 
   useEffect(() => {
-    if (cache && !cache.loading) return;
+    let cancelled = false;
 
     fetch("http://localhost:5000/api/auth/me", { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        cache = { user: data?.user ?? null, loading: false };
-        setState(cache);
+        if (cancelled) return;
+        const next = { user: data?.user ?? null, loading: false };
+        cache = next;
+        setState(next);
       })
       .catch(() => {
-        cache = { user: null, loading: false };
-        setState(cache);
+        if (cancelled) return;
+        const next = { user: null, loading: false };
+        cache = next;
+        setState(next);
       });
+
+    return () => { cancelled = true; };
   }, []);
 
   return state;
