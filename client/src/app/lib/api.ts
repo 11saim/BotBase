@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
-/** FastAPI base URL — set VITE_API_URL in .env for production */
+/** FastAPI base URL — set VITE_AI_SERVER_URL in .env for production */
 export function getApiBase(): string {
-  const v = import.meta.env.VITE_API_URL as string | undefined;
+  const v = import.meta.env.VITE_AI_SERVER_URL as string | undefined;
   return (v && v.replace(/\/$/, "")) || "http://localhost:3001";
 }
 

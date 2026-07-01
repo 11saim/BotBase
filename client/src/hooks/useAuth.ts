@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../app/lib/config";
 
 interface User {
   _id: string;
@@ -21,7 +22,7 @@ export function useAuth() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("http://localhost:5000/api/auth/me", { credentials: "include" })
+    fetch(`${API_URL}/auth/me`, { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled) return;

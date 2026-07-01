@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DemoDisclaimerModal from "./DemoDisclaimerModal";
+import { API_URL } from "../lib/config";
 
 interface TableRow {
   label: string;
@@ -136,7 +137,7 @@ export default function PricingSection({
       const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
 
       const res = await fetch(
-        `http://localhost:5000/api/stripe/checkout`,
+        `${API_URL}/stripe/checkout`,
         {
           method: "POST",
           headers: {

@@ -5,8 +5,9 @@ import PricingSection from "@/app/components/PricingSection";
 import DemoDisclaimerModal from "@/app/components/DemoDisclaimerModal";
 import { toast } from "sonner";
 import { invalidateAuth } from "@/hooks/useAuth";
+import { API_URL } from "../../lib/config";
 
-const API = "http://localhost:5000/api";
+const API = API_URL;
 
 const PLAN_LABELS: Record<string, "Free" | "Starter" | "Pro" | "Agency"> = {
   free: "Free",

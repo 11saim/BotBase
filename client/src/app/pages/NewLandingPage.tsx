@@ -13,7 +13,6 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { ChatbotWidget } from "../components/ChatbotWidget";
 import PricingSection from "../components/PricingSection";
 
 export function NewLandingPage() {
@@ -514,9 +513,6 @@ export function NewLandingPage() {
           </div>
         </footer>
       </section>
-
-      {/* Chatbot Widget */}
-      <ChatbotWidget botName="Demo Bot" emoji="🤖" themeColor="#0A0A0A" />
 
       <style>{`
         @keyframes twinkle {

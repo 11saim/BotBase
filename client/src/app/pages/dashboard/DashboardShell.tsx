@@ -7,13 +7,13 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare, LogOut } from "lucide-react";
-import { CreateBotWizardModal } from "./CreateBotWizardModal";
 import { toast } from "sonner";
 import { invalidateAuth } from "../../../hooks/useAuth";
 
-const API = "http://localhost:5000/api";
+import { API_URL } from "../../lib/config";
+import { CreateBotWizardModal } from "./CreateBotWizardModal";
 
-// ─── Types matching the real API response ──────────────────────────────────────
+const API = API_URL;
 interface WidgetConfig {
   position: string; launcherSize: string; launcherShape: string; launcherColor: string;
   tooltipText: string;[key: string]: any;

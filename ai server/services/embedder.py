@@ -1,5 +1,5 @@
-from sentence_transformers import SentenceTransformer
-from typing import List, Optional
+from fastembed import TextEmbedding
+from typing import List
 import faiss
 import numpy as np
 import json
@@ -10,12 +10,13 @@ _model = None
 def load_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = TextEmbedding("BAAI/bge-small-en-v1.5")
     return _model
 
 def get_embeddings(texts: List[str]) -> np.ndarray:
     model = load_model()
-    return model.encode(texts, show_progress_bar=False)
+    results = list(model.embed(texts))
+    return np.array(results, dtype="float32")
 
 # ── Storage ───────────────────────────────────────────────────────────────────
 # Each bot gets two files in ./faiss_db/{botId}/
@@ -46,7 +47,7 @@ def embed_and_store(chunks: List[str], bot_id: str, source_id: str) -> int:
         with open(chunks_path, "r", encoding="utf-8") as f:
             existing_chunks = json.load(f)
     else:
-        dim             = embeddings.shape[1]  # 384
+        dim             = embeddings.shape[1]
         index           = faiss.IndexFlatIP(dim)
         existing_chunks = []
 

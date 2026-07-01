@@ -27,8 +27,9 @@ type Conversation = {
   __v: number;
 };
 
-const API = "http://localhost:5000/api/";
+import { API_URL } from "../../lib/config";
 
+const API = API_URL;
 export function DashboardRecentConversationsPage() {
   const [botId, setBotId] = useState("all");
   const [status, setStatus] = useState("all");

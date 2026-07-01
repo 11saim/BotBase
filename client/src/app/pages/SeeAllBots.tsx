@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MessageSquare, Search } from "lucide-react";
+import { API_URL } from "../lib/config";
 
-const API = "http://localhost:5000/api";
+const API = API_URL;
 
 type Bot = {
   _id: string;

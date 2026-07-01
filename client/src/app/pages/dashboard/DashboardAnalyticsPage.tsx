@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const API = "http://localhost:5000/api";
+import { API_URL } from "../../lib/config";
+
+const API = API_URL;
 
 const brandPurple = "#8b5cf6";
 const lightPurple = "#ddd6fe";

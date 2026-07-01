@@ -17,7 +17,7 @@
         return;
     }
 
-    const API_BASE = "http://localhost:5000";
+    const API_BASE = "https://web-server-production-52ee.up.railway.app";
 
     // change this once your public config route exists (see header comment above)
     const PUBLIC_BOT_CONFIG_PATH = (botId) => `/api/bots/config/${botId}`;

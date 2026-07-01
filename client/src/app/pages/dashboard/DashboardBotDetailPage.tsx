@@ -10,8 +10,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { toast } from "sonner";
 import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
+import { API_URL } from "../../lib/config";
 
-const API = "http://localhost:5000/api";
+const API = API_URL;
 const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Embed", "Settings"] as const;
 
 interface WidgetConfig {
@@ -678,7 +679,7 @@ function BotSettingsTab({
 function EmbedTab({ botId }: { botId: string }) {
   const [copied, setCopied] = useState(false);
 
-  const embedScript = `<script\n  src="http://localhost:5173/script.js"\n  data-bot-id="${botId}"\n  async\n></script>`;
+  const embedScript = `<script\n  src="https://bot-base-alpha.vercel.app/script.js"\n  data-bot-id="${botId}"\n  async\n></script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedScript);

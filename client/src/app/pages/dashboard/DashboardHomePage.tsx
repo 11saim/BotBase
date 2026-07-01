@@ -4,7 +4,9 @@ import { Activity, MessageSquare, Bot, AlertTriangle, Trophy, MessagesSquare, Za
 import { toast } from "sonner";
 import { PaymentSuccessModal } from "../../components/PaymentSuccessModal";
 
-const API = "http://localhost:5000/api";
+import { API_URL } from "../../lib/config";
+
+const API = API_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Stats {

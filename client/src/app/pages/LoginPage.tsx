@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Toaster, toast } from "sonner";
 import { GoogleLogin } from '@react-oauth/google';
+import { API_URL } from '../lib/config';
 import { invalidateAuth } from "@/hooks/useAuth";
 
 export function LoginPage() {
@@ -19,7 +20,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -204,7 +205,7 @@ export function LoginPage() {
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {
-                    const res = await fetch("http://localhost:5000/api/auth/google", {
+                    const res = await fetch(`${API_URL}/auth/google`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       credentials: "include",

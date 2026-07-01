@@ -17,8 +17,9 @@ import {
 } from "../../components/ui/dialog";
 import { toast } from "sonner";
 
-const API = "http://localhost:5000/api";
+import { API_URL } from "../../lib/config";
 
+const API = API_URL;
 const STEPS = ["Identity", "Knowledge", "Appearance", "Deploy"] as const;
 const ICONS = ["💬", "💼", "🤖", "🎓", "📦", "⚡", "🔮", "🧠", "📚", "🛟", "✨", "🌐", "📎", "🎯", "💡", "🏷️"];
 const LANGS = [

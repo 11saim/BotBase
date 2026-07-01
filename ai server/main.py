@@ -24,11 +24,9 @@ app.include_router(chat_router,   prefix="/api/chat")
 
 @app.on_event("startup")
 async def startup():
-    # Pre-load the embedding model so first request isn't slow
-    # Downloads ~90MB on first ever run, then cached locally forever
-    print("\n⏳ Loading embedding model (first run downloads ~90MB)...")
+    print("\n⏳ Loading embedding model (first run downloads ~130MB)...")
     load_model()
-    print("✓ Embedding model ready")
+    print("✓ Embedding model ready (ONNX, low memory)")
     print("✓ ChromaDB ready (local, no setup needed)")
     print(f"✓ Server running at http://localhost:{os.getenv('PORT', 3001)}\n")
 
