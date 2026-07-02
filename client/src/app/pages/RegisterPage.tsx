@@ -24,10 +24,12 @@ export function RegisterPage() {
     onSuccess: async (credentialResponse) => {
       try {
         setGoogleLoading(true);
+        const payload = { token: credentialResponse.credential };
+        console.log("[Google Register] Sending payload:", payload);
         const res = await fetch(`${API_URL}/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: credentialResponse.credential }),
+          body: JSON.stringify(payload),
         });
 
         const data = await res.json();
@@ -70,10 +72,12 @@ export function RegisterPage() {
     setLoading(true);
 
     try {
+      const payload = { fullName, email, password };
+      console.log("[Register] Sending payload:", payload);
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
