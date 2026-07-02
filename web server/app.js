@@ -22,6 +22,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use((req, res, next) => {
+    console.log("Body received:", req.body);
+    next();
+});
 app.use(cookieParser());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
