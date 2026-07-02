@@ -64,5 +64,9 @@ export function useAuth() {
 
 export function invalidateAuth() {
   cache = null;
+}
+
+export function clearAuth() {
+  cache = null;
   removeToken();
 }

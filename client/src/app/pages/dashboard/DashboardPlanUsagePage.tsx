@@ -4,9 +4,9 @@ import { Zap } from "lucide-react";
 import PricingSection from "@/app/components/PricingSection";
 import DemoDisclaimerModal from "@/app/components/DemoDisclaimerModal";
 import { toast } from "sonner";
-import { invalidateAuth } from "@/hooks/useAuth";
+import { clearAuth } from "@/hooks/useAuth";
 import { API_URL } from "../../lib/config";
-import { authFetch, removeToken } from "../../lib/authFetch";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 
@@ -92,8 +92,7 @@ export function DashboardPlanUsagePage() {
       method: "POST",
     });
     const json = await res.json();
-    removeToken();
-    invalidateAuth();
+    clearAuth();
     toast.success(json.message || "Logout successful");
     navigate("/login", { replace: true });
   };

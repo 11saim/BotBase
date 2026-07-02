@@ -135,7 +135,7 @@ const googleAuth = async (req, res, next) => {
         }
 
         const authToken = generateToken(user._id);
-        res.status(200).json({ user, token });
+        res.status(200).json({ user, token: authToken });
 
     } catch (err) {
         next(new AppError("Google authentication failed", 401));

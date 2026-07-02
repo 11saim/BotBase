@@ -9,8 +9,8 @@ import {
 import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { API_URL } from "../../lib/config";
-import { authFetch, removeToken } from "../../lib/authFetch";
-import { invalidateAuth } from "../../../hooks/useAuth";
+import { authFetch } from "../../lib/authFetch";
+import { clearAuth } from "../../../hooks/useAuth";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
 
 const API = API_URL;
@@ -127,8 +127,7 @@ function DashboardFrame() {
     try {
       await authFetch(`${API}/auth/logout`, { method: "POST" });
     } catch {}
-    removeToken();
-    invalidateAuth();
+    clearAuth();
     window.location.href = "/login";
   };
 
