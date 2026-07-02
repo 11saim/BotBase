@@ -82,7 +82,6 @@ export function DashboardRecentConversationsPage() {
         );
 
         const data = await res.json();
-        console.log(data)
         setRows(data.conversations || []);
       } catch (err: any) {
         if (err.name !== "AbortError") {

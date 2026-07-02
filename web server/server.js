@@ -12,7 +12,7 @@ mongoose
     .then(() => {
         console.log("✓ Connected to MongoDB");
         app.listen(PORT, () => {
-            console.log(`✓ Web server running at http://localhost:${PORT}`);
+            console.log(`✓ Web server running at ${PORT}`);
         });
     })
     .catch((err) => {

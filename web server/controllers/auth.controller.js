@@ -97,8 +97,6 @@ const googleAuth = async (req, res, next) => {
     try {
         const { token } = req.body;
 
-        console.log("Received token:", token ? token.substring(0, 20) + "..." : "MISSING/EMPTY");
-
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
