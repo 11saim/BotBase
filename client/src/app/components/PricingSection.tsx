@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DemoDisclaimerModal from "./DemoDisclaimerModal";
 import { API_URL } from "../lib/config";
+import { authFetch } from "../lib/authFetch";
 
 interface TableRow {
   label: string;
@@ -136,7 +137,7 @@ export default function PricingSection({
     try {
       const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
 
-      const res = await fetch(
+      const res = await authFetch(
         `${API_URL}/stripe/checkout`,
         {
           method: "POST",
@@ -144,7 +145,6 @@ export default function PricingSection({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ priceId, plan }),
-          credentials: "include",
         })
 
       const data = await res.json();

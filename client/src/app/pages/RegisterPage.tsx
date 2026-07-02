@@ -5,6 +5,7 @@ import { Toaster, toast } from "sonner";
 import { GoogleLogin } from '@react-oauth/google';
 import { API_URL } from '../lib/config';
 import { invalidateAuth } from "@/hooks/useAuth";
+import { setToken } from "../lib/authFetch";
 
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,6 @@ export function RegisterPage() {
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, email, password }),
       });
@@ -49,6 +49,7 @@ export function RegisterPage() {
         toast.error(data.error || 'Registration failed');
         return;
       }
+      setToken(data.token);
       invalidateAuth();
 
       toast.success(data.message || 'Registration successful');
@@ -329,7 +330,6 @@ export function RegisterPage() {
                     const res = await fetch(`${API_URL}/auth/google`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      credentials: "include",
                       body: JSON.stringify({ token: credentialResponse.credential }),
                     });
 
@@ -340,6 +340,7 @@ export function RegisterPage() {
                       return;
                     }
 
+                    setToken(data.token);
                     invalidateAuth();
                     toast.success("Login successful");
                     navigate(from, { replace: true });

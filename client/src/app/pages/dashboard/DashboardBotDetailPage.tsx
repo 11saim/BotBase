@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { toast } from "sonner";
 import { BOT_FONT_STACK, FONT_OPTIONS } from "./botFonts";
 import { API_URL } from "../../lib/config";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 const TABS = ["Overview", "Conversations", "Knowledge base", "Appearance", "Embed", "Settings"] as const;
@@ -65,9 +66,9 @@ export function DashboardBotDetailPage() {
     if (!botId) return;
     try {
       const [botRes, srcRes, convRes] = await Promise.all([
-        fetch(`${API}/bots/${botId}`, { credentials: "include" }),
-        fetch(`${API}/bots/${botId}/knowledge`, { credentials: "include" }),
-        fetch(`${API}/conversations?botId=${botId}&status=all&period=all`, { credentials: "include" }),
+        authFetch(`${API}/bots/${botId}`),
+        authFetch(`${API}/bots/${botId}/knowledge`),
+        authFetch(`${API}/conversations?botId=${botId}&status=all&period=all`),
       ]);
       const botData = await botRes.json();
       const srcData = await srcRes.json();
@@ -103,8 +104,8 @@ export function DashboardBotDetailPage() {
   const toggleStatus = async () => {
     if (!bot) return;
     const newStatus = bot.status === "active" ? "paused" : "active";
-    const res = await fetch(`${API}/bots/${bot._id}/status`, {
-      method: "PATCH", credentials: "include",
+    const res = await authFetch(`${API}/bots/${bot._id}/status`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
@@ -113,8 +114,8 @@ export function DashboardBotDetailPage() {
 
   const saveBasicInfo = async () => {
     if (!bot) return;
-    const res = await fetch(`${API}/bots/${bot._id}`, {
-      method: "PATCH", credentials: "include",
+    const res = await authFetch(`${API}/bots/${bot._id}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: rename, description: renameDesc }),
     });
@@ -124,7 +125,7 @@ export function DashboardBotDetailPage() {
 
   const handleDelete = async () => {
     if (!bot || deleteConfirm !== bot.name) return;
-    await fetch(`${API}/bots/${bot._id}`, { method: "DELETE", credentials: "include" });
+    await authFetch(`${API}/bots/${bot._id}`, { method: "DELETE" });
     setDeleteOpen(false);
     navigate("/dashboard/bots");
   };
@@ -344,7 +345,7 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
     try {
       const form = new FormData();
       form.append("file", file, file.name);
-      const res = await fetch(`${API}/bots/${botId}/knowledge/pdf`, { method: "POST", credentials: "include", body: form });
+      const res = await authFetch(`${API}/bots/${botId}/knowledge/pdf`, { method: "POST", body: form });
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
@@ -380,8 +381,8 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
     setBusy(true);
     setLog("Processing text...");
     try {
-      const res = await fetch(`${API}/bots/${botId}/knowledge/text`, {
-        method: "POST", credentials: "include",
+      const res = await authFetch(`${API}/bots/${botId}/knowledge/text`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: pasteText, name: "Pasted text" }),
       });
@@ -414,8 +415,8 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
 
   const toggleSourceStatus = async (source: KnowledgeSource) => {
     const newStatus = source.status === "active" ? "paused" : "active";
-    await fetch(`${API}/bots/${botId}/knowledge/${source._id}/status`, {
-      method: "PATCH", credentials: "include",
+    await authFetch(`${API}/bots/${botId}/knowledge/${source._id}/status`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
@@ -423,7 +424,7 @@ function KnowledgeTab({ botId, sources, onRefresh }: { botId: string; sources: K
   };
 
   const deleteSource = async (id: string) => {
-    await fetch(`${API}/bots/${botId}/knowledge/${id}`, { method: "DELETE", credentials: "include" });
+    await authFetch(`${API}/bots/${botId}/knowledge/${id}`, { method: "DELETE" });
     onRefresh();
   };
 
@@ -509,8 +510,8 @@ function AppearanceEditor({ bot, onSaved }: { bot: Bot; onSaved: (b: Bot) => voi
   const save = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API}/bots/${bot._id}/appearance`, {
-        method: "PATCH", credentials: "include",
+      const res = await authFetch(`${API}/bots/${bot._id}/appearance`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cfg),
       });

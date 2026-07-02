@@ -6,6 +6,7 @@ import DemoDisclaimerModal from "@/app/components/DemoDisclaimerModal";
 import { toast } from "sonner";
 import { invalidateAuth } from "@/hooks/useAuth";
 import { API_URL } from "../../lib/config";
+import { authFetch, removeToken } from "../../lib/authFetch";
 
 const API = API_URL;
 
@@ -72,7 +73,7 @@ export function DashboardPlanUsagePage() {
   useEffect(() => {
     const fetchUsage = async () => {
       try {
-        const res = await fetch(`${API}/dashboard/usage`, { credentials: "include" });
+        const res = await authFetch(`${API}/dashboard/usage`);
         const json = await res.json();
         setData(json);
         console.log(json);
@@ -87,8 +88,11 @@ export function DashboardPlanUsagePage() {
   }, []);
 
   const signOut = async () => {
-    const res = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+    const res = await authFetch(`${API}/auth/logout`, {
+      method: "POST",
+    });
     const json = await res.json();
+    removeToken();
     invalidateAuth();
     toast.success(json.message || "Logout successful");
     navigate("/login", { replace: true });
@@ -118,11 +122,10 @@ export function DashboardPlanUsagePage() {
   const handleCheckout = async (plan: string) => {
     try {
       const priceId = PRICE_IDS[plan];
-      const res = await fetch(`${API}/stripe/checkout`, {
+      const res = await authFetch(`${API}/stripe/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ priceId, plan }),
-        credentials: "include",
       });
       const data = await res.json();
       window.location.href = data.url;
@@ -146,127 +149,127 @@ export function DashboardPlanUsagePage() {
 
   return (
     <>
-    <DemoDisclaimerModal
-      open={demoModalOpen}
-      onClose={handleModalClose}
-      onConfirm={handleModalConfirm}
-    />
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-5xl space-y-8">
+      <DemoDisclaimerModal
+        open={demoModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleModalConfirm}
+      />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-5xl space-y-8">
 
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white px-8 py-10 sm:px-10 sm:py-12">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(90deg,#e5e5e5 0,#e5e5e5 0.5px,transparent 0.5px,transparent 40px),repeating-linear-gradient(0deg,#e5e5e5 0,#e5e5e5 0.5px,transparent 0.5px,transparent 40px)",
-            }}
-          />
-          <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Workspace</p>
-              <h1 className="mt-2 text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl">Plan &amp; usage</h1>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
-                Monitor how your workspace compares to your current plan limits.
-                All counters reset on your monthly billing date.
+          {/* Hero */}
+          <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white px-8 py-10 sm:px-10 sm:py-12">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-40"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg,#e5e5e5 0,#e5e5e5 0.5px,transparent 0.5px,transparent 40px),repeating-linear-gradient(0deg,#e5e5e5 0,#e5e5e5 0.5px,transparent 0.5px,transparent 40px)",
+              }}
+            />
+            <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Workspace</p>
+                <h1 className="mt-2 text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl">Plan &amp; usage</h1>
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
+                  Monitor how your workspace compares to your current plan limits.
+                  All counters reset on your monthly billing date.
+                </p>
+              </div>
+              {/* Dynamic plan badge */}
+              <div className="inline-flex items-center gap-2 self-start rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm font-medium text-neutral-700 lg:self-auto">
+                <Zap size={14} className="text-neutral-400" />
+                {loading ? "Loading..." : `${planLabel} plan`}
+              </div>
+            </div>
+          </div>
+
+          {/* Usage stats */}
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">This month</p>
+            {loading ? (
+              <p className="text-[13px] text-neutral-400">Loading...</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-3">
+                <StatCard
+                  label="Messages"
+                  value={(data?.usage.messagesUsed ?? 0).toLocaleString()}
+                  sub={data?.limits.messagesPerMonth === -1
+                    ? "Unlimited"
+                    : `of ${(data?.limits.messagesPerMonth ?? 0).toLocaleString()} / month`}
+                  pct={msgPct}
+                  warn={msgPct >= 80}
+                />
+                <StatCard
+                  label="Bots"
+                  value={data?.usage.botsCreated ?? 0}
+                  sub={data?.limits.bots === -1
+                    ? "Unlimited"
+                    : `of ${data?.limits.bots ?? 0} included`}
+                  pct={botPct}
+                  warn={botPct >= 80}
+                />
+                <StatCard
+                  label="Sources"
+                  value={data?.usage.sourcesUploaded ?? 0}
+                  sub={data?.limits.sources === -1
+                    ? "Unlimited"
+                    : `of ${data?.limits.sources ?? 0} included`}
+                  pct={srcPct}
+                  warn={srcPct >= 80}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Pricing plans */}
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Upgrade your plan</p>
+            <div className="rounded-3xl border border-neutral-200 bg-white px-1 py-5 md:p-5">
+              <PricingSection variant="plan&usage" currentPlan={planLabel} />
+            </div>
+          </div>
+
+          {/* Bottom row */}
+          <div className="grid gap-3 sm:grid-cols-2">
+
+            {/* Billing */}
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Billing</p>
+              <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">
+                {renewalDate ? "Next renewal" : "Plan"}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                {renewalDate ? (
+                  <>
+                    Your {planLabel} plan renews on{" "}
+                    <span className="font-medium text-neutral-800">{renewalDate}</span>.
+                    You won't be charged if you downgrade before that date.
+                  </>
+                ) : (
+                  <>You are on the <span className="font-medium text-neutral-800">Free plan</span>. Upgrade anytime to unlock more features.</>
+                )}
               </p>
             </div>
-            {/* Dynamic plan badge */}
-            <div className="inline-flex items-center gap-2 self-start rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm font-medium text-neutral-700 lg:self-auto">
-              <Zap size={14} className="text-neutral-400" />
-              {loading ? "Loading..." : `${planLabel} plan`}
+
+            {/* Sign out */}
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Session</p>
+              <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">This device</h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                Sign out when you are done on a shared computer to keep your workspace secure.
+              </p>
+              <button
+                type="button"
+                onClick={signOut}
+                className="mt-5 rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+              >
+                Sign out
+              </button>
             </div>
           </div>
+
         </div>
-
-        {/* Usage stats */}
-        <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">This month</p>
-          {loading ? (
-            <p className="text-[13px] text-neutral-400">Loading...</p>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <StatCard
-                label="Messages"
-                value={(data?.usage.messagesUsed ?? 0).toLocaleString()}
-                sub={data?.limits.messagesPerMonth === -1
-                  ? "Unlimited"
-                  : `of ${(data?.limits.messagesPerMonth ?? 0).toLocaleString()} / month`}
-                pct={msgPct}
-                warn={msgPct >= 80}
-              />
-              <StatCard
-                label="Bots"
-                value={data?.usage.botsCreated ?? 0}
-                sub={data?.limits.bots === -1
-                  ? "Unlimited"
-                  : `of ${data?.limits.bots ?? 0} included`}
-                pct={botPct}
-                warn={botPct >= 80}
-              />
-              <StatCard
-                label="Sources"
-                value={data?.usage.sourcesUploaded ?? 0}
-                sub={data?.limits.sources === -1
-                  ? "Unlimited"
-                  : `of ${data?.limits.sources ?? 0} included`}
-                pct={srcPct}
-                warn={srcPct >= 80}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Pricing plans */}
-        <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Upgrade your plan</p>
-          <div className="rounded-3xl border border-neutral-200 bg-white px-1 py-5 md:p-5">
-            <PricingSection variant="plan&usage" currentPlan={planLabel} />
-          </div>
-        </div>
-
-        {/* Bottom row */}
-        <div className="grid gap-3 sm:grid-cols-2">
-
-          {/* Billing */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Billing</p>
-            <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">
-              {renewalDate ? "Next renewal" : "Plan"}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-              {renewalDate ? (
-                <>
-                  Your {planLabel} plan renews on{" "}
-                  <span className="font-medium text-neutral-800">{renewalDate}</span>.
-                  You won't be charged if you downgrade before that date.
-                </>
-              ) : (
-                <>You are on the <span className="font-medium text-neutral-800">Free plan</span>. Upgrade anytime to unlock more features.</>
-              )}
-            </p>
-          </div>
-
-          {/* Sign out */}
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Session</p>
-            <h3 className="mt-1.5 text-[15px] font-medium text-neutral-900">This device</h3>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-              Sign out when you are done on a shared computer to keep your workspace secure.
-            </p>
-            <button
-              type="button"
-              onClick={signOut}
-              className="mt-5 rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-
       </div>
-    </div>
     </>
   );
 }

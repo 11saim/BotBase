@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import { API_URL } from "../../lib/config";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 const STEPS = ["Identity", "Knowledge", "Appearance", "Deploy"] as const;
@@ -172,9 +173,8 @@ export function CreateBotWizardModal({ open, onOpenChange, onBotCreated }: Props
 
     try {
       // 1. Create the bot
-      const botRes = await fetch(`${API}/bots`, {
+      const botRes = await authFetch(`${API}/bots`, {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
@@ -205,9 +205,8 @@ export function CreateBotWizardModal({ open, onOpenChange, onBotCreated }: Props
           // Update status to uploading
           setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
 
-          const res = await fetch(`${API}/bots/${botId}/knowledge/pdf`, {
+          const res = await authFetch(`${API}/bots/${botId}/knowledge/pdf`, {
             method: "POST",
-            credentials: "include",
             body: form,
           });
 
@@ -228,9 +227,8 @@ export function CreateBotWizardModal({ open, onOpenChange, onBotCreated }: Props
         if (chunk.type === "text") {
           setChunks(c => c.map(x => x.id === chunk.id ? { ...x, status: "uploading" } : x));
 
-          const res = await fetch(`${API}/bots/${botId}/knowledge/text`, {
+          const res = await authFetch(`${API}/bots/${botId}/knowledge/text`, {
             method: "POST",
-            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: chunk.text, name: chunk.name }),
           });

@@ -8,9 +8,9 @@ import {
 } from "react-router-dom";
 import { CreditCard, LayoutGrid, Menu, MoreHorizontal, Plus, Search, X, Bot as BotIcon, BarChart2, MessageSquare, LogOut } from "lucide-react";
 import { toast } from "sonner";
-import { invalidateAuth } from "../../../hooks/useAuth";
-
 import { API_URL } from "../../lib/config";
+import { authFetch, removeToken } from "../../lib/authFetch";
+import { invalidateAuth } from "../../../hooks/useAuth";
 import { CreateBotWizardModal } from "./CreateBotWizardModal";
 
 const API = API_URL;
@@ -75,10 +75,10 @@ function DashboardFrame() {
 
   const fetchBots = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/bots`, { credentials: "include" });
+      const res = await authFetch(`${API}/bots`);
       const data = await res.json();
       setBots(data.bots || []);
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => {
@@ -86,9 +86,9 @@ function DashboardFrame() {
       setLoading(true);
       try {
         const [botsRes, usageRes, meRes] = await Promise.all([
-          fetch(`${API}/bots`, { credentials: "include" }),
-          fetch(`${API}/dashboard/usage`, { credentials: "include" }),
-          fetch(`${API}/auth/me`, { credentials: "include" }),
+          authFetch(`${API}/bots`),
+          authFetch(`${API}/dashboard/usage`),
+          authFetch(`${API}/auth/me`),
         ]);
 
         const [botsData, usageData, meData] = await Promise.all([
@@ -125,8 +125,9 @@ function DashboardFrame() {
 
   const handleSignOut = async () => {
     try {
-      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+      await authFetch(`${API}/auth/logout`, { method: "POST" });
     } catch {}
+    removeToken();
     invalidateAuth();
     window.location.href = "/login";
   };

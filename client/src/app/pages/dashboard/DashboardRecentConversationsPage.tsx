@@ -28,6 +28,7 @@ type Conversation = {
 };
 
 import { API_URL } from "../../lib/config";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 export function DashboardRecentConversationsPage() {
@@ -55,7 +56,7 @@ export function DashboardRecentConversationsPage() {
     setMessages([]);
     setMsgLoading(true);
     try {
-      const res = await fetch(`${API}conversations/${conv._id}`, { credentials: "include" });
+      const res = await authFetch(`${API}conversations/${conv._id}`);
       const data = await res.json();
       setMessages(data.messages || []);
     } catch {
@@ -76,9 +77,8 @@ export function DashboardRecentConversationsPage() {
       try {
         setLoading(true);
 
-        const res = await fetch(
-          `${API}conversations?botId=${botId}&status=${status}&period=${period}`,
-          { credentials: "include" }
+        const res = await authFetch(
+          `${API}conversations?botId=${botId}&status=${status}&period=${period}`
         );
 
         const data = await res.json();

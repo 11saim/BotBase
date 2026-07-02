@@ -127,14 +127,3 @@ async def ingest_text(body: TextRequest):
             yield sse({"message": str(e), "error": True})
 
     return StreamingResponse(generate(), media_type="text/event-stream")
-
-@router.get("/debug/disk-check")
-async def disk_check():
-    try:
-        test_path = os.path.join(UPLOAD_DIR, "test.txt")
-        with open(test_path, "w") as f:
-            f.write("ok")
-        os.remove(test_path)
-        return {"writable": True}
-    except Exception as e:
-        return {"writable": False, "error": str(e)}

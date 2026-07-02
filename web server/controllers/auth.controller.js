@@ -6,13 +6,6 @@ const AppError = require("../utils/AppError");
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const COOKIE_OPTIONS = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-};
-
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
@@ -33,8 +26,7 @@ const register = async (req, res, next) => {
                 await existingUser.save();
 
                 const token = generateToken(existingUser._id);
-                res.cookie("token", token, COOKIE_OPTIONS);
-                return res.status(200).json({ user: existingUser });
+                return res.status(200).json({ user: existingUser, token });
             }
 
             return next(new AppError("User with this email already exists", 409));
@@ -50,8 +42,8 @@ const register = async (req, res, next) => {
         });
 
         const token = generateToken(user._id);
-        res.cookie("token", token, COOKIE_OPTIONS);
-        res.status(201).json({ user });
+
+        res.status(201).json({ user, token });
 
     } catch (err) {
         next(err);
@@ -77,8 +69,7 @@ const login = async (req, res, next) => {
         if (!isMatch) return next(new AppError("Invalid email or password", 401));
 
         const token = generateToken(user._id);
-        res.cookie("token", token, COOKIE_OPTIONS);
-        res.status(200).json({ user });
+        res.status(200).json({ user, token });
 
     } catch (err) {
         next(err);
@@ -87,7 +78,6 @@ const login = async (req, res, next) => {
 
 // ─── POST /api/auth/logout ────────────────────────────────────────────────────
 const logout = async (req, res, next) => {
-    res.clearCookie("token", COOKIE_OPTIONS);
     res.status(200).json({ message: "Logged out successfully" });
 };
 
@@ -145,8 +135,7 @@ const googleAuth = async (req, res, next) => {
         }
 
         const authToken = generateToken(user._id);
-        res.cookie("token", authToken, COOKIE_OPTIONS);
-        res.status(200).json({ user });
+        res.status(200).json({ user, token });
 
     } catch (err) {
         next(new AppError("Google authentication failed", 401));

@@ -6,7 +6,7 @@ const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
 const { canDo } = require("../utils/Plans");
 const fs = require("fs");
-const { supabase } = require("../config/supabase.js");
+const supabase = require("../config/supabase.js");
 
 const PYTHON_SERVER = process.env.PYTHON_SERVER_URL || "http://localhost:3001";
 

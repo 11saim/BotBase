@@ -4,14 +4,12 @@ const AppError = require("../utils/AppError");
 
 const protect = async (req, res, next) => {
     try {
-        let token;
 
-        // 1. Get token from cookies or Authorization header
-        if (req.cookies && req.cookies.token) {
-            token = req.cookies.token;
-        } else if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-            token = req.headers.authorization.split(" ")[1];
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return next(new AppError("Not authenticated", 401));
         }
+        const token = authHeader.split(" ")[1];
 
         // 2. Check if token exists
         if (!token) {

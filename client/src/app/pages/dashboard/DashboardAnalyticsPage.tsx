@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { API_URL } from "../../lib/config";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 
@@ -58,7 +59,7 @@ export function DashboardAnalyticsPage() {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API}/dashboard/analytics?range=${range}`, { credentials: "include" });
+        const res = await authFetch(`${API}/dashboard/analytics?range=${range}`);
         const json = await res.json();
         const total = json.resolution?.total ?? 1;
         const resolved = json.resolution?.resolved ?? 0;

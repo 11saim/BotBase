@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { PaymentSuccessModal } from "../../components/PaymentSuccessModal";
 
 import { API_URL } from "../../lib/config";
+import { authFetch } from "../../lib/authFetch";
 
 const API = API_URL;
 
@@ -87,9 +88,8 @@ export function DashboardHomePage() {
     // Verify the session with the backend
     const verifyPayment = async () => {
       try {
-        const res = await fetch(
-          `${API}/stripe/verify-session/${sessionId}`,
-          { credentials: "include" }
+        const res = await authFetch(
+          `${API}/stripe/verify-session/${sessionId}`
         );
         const data = await res.json();
         if (data.success) {
@@ -109,11 +109,11 @@ export function DashboardHomePage() {
     const fetchAll = async () => {
       try {
         const [statsRes, activityRes, topBotsRes, convsRes, usageRes] = await Promise.all([
-          fetch(`${API}/dashboard/stats`, { credentials: "include" }),
-          fetch(`${API}/dashboard/recent-activity`, { credentials: "include" }),
-          fetch(`${API}/dashboard/top-bots`, { credentials: "include" }),
-          fetch(`${API}/conversations?period=today&status=all&botId=all`, { credentials: "include" }),
-          fetch(`${API}/dashboard/usage`, { credentials: "include" }),
+          authFetch(`${API}/dashboard/stats`),
+          authFetch(`${API}/dashboard/recent-activity`),
+          authFetch(`${API}/dashboard/top-bots`),
+          authFetch(`${API}/conversations?period=today&status=all&botId=all`),
+          authFetch(`${API}/dashboard/usage`),
         ]);
 
         const [statsData, activityData, topBotsData, convsData, usageData] = await Promise.all([

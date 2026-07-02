@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MessageSquare, Search } from "lucide-react";
 import { API_URL } from "../lib/config";
+import { authFetch } from "../lib/authFetch";
 
 const API = API_URL;
 
@@ -34,7 +35,7 @@ export default function SeeAllBots() {
   useEffect(() => {
     const fetchBots = async () => {
       try {
-        const res = await fetch(`${API}/bots`, { credentials: "include" });
+        const res = await authFetch(`${API}/bots`);
         const data = await res.json();
         setBots(data.bots || []);
       } catch (err) {

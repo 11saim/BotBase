@@ -5,6 +5,7 @@ import { Toaster, toast } from "sonner";
 import { GoogleLogin } from '@react-oauth/google';
 import { API_URL } from '../lib/config';
 import { invalidateAuth } from "@/hooks/useAuth";
+import { setToken } from '../lib/authFetch';
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +23,6 @@ export function LoginPage() {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -33,6 +33,7 @@ export function LoginPage() {
       });
 
       const data = await response.json();
+      setToken(data.token);
       if (!response.ok) {
         toast.error(data.error || 'Login failed');
         return;
@@ -208,11 +209,11 @@ export function LoginPage() {
                     const res = await fetch(`${API_URL}/auth/google`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      credentials: "include",
                       body: JSON.stringify({ token: credentialResponse.credential }),
                     });
 
                     const data = await res.json();
+                    setToken(data.token);
 
                     if (!res.ok) {
                       toast.error(data.error || "Google login failed");
