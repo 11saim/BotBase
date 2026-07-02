@@ -201,39 +201,41 @@ export function LoginPage() {
               </div>
             </div>
 
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                try {
-                  setGoogleLoading(true);
-                  const payload = { token: credentialResponse.credential };
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    setGoogleLoading(true);
+                    const payload = { token: credentialResponse.credential };
 
-                  const res = await fetch(`${API_URL}/auth/google`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                  });
+                    const res = await fetch(`${API_URL}/auth/google`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
 
-                  const data = await res.json();
+                    const data = await res.json();
 
-                  if (!res.ok) {
-                    toast.error(data.error || "Google login failed");
-                    return;
+                    if (!res.ok) {
+                      toast.error(data.error || "Google login failed");
+                      return;
+                    }
+
+                    setToken(data.token);
+                    invalidateAuth();
+                    toast.success("Login successful");
+                    navigate(from, { replace: true });
+                  } catch {
+                    toast.error("Something went wrong");
+                  } finally {
+                    setGoogleLoading(false);
                   }
-
-                  setToken(data.token);
-                  invalidateAuth();
-                  toast.success("Login successful");
-                  navigate(from, { replace: true });
-                } catch {
-                  toast.error("Something went wrong");
-                } finally {
-                  setGoogleLoading(false);
-                }
-              }}
-              onError={() => {
-                toast.error("Google login failed");
-              }}
-            />
+                }}
+                onError={() => {
+                  toast.error("Google login failed");
+                }}
+              />
+            </div>
           </form>
 
           <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>

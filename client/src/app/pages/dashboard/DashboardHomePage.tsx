@@ -179,7 +179,7 @@ export function DashboardHomePage() {
                 <Activity size={16} />
                 <h3 className="text-[14px] font-semibold tracking-tight">Recent activity</h3>
               </div>
-              <div className="flex flex-col divide-y divide-[var(--border-tertiary)]">
+              <div className="flex flex-col divide-y divide-[var(--border-tertiary)] max-h-[320px] overflow-y-auto">
                 {activity.length === 0 && (
                   <p className="text-[12px] text-[var(--text-tertiary)] py-4 text-center">No activity yet</p>
                 )}
@@ -201,7 +201,7 @@ export function DashboardHomePage() {
             </div>
 
             {/* Top Bots */}
-            <div className="relative rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)]">
+            <div className="relative rounded-2xl border p-6 pb-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] bg-[var(--bg-primary)] border-[var(--border-default)] flex flex-col">
               <div className="flex items-center gap-2 mb-4 text-[var(--text-primary)]">
                 <Trophy size={16} />
                 <h3 className="text-[14px] font-semibold tracking-tight">Top bots this week</h3>
@@ -225,7 +225,7 @@ export function DashboardHomePage() {
                   </div>
                 ))}
               </div>
-              <div className="p-4 flex justify-end">
+              <div className="p-4 flex justify-end mt-auto">
                 <Link to="/dashboard/analytics" className="px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
                   View all analytics &rarr;
                 </Link>
