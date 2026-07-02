@@ -202,7 +202,7 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div>
+            <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:w-full [&>div>div>iframe]:!w-full">
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {
@@ -213,12 +213,13 @@ export function LoginPage() {
                     });
 
                     const data = await res.json();
-                    setToken(data.token);
 
                     if (!res.ok) {
                       toast.error(data.error || "Google login failed");
                       return;
                     }
+
+                    setToken(data.token);
 
                     invalidateAuth();
                     toast.success("Login successful");

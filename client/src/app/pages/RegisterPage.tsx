@@ -323,7 +323,7 @@ export function RegisterPage() {
               </div>
             </div>
 
-            <div>
+            <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:w-full [&>div>div>iframe]:!w-full">
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {

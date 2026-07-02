@@ -89,6 +89,7 @@ const uploadPDF = async (req, res, next) => {
             });
 
         if (uploadError) {
+            console.error("Supabase upload error:", uploadError);
             return next(new AppError("Failed to upload file to storage", 500));
         }
 
