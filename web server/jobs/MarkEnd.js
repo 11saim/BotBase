@@ -166,14 +166,14 @@ const processEndedConversations = async (endedIds) => {
 
 // ─── Cleanup job — runs every 5 mins ────────────────────────────────────────
 const startCleanupJob = () => {
-    cron.schedule("*/5 * * * *", async () => {
+    cron.schedule("*/60 * * * *", async () => {
         console.log("🧹 Running MarkEnd job...");
-        const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const sixtyMinsAgo = new Date(Date.now() - 60 * 60 * 1000);
 
         // Find stale conversations before ending them so we have their ids
         const stale = await Conversation.find({
             endedAt: null,
-            lastMessageAt: { $lt: fiveMinsAgo },
+            lastMessageAt: { $lt: sixtyMinsAgo },
         }).select("_id");
 
         if (!stale.length) return;
