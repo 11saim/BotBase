@@ -1,8 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, HTTPException, Form
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
-import json, uuid, os, shutil
+import json, uuid, os, httpx
 
 from services.pdf_parser import parse_pdf
 from services.chunker    import chunk_text
@@ -19,39 +19,44 @@ def sse(data: dict) -> str:
 # ── POST /api/ingest/file ─────────────────────────────────────
 @router.post("/file")
 async def ingest_file(
-    file:     UploadFile = File(...),
-    botId:    str        = Form(""),
-    sourceId: str        = Form(""),
-    botName:  str        = Form(""),
+    fileUrl:  str = Form(...),
+    botId:    str = Form(""),
+    sourceId: str = Form(""),
+    botName:  str = Form(""),
+    fileName: str = Form(""),  # pass original filename from Express for extension check
 ):
-    allowed = [".pdf"]
-    ext     = os.path.splitext(file.filename)[1].lower()
-    if ext not in allowed:
-        raise HTTPException(400, "Only PDF files are supported")
-
     if not botId:
         raise HTTPException(400, "botId is required")
     if not sourceId:
         raise HTTPException(400, "sourceId is required")
+    if not fileUrl:
+        raise HTTPException(400, "fileUrl is required")
 
-    name     = botName or file.filename.replace(ext, "")
+    ext = os.path.splitext(fileName)[1].lower() if fileName else ".pdf"
+    if ext not in [".pdf"]:
+        raise HTTPException(400, "Only PDF files are supported")
+
     tmp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}{ext}")
-
-    with open(tmp_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
 
     async def generate():
         try:
-            yield sse({"message": f"Reading {file.filename}..."})
+            # Download from Supabase signed URL instead of reading UploadFile
+            yield sse({"message": "Downloading file..."})
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.get(fileUrl)
+                    resp.raise_for_status()
+                with open(tmp_path, "wb") as f:
+                    f.write(resp.content)
+            except httpx.HTTPError:
+                yield sse({"message": "Failed to download file from storage", "error": True})
+                return
 
-            if ext == ".pdf":
-                result = parse_pdf(tmp_path)
-                text   = result["text"]
-                yield sse({"message": f"Extracted {result['pages']} pages"})
-            else:
-                with open(tmp_path, "r", encoding="utf-8", errors="ignore") as f:
-                    text = f.read()
-                yield sse({"message": "Read text file"})
+            yield sse({"message": f"Reading {fileName or 'file'}..."})
+
+            result = parse_pdf(tmp_path)
+            text   = result["text"]
+            yield sse({"message": f"Extracted {result['pages']} pages"})
 
             if len(text) < 50:
                 yield sse({"message": "Could not extract enough text", "error": True})
@@ -122,3 +127,14 @@ async def ingest_text(body: TextRequest):
             yield sse({"message": str(e), "error": True})
 
     return StreamingResponse(generate(), media_type="text/event-stream")
+
+@router.get("/debug/disk-check")
+async def disk_check():
+    try:
+        test_path = os.path.join(UPLOAD_DIR, "test.txt")
+        with open(test_path, "w") as f:
+            f.write("ok")
+        os.remove(test_path)
+        return {"writable": True}
+    except Exception as e:
+        return {"writable": False, "error": str(e)}

@@ -6,6 +6,7 @@ const { ACTIVITY_EVENTS } = require("../models/ActivityLog");
 const AppError = require("../utils/AppError");
 const { canDo } = require("../utils/Plans");
 const fs = require("fs");
+const { supabase } = require("../config/supabase.js");
 
 const PYTHON_SERVER = process.env.PYTHON_SERVER_URL || "http://localhost:3001";
 
@@ -60,9 +61,8 @@ const getAllSources = async (req, res, next) => {
 
 // POST /api/bots/:botId/knowledge/pdf
 const uploadPDF = async (req, res, next) => {
-    // Declared outside try so the catch-all cleanup below can always reach it,
-    // no matter which step failed.
     let source = null;
+    let storagePath = null;
 
     try {
         if (!req.file) return next(new AppError("PDF file is required", 400));
@@ -71,14 +71,34 @@ const uploadPDF = async (req, res, next) => {
 
         const bot = await Bot.findOne({ _id: botId, userId: req.userId });
         if (!bot) {
-            fs.unlinkSync(req.file.path);
             return next(new AppError("Bot not found", 404));
         }
 
         const usage = await Usage.getUsage(req.userId);
         if (!canDo(req.user.plan, "totalSources", usage.sourcesUploaded)) {
-            fs.unlinkSync(req.file.path);
             return next(new AppError("Source upload limit reached for your plan", 403));
+        }
+
+        // --- Upload to Supabase instead of local disk ---
+        storagePath = `${botId}/${Date.now()}-${req.file.originalname}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("knowledge-files")
+            .upload(storagePath, req.file.buffer, {
+                contentType: "application/pdf",
+            });
+
+        if (uploadError) {
+            return next(new AppError("Failed to upload file to storage", 500));
+        }
+
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+            .from("knowledge-files")
+            .createSignedUrl(uploadData.path, 60 * 5);
+
+        if (signedUrlError) {
+            await supabase.storage.from("knowledge-files").remove([storagePath]);
+            return next(new AppError("Failed to generate file access URL", 500));
         }
 
         source = await KnowledgeSource.create({
@@ -86,7 +106,7 @@ const uploadPDF = async (req, res, next) => {
             userId: req.userId,
             name: req.file.originalname,
             type: "pdf",
-            filePath: req.file.path,
+            filePath: storagePath,
             status: "processing",
         });
 
@@ -94,15 +114,12 @@ const uploadPDF = async (req, res, next) => {
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
 
-        const fileBuffer = fs.readFileSync(req.file.path);
         const form = new FormData();
-        form.append("file", new Blob([fileBuffer]), req.file.originalname);
+        form.append("fileUrl", signedUrlData.signedUrl);
         form.append("botId", botId);
         form.append("sourceId", source._id.toString());
+        form.append("fileName", req.file.originalname)
 
-        // The fetch call itself can throw (ECONNREFUSED) if Python is fully offline —
-        // this must be caught HERE, separately, so we know to clean up immediately
-        // instead of falling into the generic catch with no SSE response sent yet.
         let pythonRes;
         try {
             pythonRes = await fetch(`${PYTHON_SERVER}/api/ingest/file`, {
@@ -111,14 +128,14 @@ const uploadPDF = async (req, res, next) => {
             });
         } catch {
             await KnowledgeSource.findByIdAndDelete(source._id);
-            fs.unlinkSync(req.file.path);
+            await supabase.storage.from("knowledge-files").remove([storagePath]);
             res.write(`data: ${JSON.stringify({ error: "AI service is offline. Please try again later." })}\n\n`);
             return res.end();
         }
 
         if (!pythonRes.ok) {
             await KnowledgeSource.findByIdAndDelete(source._id);
-            fs.unlinkSync(req.file.path);
+            await supabase.storage.from("knowledge-files").remove([storagePath]);
             res.write(`data: ${JSON.stringify({ error: "Ingest service unavailable" })}\n\n`);
             return res.end();
         }
@@ -128,7 +145,7 @@ const uploadPDF = async (req, res, next) => {
 
             if (data.error) {
                 await KnowledgeSource.findByIdAndDelete(source._id);
-                try { fs.unlinkSync(req.file.path); } catch { }
+                await supabase.storage.from("knowledge-files").remove([storagePath]).catch(() => { });
                 res.end();
                 return true;
             }
@@ -149,6 +166,10 @@ const uploadPDF = async (req, res, next) => {
                     title: `'${source.name}' added to ${bot.name}`,
                 });
 
+                // Optional: delete the source PDF from Supabase now that it's ingested,
+                // if you don't need to keep the original around
+                // await supabase.storage.from("knowledge-files").remove([storagePath]);
+
                 res.end();
                 return true;
             }
@@ -160,8 +181,8 @@ const uploadPDF = async (req, res, next) => {
         if (source?._id) {
             await KnowledgeSource.findByIdAndDelete(source._id).catch(() => { });
         }
-        if (req.file) {
-            try { fs.unlinkSync(req.file.path); } catch { }
+        if (storagePath) {
+            await supabase.storage.from("knowledge-files").remove([storagePath]).catch(() => { });
         }
 
         if (res.headersSent) {
