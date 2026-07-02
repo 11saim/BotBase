@@ -78,7 +78,7 @@ export function DashboardRecentConversationsPage() {
         setLoading(true);
 
         const res = await authFetch(
-          `${API}conversations?botId=${botId}&status=${status}&period=${period}`
+          `${API}/conversations?botId=${botId}&status=${status}&period=${period}`
         );
 
         const data = await res.json();
